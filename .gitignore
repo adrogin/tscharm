@@ -1,0 +1,10 @@
+*.app
+*.flf
+package-lock.json
+.alPackages/
+.alcache/
+.altemplates/
+.vscode/
+node_modules/
+GraphViewControl/Scripts/dist/
+Release
