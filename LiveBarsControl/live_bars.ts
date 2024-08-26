@@ -1,6 +1,4 @@
-//import Interactive from "@vector-js/library";
-
-class ChartMark
+export class ChartMark
 {
 	private _position: number;
 	private _color: number;
@@ -12,7 +10,7 @@ class ChartMark
 	}
 }
 
-class ChartXAxis
+export class ChartXAxis
 {
 	private _marks: ChartMark[];
 	private _showMarks: boolean;
@@ -25,7 +23,7 @@ class ChartXAxis
 		this._showMarks = newShowMarks;
 	}
 
-	private _hight: number;
+	private _hight: number = 0;
 
 	get hight(): number {
 		return this._hight;
@@ -39,17 +37,35 @@ class ChartXAxis
     }
 }
 
-class ChartYAxis
+export class ChartYAxis
 {
-	marks: ChartMark[];
-	showMarks: Boolean;
+	private _marks: ChartMark[];
+	private _showMarks: boolean;
+
+	get showMarks(): boolean {
+		return this._showMarks;
+	}
+
+	set showMarks(newShowMarks: boolean) {
+		this._showMarks = newShowMarks;
+	}
+
+	private _width: number = 0;
+
+	get width(): number {
+		return this._width;
+	}
+
+	set width(newWidth: number) {
+		this.width = newWidth;
+	}
 
 	Draw(): void
     {
     }
 }
 
-class ChartBar
+export class ChartBar
 {
 	private _position: number;  // Position in relative units
 	get position(): number {
@@ -79,7 +95,7 @@ class ChartBar
 	OnResize() {}
 }
 
-class ChartLine
+export class ChartLine
 {
 	private _bars: ChartBar[];
 	private _rightEdge: number;
@@ -121,9 +137,9 @@ class ChartLine
 	}
 }
 
-class ChartLines
+export class ChartLines
 {
-	private _lines: ChartLine[];
+	private _lines: ChartLine[] = [];
 	private _lineHight: number = 0;
 	private _chart: Chart;
 
@@ -146,6 +162,11 @@ class ChartLines
 		return this._lines[index];
 	}
 
+	public Count(): number
+	{
+		return this._lines.length;
+	}
+
 	public Draw() {
         this._lines.forEach(line => {
             line.Draw();
@@ -157,7 +178,7 @@ class ChartLines
 		this._lineHight = this.RecalculateLineHight();
 	}
 
-	public ScaleWidthToFit()
+	public GetMaxWidth(): number
 	{
 		let maxWidth: number = 0;
 
@@ -166,11 +187,13 @@ class ChartLines
 				maxWidth = line.rightEdge;
 			}
 		});
+	
+		return maxWidth;
 	}
 
 	private RecalculateLineHight(): number
 	{
-		let hight = (this._chart.hight - this._chart.xAxis.hight - this._chart.vMargin * 2 - this._chart.vSpacing * this._lines.length - 1) / this._lines.length;
+		let hight = Math.floor((this._chart.GetDrawAreaHight() - this._chart.vSpacing * this._lines.length - 1) / this._lines.length);
 		
 		if (hight > this._chart.maxLineHight)
 			return this._chart.maxLineHight;
@@ -182,7 +205,7 @@ class ChartLines
 	}
 }
 
-class Chart
+export class Chart
 {
 	private _hight: number;
 
@@ -196,7 +219,27 @@ class Chart
 	}
 
 	private _width: number;
-	private _hMargin: number;
+
+	get width(): number {
+		return this._width;
+	}
+
+	set width(newWidth: number) {
+		this._width = newWidth;
+		this._unitSize = this.RecalculateUnitScale();
+	}
+
+	private _hMargin: number = 5;
+
+	get hMargin(): number {
+		return this._hMargin;
+	}
+
+	set hMargin(newHMargin: number) {
+		this._hMargin = newHMargin;
+		this._unitSize = this.RecalculateUnitScale();
+	}
+
 	private _vMargin: number;
 
 	get vMargin(): number {
@@ -259,11 +302,13 @@ class Chart
 		this._maxLineHight = newMaxLineHight;
 	}
 
-	constructor(hight: number, width: number) {
+	constructor(width: number, hight: number) {
 		this._hight = hight;
 		this._width = width;
 
 		this._lines = new ChartLines(this);
+		this._xAxis = new ChartXAxis();
+		this._yAxis = new ChartYAxis();
 	}
 
 	public Draw(): void
@@ -276,4 +321,19 @@ class Chart
 	public DrawGrid(): void
     {
     }
+
+	public GetDrawAreaWidth(): number
+	{
+		return this.width - this.yAxis.width - this.hMargin * 2;
+	}
+
+	public GetDrawAreaHight(): number
+	{
+		return this.hight - this.xAxis.hight - this.vMargin * 2;
+	}
+
+	public RecalculateUnitScale(): number
+	{
+		return Math.floor(this.GetDrawAreaWidth() / this.lines.GetMaxWidth());
+	}
 }
