@@ -10,9 +10,9 @@ describe('Basic chart tests', () => {
 
     test('Instantiate chart and get draw area hight', () => {
         let chart: Chart = new Chart(200, 100);
-        chart.vMargin = 5;
+        chart.vMargin = 7;
 
-        expect(chart.getDrawAreaHight()).toBe(90);
+        expect(chart.getDrawAreaHight()).toBe(86);
     });
 
     test('Create line and add to chart', () => {
@@ -47,5 +47,25 @@ describe('Basic chart tests', () => {
         chart.lines.remove(2);
 
         expect(chart.lines.count()).toBe(2);
+    });
+
+    test('Add one line - hight adjusted to maximum', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.maxLineHight = 20;
+        chart.lines.addNew();
+
+        expect(chart.lines.lineHight).toBe(chart.maxLineHight);
+    });
+
+    test('Add 3 lines with sufficient drawing space - line hight adjusted to maximum', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.maxLineHight = 25;
+        chart.vSpacing = 7;
+
+        chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.addNew();
+
+        expect(chart.lines.lineHight).toBe(chart.maxLineHight);
     });
 });

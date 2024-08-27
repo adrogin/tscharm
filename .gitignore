@@ -6,5 +6,5 @@ package-lock.json
 .altemplates/
 .vscode/
 node_modules/
-GraphViewControl/Scripts/dist/
+*/dist/
 Release

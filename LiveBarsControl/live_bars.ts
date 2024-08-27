@@ -107,7 +107,7 @@ export class ChartLine
 	public addBar(position: number, width: number, color: number): void
 	{
 		this._bars.push(new ChartBar(position, width, color));
-		this.SetRightEdge(position, width);
+		this.setRightEdge(position, width);
 	}
 
 	public removeBar(index: number): void
@@ -115,7 +115,7 @@ export class ChartLine
 		if (this._bars[index].position + this._bars[index].width >= this._rightEdge) {
 			this._rightEdge = 0;
 			this._bars.forEach(bar => {
-				this.SetRightEdge(bar.position, bar.width);
+				this.setRightEdge(bar.position, bar.width);
 			});
 		}
 
@@ -139,12 +139,17 @@ export class ChartLine
 
 export class ChartLines
 {
-	private _lines: ChartLine[] = [];
-	private _lineHight: number = 0;
-	private _chart: Chart;
-
 	constructor(chart: Chart) {
 		this._chart = chart;
+	}
+
+	private _lines: ChartLine[] = [];
+	private _chart: Chart;
+
+	private _lineHight: number = 0;
+
+	get lineHight(): number {
+		return this._lineHight;
 	}
 
 	public add(line: ChartLine): void {
@@ -173,7 +178,7 @@ export class ChartLines
 
 	public draw() {
         this._lines.forEach(line => {
-            line.Draw();
+            line.draw();
         });
 	}
 
@@ -197,7 +202,11 @@ export class ChartLines
 
 	private recalculateLineHight(): number
 	{
-		let hight = Math.floor((this._chart.getDrawAreaHight() - this._chart.vSpacing * this._lines.length - 1) / this._lines.length);
+		if (this._lines.length == 0) {
+			return;
+		}
+		
+		let hight = Math.floor((this._chart.getDrawAreaHight() - (this._chart.vSpacing * (this._lines.length - 1))) / this._lines.length);
 		
 		if (hight > this._chart.maxLineHight)
 			return this._chart.maxLineHight;
@@ -211,6 +220,20 @@ export class ChartLines
 
 export class Chart
 {
+	constructor(width?: number, hight?: number) {
+		if (hight != null) {
+			this._hight = hight;
+		}
+
+		if (width != null) {
+			this._width = width;
+		}
+
+		this._lines = new ChartLines(this);
+		this._xAxis = new ChartXAxis();
+		this._yAxis = new ChartYAxis();
+	}
+
 	private _hight: number;
 
 	get hight(): number {
@@ -230,7 +253,7 @@ export class Chart
 
 	set width(newWidth: number) {
 		this._width = newWidth;
-		this._unitSize = this.RecalculateUnitScale();
+		this._unitSize = this.recalculateUnitScale();
 	}
 
 	private _hMargin: number = 5;
@@ -244,7 +267,7 @@ export class Chart
 		this._unitSize = this.recalculateUnitScale();
 	}
 
-	private _vMargin: number;
+	private _vMargin: number = 5;
 
 	get vMargin(): number {
 		return this._vMargin;
@@ -282,7 +305,7 @@ export class Chart
 	}
 
 	set vSpacing(newVSpacing: number) {
-		this._vMargin = newVSpacing;
+		this._vSpacing = newVSpacing;
 		this._lines.scaleHightToFit();
 	}
 
@@ -304,15 +327,6 @@ export class Chart
 
 	set maxLineHight(newMaxLineHight: number) {
 		this._maxLineHight = newMaxLineHight;
-	}
-
-	constructor(width: number, hight: number) {
-		this._hight = hight;
-		this._width = width;
-
-		this._lines = new ChartLines(this);
-		this._xAxis = new ChartXAxis();
-		this._yAxis = new ChartYAxis();
 	}
 
 	public draw(): void
