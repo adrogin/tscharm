@@ -4,11 +4,11 @@ import { ChartLines } from "./chart_lines";
 export class Chart
 {
 	constructor(width?: number, hight?: number) {
-		this._hight = hight;
-		this._width = width;
 		this._lines = new ChartLines();
 		this._xAxis = new ChartXAxis();
 		this._yAxis = new ChartYAxis();
+		this.hight = hight;
+		this.width = width;
 	}
 
 	private _hight: number;

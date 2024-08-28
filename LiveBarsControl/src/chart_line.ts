@@ -7,8 +7,12 @@ export class ChartLine
 
     constructor()
     {
-        this._bars.bind('add', this.onBarAddHandler);
-        this._bars.bind('remove', this.onBarRemoveHandler);
+        this._bars.bind('add', (bar: ChartBar) => { this._rightEdge = bar.position, bar.width });
+        this._bars.bind('remove', (bar: ChartBar) => {
+            if (bar.position + bar.width >= this._rightEdge) {
+                this._rightEdge = this.bars.getRightEdge();
+            }
+        });
     }
 
 	get bars(): ChartBars {
@@ -24,17 +28,5 @@ export class ChartLine
 	public draw(): void
     {
 		this.bars.draw();
-    }
-
-    private onBarAddHandler(bar:  ChartBar): void
-    {
-        this._rightEdge = bar.position, bar.width;
-    }
-
-    private onBarRemoveHandler(bar:  ChartBar): void
-    {
-        if (bar.position + bar.width >= this._rightEdge) {
-            this._rightEdge = this.bars.getRightEdge();
-        }
     }
 }

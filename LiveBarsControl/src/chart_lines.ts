@@ -3,8 +3,23 @@ import { ChartLine } from "./chart_line";
 export class ChartLines
 {
 	private _lines: ChartLine[] = [];
-    accessor width: number;
-    accessor hight: number;
+    
+    private _width: number;
+    get width(): number {
+        return this._width;
+    }
+    set width(newWidth: number) {
+        this._width = newWidth;
+    }
+
+    private _hight: number;
+    get hight(): number {
+        return this._hight;
+    }
+    set hight(newHight: number) {
+        this._hight = newHight;
+        this.scaleHightToFit();
+    }
 
     private _vSpacing: number = 10;
 
@@ -18,27 +33,22 @@ export class ChartLines
 	}
 
 	private _minLineHight: number = 2;
-
 	get minLineHight(): number {
 		return this._minLineHight;
 	}
-
 	set minLineHight(newMinLineHight: number) {
 		this._minLineHight = newMinLineHight;
 	}
 
 	private _maxLineHight: number = 20;
-
 	get maxLineHight(): number {
 		return this._maxLineHight;
 	}
-
 	set maxLineHight(newMaxLineHight: number) {
 		this._maxLineHight = newMaxLineHight;
 	}
 
 	private _lineHight: number = 0;
-
 	get lineHight(): number {
 		return this._lineHight;
 	}
@@ -96,7 +106,7 @@ export class ChartLines
 		if (this._lines.length == 0) {
 			return 0;
 		}
-		
+
 		let hight = Math.floor((this.hight - (this.vSpacing * (this._lines.length - 1))) / this._lines.length);
 		
 		if (hight > this.maxLineHight)
