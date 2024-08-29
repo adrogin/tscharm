@@ -47,10 +47,11 @@ export class ChartBars
         return rightEdge;
     }
 
-	public draw(): void
+	public draw(parentElement: HTMLElement): void
 	{
+        // Bars collection has no HTML element of its own, line is the parent of every bar.
         this._bars.forEach(bar => {
-            bar.draw();
+            bar.draw(parentElement);
         });
 	}
 

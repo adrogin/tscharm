@@ -23,7 +23,7 @@ export class ChartXAxis
 		this.hight = newHeight;
 	}
 
-    public draw(): void {
+    public draw(parentElement: HTMLElement): void {
     }
 }
 
@@ -50,7 +50,7 @@ export class ChartYAxis
 		this.width = newWidth;
 	}
 
-	draw(): void
+	draw(parentElement: HTMLElement): void
     {
     }
 }

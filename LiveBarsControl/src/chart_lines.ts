@@ -1,8 +1,10 @@
 import { ChartLine } from "./chart_line";
+import { HtmlFactory } from "./html_factory";
 
 export class ChartLines
 {
 	private _lines: ChartLine[] = [];
+	private _htmlElement: HTMLElement;
     
     private _width: number;
     get width(): number {
@@ -77,9 +79,13 @@ export class ChartLines
 		return this._lines.length;
 	}
 
-	public draw() {
+	public draw(parentElement: HTMLElement) {
+		if (this._htmlElement == null) {
+	        this._htmlElement = this.createHtmlElement(parentElement);
+		}
+
         this._lines.forEach(line => {
-            line.draw();
+            line.draw(this._htmlElement, this.hight);
         });
 	}
 
@@ -117,4 +123,13 @@ export class ChartLines
 
 		return hight;
 	}
+
+    private createHtmlElement(parentElement: HTMLElement): HTMLElement
+    {
+		let attributes: Map<string, string> = new Map([
+			['width', this.width.toString()],
+			['hight', this.hight.toString()]
+		]);
+		return HtmlFactory.createElement(parentElement, 'div', attributes);
+    }
 }

@@ -1,5 +1,6 @@
 import { ChartXAxis, ChartYAxis } from "./chart_axis";
 import { ChartLines } from "./chart_lines";
+import { HtmlFactory } from "./html_factory";
 
 export class Chart
 {
@@ -10,6 +11,8 @@ export class Chart
 		this.hight = hight;
 		this.width = width;
 	}
+
+	private _htmlElement: HTMLElement;
 
 	private _hight: number;
 
@@ -77,11 +80,15 @@ export class Chart
 
 	private _unitSize: number;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
 
-	public draw(): void
+	public draw(parentElement: HTMLElement): void
     {
-        this._xAxis.draw();
-        this._yAxis.draw();
-		this._lines.draw();
+		if (this._htmlElement == null) {
+			this._htmlElement = this.createHtmlElement(parentElement);
+		}
+
+        this._xAxis.draw(this._htmlElement);
+        this._yAxis.draw(this._htmlElement);
+		this._lines.draw(this._htmlElement);
     }
 
 	public drawGrid(): void
@@ -102,4 +109,13 @@ export class Chart
 	{
 		return Math.floor(this.getDrawAreaWidth() / this.lines.getMaxWidth());
 	}
+
+    private createHtmlElement(parentElement: HTMLElement): HTMLElement
+    {
+		let attributes: Map<string, string> = new Map([
+			['width', this.width.toString()],
+			['hight', this.hight.toString()]
+		]);
+		return HtmlFactory.createElement(parentElement, 'div', attributes);
+    }
 }
