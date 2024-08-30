@@ -13,14 +13,14 @@ export class ChartXAxis
 		this._showMarks = newShowMarks;
 	}
 
-	private _hight: number = 0;
+	private _height: number = 0;
 
-	get hight(): number {
-		return this._hight;
+	get height(): number {
+		return this._height;
 	}
 
-	set hight(newHeight: number) {
-		this.hight = newHeight;
+	set height(newHeight: number) {
+		this.height = newHeight;
 	}
 
     public draw(parentElement: HTMLElement): void {

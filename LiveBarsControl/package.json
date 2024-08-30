@@ -14,5 +14,8 @@
     "@babel/preset-typescript": "^7.24.7",
     "@types/jest": "^29.5.12",
     "babel-jest": "^29.7.0"
+  },
+  "dependencies": {
+    "jsdom": "^25.0.0"
   }
 }

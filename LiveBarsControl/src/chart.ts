@@ -4,26 +4,29 @@ import { HtmlFactory } from "./html_factory";
 
 export class Chart
 {
-	constructor(width?: number, hight?: number) {
+	constructor(width?: number, height?: number) {
 		this._lines = new ChartLines();
 		this._xAxis = new ChartXAxis();
 		this._yAxis = new ChartYAxis();
-		this.hight = hight;
+		this.height = height;
 		this.width = width;
 	}
 
 	private _htmlElement: HTMLElement;
-
-	private _hight: number;
-
-	get hight(): number {
-		return this._hight;
+	get htmlElement(): HTMLElement {
+		return this._htmlElement;
 	}
 
-	set hight(newHight: number) {
-		this._hight = newHight;
-        this._lines.hight = this.getDrawAreaHight();
-		this._lines.scaleHightToFit();
+	private _height: number;
+
+	get height(): number {
+		return this._height;
+	}
+
+	set height(newHeight: number) {
+		this._height = newHeight;
+        this._lines.height = this.getDrawAreaHeight();
+		this._lines.scaleHeightToFit();
 	}
 
 	private _width: number;
@@ -57,7 +60,7 @@ export class Chart
 
 	set vMargin(newVMargin: number) {
 		this._vMargin = newVMargin;
-		this._lines.scaleHightToFit();
+		this._lines.scaleHeightToFit();
 	}
 
 	private _xAxis: ChartXAxis;
@@ -100,9 +103,9 @@ export class Chart
 		return this.width - this.yAxis.width - this.hMargin * 2;
 	}
 
-	public getDrawAreaHight(): number
+	public getDrawAreaHeight(): number
 	{
-		return this.hight - this.xAxis.hight - this.vMargin * 2;
+		return this.height - this.xAxis.height - this.vMargin * 2;
 	}
 
 	public recalculateUnitScale(): number
@@ -114,7 +117,7 @@ export class Chart
     {
 		let attributes: Map<string, string> = new Map([
 			['width', this.width.toString()],
-			['hight', this.hight.toString()]
+			['height', this.height.toString()]
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', attributes);
     }

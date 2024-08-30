@@ -9,11 +9,11 @@ describe('Basic object instantiation tests', () => {
         expect(chart.getDrawAreaWidth()).toBe(180);
     });
 
-    test('Instantiate chart and get draw area hight', () => {
+    test('Instantiate chart and get draw area height', () => {
         let chart: Chart = new Chart(200, 100);
         chart.vMargin = 7;
 
-        expect(chart.getDrawAreaHight()).toBe(86);
+        expect(chart.getDrawAreaHeight()).toBe(86);
     });
 });
 
@@ -52,36 +52,36 @@ describe('Adding lines to chart', () => {
         expect(chart.lines.count()).toBe(2);
     });
 
-    test('Add one line - hight adjusted to maximum', () => {
+    test('Add one line - height adjusted to maximum', () => {
         let chart: Chart = new Chart(100, 100);
-        chart.lines.maxLineHight = 20;
+        chart.lines.maxLineHeight = 20;
         chart.lines.addNew();
 
-        expect(chart.lines.lineHight).toBe(chart.lines.maxLineHight);
+        expect(chart.lines.lineHeight).toBe(chart.lines.maxLineHeight);
     });
 
-    test('Add 3 lines with sufficient drawing space - line hight adjusted to maximum', () => {
+    test('Add 3 lines with sufficient drawing space - line height adjusted to maximum', () => {
         let chart: Chart = new Chart(100, 100);
-        chart.lines.maxLineHight = 25;
+        chart.lines.maxLineHeight = 25;
         chart.lines.vSpacing = 7;
 
         chart.lines.addNew();
         chart.lines.addNew();
         chart.lines.addNew();
 
-        expect(chart.lines.lineHight).toBe(chart.lines.maxLineHight);
+        expect(chart.lines.lineHeight).toBe(chart.lines.maxLineHeight);
     });
 
-    test('Line hight does not reduce below minimum when multiple lines are added', () => {
+    test('Line height does not reduce below minimum when multiple lines are added', () => {
         let chart: Chart = new Chart(100, 20);
-        chart.lines.minLineHight = 10;
+        chart.lines.minLineHeight = 10;
         chart.lines.vSpacing = 5;
 
         chart.lines.addNew();
         chart.lines.addNew();
         chart.lines.addNew();
 
-        expect(chart.lines.lineHight).toBe(10);
+        expect(chart.lines.lineHeight).toBe(10);
     })
 });
 
@@ -132,5 +132,18 @@ describe('Adding/removing bars in the line', () => {
 
         expect(chart.lines.get(0).rightEdge).toBe(10);
         expect(chart.lines.getMaxWidth()).toBe(10);
+    });
+});
+
+describe('Creating HTML elements', () => {
+    test('Create HTML element for the chart', () => {
+        let chartContainer = document.createElement('div');
+        document.appendChild(chartContainer);
+        let chart: Chart = new Chart(50, 40);
+
+        chart.draw(chartContainer);
+
+        expect(chart.htmlElement.clientWidth).toBe(50);
+        expect(chart.htmlElement.clientHeight).toBe(40);
     });
 });

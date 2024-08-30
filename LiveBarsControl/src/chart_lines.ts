@@ -14,13 +14,13 @@ export class ChartLines
         this._width = newWidth;
     }
 
-    private _hight: number;
-    get hight(): number {
-        return this._hight;
+    private _height: number;
+    get height(): number {
+        return this._height;
     }
-    set hight(newHight: number) {
-        this._hight = newHight;
-        this.scaleHightToFit();
+    set height(newHeight: number) {
+        this._height = newHeight;
+        this.scaleHeightToFit();
     }
 
     private _vSpacing: number = 10;
@@ -31,33 +31,33 @@ export class ChartLines
 
 	set vSpacing(newVSpacing: number) {
 		this._vSpacing = newVSpacing;
-		this.scaleHightToFit();
+		this.scaleHeightToFit();
 	}
 
-	private _minLineHight: number = 2;
-	get minLineHight(): number {
-		return this._minLineHight;
+	private _minLineHeight: number = 2;
+	get minLineHeight(): number {
+		return this._minLineHeight;
 	}
-	set minLineHight(newMinLineHight: number) {
-		this._minLineHight = newMinLineHight;
-	}
-
-	private _maxLineHight: number = 20;
-	get maxLineHight(): number {
-		return this._maxLineHight;
-	}
-	set maxLineHight(newMaxLineHight: number) {
-		this._maxLineHight = newMaxLineHight;
+	set minLineHeight(newMinLineHeight: number) {
+		this._minLineHeight = newMinLineHeight;
 	}
 
-	private _lineHight: number = 0;
-	get lineHight(): number {
-		return this._lineHight;
+	private _maxLineHeight: number = 20;
+	get maxLineHeight(): number {
+		return this._maxLineHeight;
+	}
+	set maxLineHeight(newMaxLineHeight: number) {
+		this._maxLineHeight = newMaxLineHeight;
+	}
+
+	private _lineHeight: number = 0;
+	get lineHeight(): number {
+		return this._lineHeight;
 	}
 
 	public add(line: ChartLine): void {
 		this._lines.push(line);
-		this._lineHight = this.recalculateLineHight();
+		this._lineHeight = this.recalculateLineHeight();
 	}
 
 	public addNew(): void {
@@ -66,7 +66,7 @@ export class ChartLines
 
 	public remove(index: number): void {
 		this._lines.splice(index, 1);
-		this._lineHight = this.recalculateLineHight();
+		this._lineHeight = this.recalculateLineHeight();
 	}
 
 	public get(index: number): ChartLine
@@ -85,13 +85,13 @@ export class ChartLines
 		}
 
         this._lines.forEach(line => {
-            line.draw(this._htmlElement, this.hight);
+            line.draw(this._htmlElement, this.height);
         });
 	}
 
-	public scaleHightToFit()
+	public scaleHeightToFit()
 	{
-		this._lineHight = this.recalculateLineHight();
+		this._lineHeight = this.recalculateLineHeight();
 	}
 
 	public getMaxWidth(): number
@@ -107,28 +107,28 @@ export class ChartLines
 		return maxWidth;
 	}
 
-	private recalculateLineHight(): number
+	private recalculateLineHeight(): number
 	{
 		if (this._lines.length == 0) {
 			return 0;
 		}
 
-		let hight = Math.floor((this.hight - (this.vSpacing * (this._lines.length - 1))) / this._lines.length);
+		let height = Math.floor((this.height - (this.vSpacing * (this._lines.length - 1))) / this._lines.length);
 		
-		if (hight > this.maxLineHight)
-			return this.maxLineHight;
+		if (height > this.maxLineHeight)
+			return this.maxLineHeight;
 
-		if (hight < this.minLineHight)
-			return this.minLineHight;
+		if (height < this.minLineHeight)
+			return this.minLineHeight;
 
-		return hight;
+		return height;
 	}
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		let attributes: Map<string, string> = new Map([
 			['width', this.width.toString()],
-			['hight', this.hight.toString()]
+			['height', this.height.toString()]
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', attributes);
     }

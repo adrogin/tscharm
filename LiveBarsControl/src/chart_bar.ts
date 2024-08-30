@@ -38,7 +38,7 @@ export class ChartBar
     {
 		let attributes: Map<string, string> = new Map([
 			['width', this.width.toString()],
-			['hight', '100%']
+			['height', '100%']
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', attributes);
     }

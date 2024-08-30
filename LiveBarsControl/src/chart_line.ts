@@ -27,20 +27,20 @@ export class ChartLine
 		return this._rightEdge;
 	}
 
-	public draw(parentElement: HTMLElement, hight: number): void
+	public draw(parentElement: HTMLElement, height: number): void
 	{
 		if (this._htmlElement == null) {
-			this._htmlElement = this.createHtmlElement(parentElement, hight);
+			this._htmlElement = this.createHtmlElement(parentElement, height);
 		}
 
 		this.bars.draw(this._htmlElement);
 	}
 
-    private createHtmlElement(parentElement: HTMLElement, hight: number): HTMLElement
+    private createHtmlElement(parentElement: HTMLElement, height: number): HTMLElement
     {
 		let attributes: Map<string, string> = new Map([
 			['width', '100%'],
-			['hight', hight.toString()]
+			['height', height.toString()]
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', attributes);
     }
