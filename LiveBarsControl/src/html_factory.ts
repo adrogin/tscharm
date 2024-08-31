@@ -1,15 +1,17 @@
 export module HtmlFactory
 {
-    export function createElement(parentElement: HTMLElement, tag: string, attributes: Map<string, string>): HTMLElement
+    export function createElement(parentElement: HTMLElement, tag: string, id: string, attributes: Map<string, string>): HTMLElement
     {
-        let element = parentElement.ownerDocument.createElement(tag, );
-        let style: string = '';
+        let element = parentElement.ownerDocument.createElement(tag);
+        element.setAttribute('id', id);
 
-        for(let key in attributes) {
-            style += key + ':' + attributes[key];
-        }
+        let style: string = '';
+        attributes.forEach((value, key) => {
+            style += key + ':' + value + ';';
+        });
 
         element.setAttribute('style', style);
+        parentElement.appendChild(element);
         return element;
     }
 }

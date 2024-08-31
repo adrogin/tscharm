@@ -5,6 +5,11 @@ export class ChartLines
 {
 	private _lines: ChartLine[] = [];
 	private _htmlElement: HTMLElement;
+	get htmlElement(): HTMLElement {
+		return this._htmlElement;
+	}
+
+	private _lastLineId: number = -1;
     
     private _width: number;
     get width(): number {
@@ -56,7 +61,7 @@ export class ChartLines
 	}
 
 	public add(line: ChartLine): void {
-		this._lines.push(line);
+		this._lines.at(this._lines.push(line) - 1).id = (++this._lastLineId).toString();
 		this._lineHeight = this.recalculateLineHeight();
 	}
 
@@ -130,6 +135,6 @@ export class ChartLines
 			['width', this.width.toString()],
 			['height', this.height.toString()]
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chartLines', attributes);
     }
 }

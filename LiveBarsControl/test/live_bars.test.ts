@@ -136,14 +136,75 @@ describe('Adding/removing bars in the line', () => {
 });
 
 describe('Creating HTML elements', () => {
-    test('Create HTML element for the chart', () => {
-        let chartContainer = document.createElement('div');
-        document.appendChild(chartContainer);
+    let chartContainer;
+
+    function verifyElement(elementId: string, parentElement: HTMLElement) {
+        expect(document.getElementById(elementId)).toBeInstanceOf<HTMLDivElement>;
+        expect(document.getElementById(elementId).parentElement).toBe(parentElement);
+    }
+
+    beforeAll(() => {
+        chartContainer = document.createElement('div');
+        document.body.appendChild(chartContainer);
+    });
+
+    beforeEach(() => {
+        let chartElement = document.getElementById('chart');
+        if (chartElement != null) {
+            chartElement.remove();
+        }
+    });
+
+    test('Create HTML element for the chart and add to container', () => {
         let chart: Chart = new Chart(50, 40);
 
         chart.draw(chartContainer);
 
-        expect(chart.htmlElement.clientWidth).toBe(50);
-        expect(chart.htmlElement.clientHeight).toBe(40);
+        verifyElement('chart', chartContainer);
+        verifyElement('chartLines', chart.htmlElement);
+    });
+
+    test('Add 3 lines to the chart and draw', () => {
+        let chart: Chart = new Chart(50, 40);
+        chart.lines.addNew();
+        chart.lines.addNew();
+
+        let line = new ChartLine();
+        chart.lines.add(line);
+
+        chart.draw(chartContainer);
+
+        verifyElement('chartLine_0', chart.lines.htmlElement);
+        verifyElement('chartLine_1', chart.lines.htmlElement);
+        verifyElement('chartLine_2', chart.lines.htmlElement);
+    });
+
+    test('Add bars to a chart line, create HTML elements', () => {
+        let chart: Chart = new Chart(50, 40);
+        chart.lines.addNew();
+        chart.lines.get(0).bars.add(0, 20);
+        chart.lines.get(0).bars.add(21, 20);
+        chart.lines.get(0).bars.add(42, 15);
+
+        chart.draw(chartContainer);
+
+        verifyElement('chartBar_0_0', chart.lines.get(0).htmlElement);
+        verifyElement('chartBar_0_1', chart.lines.get(0).htmlElement);
+        verifyElement('chartBar_0_2', chart.lines.get(0).htmlElement);
+    });
+
+    test('Add bars to different chart lines, create HTML elements', () => {
+        let chart: Chart = new Chart(50, 40);
+        chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.get(0).bars.add(0, 20);
+        chart.lines.get(0).bars.add(21, 20);
+        chart.lines.get(1).bars.add(42, 15);
+
+        chart.draw(chartContainer);
+
+        verifyElement('chartBar_0_0', chart.lines.get(0).htmlElement);
+        verifyElement('chartBar_0_1', chart.lines.get(0).htmlElement);
+        verifyElement('chartBar_1_0', chart.lines.get(1).htmlElement);
     });
 });

@@ -92,7 +92,7 @@ export class Chart
         this._xAxis.draw(this._htmlElement);
         this._yAxis.draw(this._htmlElement);
 		this._lines.draw(this._htmlElement);
-    }
+	}
 
 	public drawGrid(): void
     {
@@ -119,6 +119,6 @@ export class Chart
 			['width', this.width.toString()],
 			['height', this.height.toString()]
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chart', attributes);
     }
 }

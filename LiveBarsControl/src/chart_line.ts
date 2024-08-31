@@ -4,17 +4,34 @@ import { HtmlFactory } from "./html_factory";
 
 export class ChartLine
 {
-	private _bars: ChartBars = new ChartBars();
+	private _bars: ChartBars;
 	private _htmlElement: HTMLElement;
+	get htmlElement(): HTMLElement {
+		return this._htmlElement;
+	}
 
-	constructor()
+	private _id: string = '';
+	get id(): string {
+		return this._id;
+	}
+	set id(newId: string) {
+		this._id = newId;
+		this._bars.parentLineId = newId;
+	}
+
+	constructor(id?: string)
 	{
+		this._bars = new ChartBars(id);
 		this._bars.bind('add', (bar: ChartBar) => { this._rightEdge = bar.position, bar.width });
 		this._bars.bind('remove', (bar: ChartBar) => {
 			if (bar.position + bar.width >= this._rightEdge) {
 				this._rightEdge = this.bars.getRightEdge();
 			}
 		});
+
+		if (id != null) {
+			this._id = id;
+		}
 	}
 
 	get bars(): ChartBars {
@@ -42,6 +59,6 @@ export class ChartLine
 			['width', '100%'],
 			['height', height.toString()]
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chartLine_' + this.id.toString(), attributes);
     }
 }

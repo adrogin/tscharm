@@ -10,15 +10,26 @@ export class ChartBars
 	private _bars: ChartBar[] = [];
     private _onAddSubscribers: eventHandler[] = [];
     private _onRemoveSubscribers: eventHandler[] = [];
+    private _lastBarId: number = -1;
+
+    private _parentLineId: string = '';
+    get parentLineId(): string {
+        return this._parentLineId;
+    }
+    set parentLineId(newParentLineId: string) {
+        this._parentLineId = newParentLineId;
+    }
+
+    constructor(parentLineId?: string) {
+        if (parentLineId != null) {
+            this._parentLineId = parentLineId;
+        }
+    }
 
 	public add(position: number, width: number, color?: number): void
 	{
-		if (color == null) {
-			color = 0;
-		}
-
         let bar: ChartBar = new ChartBar(position, width, color);
-		this._bars.push(bar);
+		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineId + '_' + (++this._lastBarId).toString();
         this.raiseEvent('add', bar);
 	}
 

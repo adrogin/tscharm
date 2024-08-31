@@ -3,6 +3,13 @@ import { HtmlFactory } from "./html_factory";
 export class ChartBar
 {
 	private _htmlElement: HTMLElement;
+	private _id: string;
+	get id(): string {
+		return this._id;
+	}
+	set id(newId: string) {
+		this._id = newId;
+	}
 
 	private _position: number;  // Position in relative units
 	get position(): number {
@@ -14,12 +21,15 @@ export class ChartBar
 		return this._width;
 	}
 
-	private _color: number;
+	private _color: number = 0;
 
-	constructor(position: number, width: number, color: number) {
+	constructor(position: number, width: number, color?: number) {
 		this._position = position;
 		this._width = width;
-		this._color = color;
+
+		if (color != null) {
+			this._color = color;
+		}
 	}
 
     draw(parentElement: HTMLElement): void
@@ -40,6 +50,6 @@ export class ChartBar
 			['width', this.width.toString()],
 			['height', '100%']
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes);
     }
 }
