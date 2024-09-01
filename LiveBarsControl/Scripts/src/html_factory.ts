@@ -1,6 +1,6 @@
 export module HtmlFactory
 {
-    export function createElement(parentElement: HTMLElement, tag: string, id: string, attributes: Map<string, string>): HTMLElement
+    export function createElement(parentElement: HTMLElement, tag: string, id: string, attributes: Map<string, string>, className: string): HTMLElement
     {
         let element = parentElement.ownerDocument.createElement(tag);
         element.setAttribute('id', id);
@@ -11,6 +11,8 @@ export module HtmlFactory
         });
 
         element.setAttribute('style', style);
+        element.setAttribute('class', className);
+
         parentElement.appendChild(element);
         return element;
     }

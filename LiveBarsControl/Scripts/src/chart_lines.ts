@@ -135,6 +135,6 @@ export class ChartLines
 			['width', this.width.toString()],
 			['height', this.height.toString()]
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chartLines', attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chartLines', attributes, 'chartLines');
     }
 }

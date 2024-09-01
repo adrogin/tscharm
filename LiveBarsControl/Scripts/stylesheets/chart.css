@@ -1,0 +1,19 @@
+div.chart {
+    margin: 0;
+}
+
+div.chartLines {
+    margin: 0;
+}
+
+div.chartLine {
+    margin: 0;
+    background-color: azure;
+}
+
+div.chartBar {
+    margin: 0;
+    background-color: blue;
+    border-color: black;
+    border-width: 1;
+}

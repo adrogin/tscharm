@@ -59,6 +59,6 @@ export class ChartLine
 			['width', '100%'],
 			['height', height.toString()]
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chartLine_' + this.id.toString(), attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chartLine_' + this.id.toString(), attributes, 'chartLine');
     }
 }

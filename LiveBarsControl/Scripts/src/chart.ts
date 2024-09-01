@@ -119,6 +119,6 @@ export class Chart
 			['width', this.width.toString()],
 			['height', this.height.toString()]
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chart', attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chart', attributes, 'chart');
     }
 }

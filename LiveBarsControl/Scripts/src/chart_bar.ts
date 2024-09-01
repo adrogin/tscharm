@@ -50,6 +50,6 @@ export class ChartBar
 			['width', this.width.toString()],
 			['height', '100%']
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes);
+		return HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes, 'chartBar');
     }
 }
