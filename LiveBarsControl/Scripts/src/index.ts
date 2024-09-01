@@ -14,8 +14,8 @@ export function RemoveLine(Index: number) {
     chart.lines.remove(Index);
 }
 
-export function AddBar(LineIndex: number, Position: number, Width: number, Color: number) {
-    chart.lines.get(LineIndex).bars.add(Position, Width, Color);
+export function AddBar(LineIndex: number, Position: number, Width: number, ClassName: string) {
+    chart.lines.get(LineIndex).bars.add(Position, Width, ClassName);
 }
 
 export function RemoveBar(LineIndex: number, BarIndex: number) {
@@ -23,5 +23,5 @@ export function RemoveBar(LineIndex: number, BarIndex: number) {
 }
 
 export function Draw() {
-    chart.draw(document.getElementById('ControlAddIn'));
+    chart.draw(document.getElementById('controlAddIn'));
 }

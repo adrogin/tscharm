@@ -26,9 +26,9 @@ export class ChartBars
         }
     }
 
-	public add(position: number, width: number, color?: number): void
+	public add(position: number, width: number, className?: string): void
 	{
-        let bar: ChartBar = new ChartBar(position, width, color);
+        let bar: ChartBar = new ChartBar(position, width, className);
 		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineId + '_' + (++this._lastBarId).toString();
         this.raiseEvent('add', bar);
 	}

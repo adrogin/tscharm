@@ -82,7 +82,33 @@ describe('Adding lines to chart', () => {
         chart.lines.addNew();
 
         expect(chart.lines.lineHeight).toBe(10);
-    })
+    });
+
+    test('Add 3 lines, verify positions', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.vSpacing = 10;
+
+        chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.addNew();
+
+        expect(chart.lines.get(0).position).toBe(0);
+        expect(chart.lines.get(1).position).toBe(30);
+        expect(chart.lines.get(2).position).toBe(60);
+    });
+
+    test('Add 3 lines, remove one, verify positions', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.vSpacing = 10;
+
+        chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.remove(1);
+
+        expect(chart.lines.get(0).position).toBe(0);
+        expect(chart.lines.get(1).position).toBe(30);
+    });
 });
 
 describe('Adding/removing bars in the line', () => {
@@ -206,5 +232,18 @@ describe('Creating HTML elements', () => {
         verifyElement('chartBar_0_0', chart.lines.get(0).htmlElement);
         verifyElement('chartBar_0_1', chart.lines.get(0).htmlElement);
         verifyElement('chartBar_1_0', chart.lines.get(1).htmlElement);
+    });
+
+    test('Multiple calls to draw function do not create duplicated DOM elements', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew();
+        chart.lines.get(0).bars.add(0, 30);
+
+        chart.draw(chartContainer);
+        chart.draw(chartContainer);
+
+        expect(document.getElementsByClassName('chart').length).toBe(1);
+        expect(document.getElementsByClassName('chartLine').length).toBe(1);
+        expect(document.getElementsByClassName('chartBar').length).toBe(1);
     });
 });

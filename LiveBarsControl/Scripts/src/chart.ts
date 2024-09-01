@@ -116,8 +116,8 @@ export class Chart
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString()],
-			['height', this.height.toString()]
+			['width', this.width.toString() + 'px'],
+			['height', this.height.toString() + 'px']
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', 'chart', attributes, 'chart');
     }

@@ -19,6 +19,24 @@ export class ChartLine
 		this._bars.parentLineId = newId;
 	}
 
+	get bars(): ChartBars {
+		return this._bars;
+	}
+
+	private _rightEdge: number = 0;
+
+	get rightEdge(): number {
+		return this._rightEdge;
+	}
+
+	private _position: number;
+	get position(): number {
+		return this._position;
+	}
+	set position(newPosition: number) {
+		this._position = newPosition;
+	}
+
 	constructor(id?: string)
 	{
 		this._bars = new ChartBars(id);
@@ -34,16 +52,6 @@ export class ChartLine
 		}
 	}
 
-	get bars(): ChartBars {
-		return this._bars;
-	}
-
-	private _rightEdge: number = 0;
-
-	get rightEdge(): number {
-		return this._rightEdge;
-	}
-
 	public draw(parentElement: HTMLElement, height: number): void
 	{
 		if (this._htmlElement == null) {
@@ -56,8 +64,8 @@ export class ChartLine
     private createHtmlElement(parentElement: HTMLElement, height: number): HTMLElement
     {
 		let attributes: Map<string, string> = new Map([
-			['width', '100%'],
-			['height', height.toString()]
+			['height', height.toString() + 'px'],
+			['top', this.position.toString() + 'px']
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', 'chartLine_' + this.id.toString(), attributes, 'chartLine');
     }

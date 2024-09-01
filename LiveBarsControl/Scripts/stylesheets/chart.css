@@ -8,12 +8,63 @@ div.chartLines {
 
 div.chartLine {
     margin: 0;
+    left: 0px;
+    width: 100%;
     background-color: azure;
+    overflow: hidden;
+    position: relative;
 }
 
-div.chartBar {
+div.chartBar-normal {
     margin: 0;
-    background-color: blue;
+    top: 0px;
+    height: 100%;
+    background-color: deepskyblue;
+    border-style: solid;
     border-color: black;
-    border-width: 1;
+    border-width: 1px;
+    float: none;
+    position: absolute;
+    box-sizing: border-box;
+}
+
+div.chartBar-alert {
+    margin: 0;
+    top: 0px;
+    height: 100%;
+    background-color: coral;
+    border-style: solid;
+    border-color: orangered;
+    border-width: 1px;
+    float: none;
+    position: absolute;
+    box-sizing: border-box;
+}
+
+div.chartBar-tentative {
+    margin: 0;
+    top: 0px;
+    height: 100%;
+    background-color: deepskyblue;
+    background-image: repeating-linear-gradient(
+      -25deg,
+      transparent,
+      transparent 10px,
+      #91e3ff 10px,
+      #91e3ff 20px
+    );    border-style: dashed;
+    border-color: darkgreen;
+    border-width: 1px;
+    float: none;
+    position: absolute;
+    box-sizing: border-box;
+}
+
+div.barHandle {
+    margin: 0;
+    width: 4px;
+    top: 0px;
+    height: 100%;
+    box-sizing: border-box;
+    cursor: ew-resize;
 }

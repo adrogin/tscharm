@@ -63,6 +63,7 @@ export class ChartLines
 	public add(line: ChartLine): void {
 		this._lines.at(this._lines.push(line) - 1).id = (++this._lastLineId).toString();
 		this._lineHeight = this.recalculateLineHeight();
+		this.recalculateLinePositions();
 	}
 
 	public addNew(): void {
@@ -72,6 +73,7 @@ export class ChartLines
 	public remove(index: number): void {
 		this._lines.splice(index, 1);
 		this._lineHeight = this.recalculateLineHeight();
+		this.recalculateLinePositions();
 	}
 
 	public get(index: number): ChartLine
@@ -90,7 +92,7 @@ export class ChartLines
 		}
 
         this._lines.forEach(line => {
-            line.draw(this._htmlElement, this.height);
+            line.draw(this._htmlElement, this.lineHeight);
         });
 	}
 
@@ -119,7 +121,7 @@ export class ChartLines
 		}
 
 		let height = Math.floor((this.height - (this.vSpacing * (this._lines.length - 1))) / this._lines.length);
-		
+
 		if (height > this.maxLineHeight)
 			return this.maxLineHeight;
 
@@ -129,11 +131,18 @@ export class ChartLines
 		return height;
 	}
 
+	private recalculateLinePositions(): void
+	{
+		for (let index = 0; index < this._lines.length; index++) {
+			this._lines[index].position = (this.lineHeight + this.vSpacing) * index;
+		}
+	}
+
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString()],
-			['height', this.height.toString()]
+			['width', this.width.toString() + 'px'],
+			['height', this.height.toString() + 'px']
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', 'chartLines', attributes, 'chartLines');
     }

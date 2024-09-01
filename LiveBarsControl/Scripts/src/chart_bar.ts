@@ -21,14 +21,20 @@ export class ChartBar
 		return this._width;
 	}
 
-	private _color: number = 0;
+	private _className: string = 'chartBar-normal';
+	get className(): string {
+		return this._className;
+	}
+	set className(newClassName: string) {
+		this._className = newClassName;
+	}
 
-	constructor(position: number, width: number, color?: number) {
+	constructor(position: number, width: number, className?: string) {
 		this._position = position;
 		this._width = width;
 
-		if (color != null) {
-			this._color = color;
+		if (className != null && className != "") {
+			this._className = className;
 		}
 	}
 
@@ -44,12 +50,23 @@ export class ChartBar
 	onDrop() {}
 	onResize() {}
 
+	private createBarHandles(barElement: HTMLElement)
+	{
+		HtmlFactory.createElement(barElement, 'div', '', new Map([['float', 'left']]), 'barHandle');
+		HtmlFactory.createElement(barElement, 'div', '', new Map([['float', 'right']]), 'barHandle');
+	}
+
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString()],
-			['height', '100%']
+			['width', this.width.toString() + 'px'],
+			['height', '100%'],
+			['left', this.position.toString() + 'px'],
+			['top', '0px']
 		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes, 'chartBar');
+		let barElement = HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes, this.className);
+		this.createBarHandles(barElement);
+		
+		return barElement;
     }
 }
