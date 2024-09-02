@@ -52,7 +52,8 @@ div.chartBar-tentative {
       transparent 10px,
       #91e3ff 10px,
       #91e3ff 20px
-    );    border-style: dashed;
+    );
+    border-style: dashed;
     border-color: darkgreen;
     border-width: 1px;
     float: none;
@@ -62,9 +63,16 @@ div.chartBar-tentative {
 
 div.barHandle {
     margin: 0;
-    width: 4px;
+    width: 5px;
     top: 0px;
     height: 100%;
     box-sizing: border-box;
     cursor: ew-resize;
+    background-image: repeating-linear-gradient(
+        0deg,
+        #5f95a7 0px,
+        #d2e4ea 2px,
+        transparent 40px,
+        transparent 80px
+      )
 }

@@ -11,6 +11,17 @@ export class ChartBars
     private _onAddSubscribers: eventHandler[] = [];
     private _onRemoveSubscribers: eventHandler[] = [];
     private _lastBarId: number = -1;
+    private _drawingArea: HTMLElement;
+	get drawingArea(): HTMLElement {
+		return this._drawingArea;
+	}
+	set drawingArea(newDrawingArea: HTMLElement) {
+		this._drawingArea = newDrawingArea;
+
+        this._bars.forEach(bar => {
+            bar.drawingArea = newDrawingArea;
+        });
+	}
 
     private _parentLineId: string = '';
     get parentLineId(): string {
@@ -20,15 +31,15 @@ export class ChartBars
         this._parentLineId = newParentLineId;
     }
 
-    constructor(parentLineId?: string) {
-        if (parentLineId != null) {
-            this._parentLineId = parentLineId;
-        }
+    constructor(parentLineId: string, drawingArea: HTMLElement) {
+        this._parentLineId = parentLineId;
+        this._drawingArea = drawingArea;
     }
 
 	public add(position: number, width: number, className?: string): void
 	{
         let bar: ChartBar = new ChartBar(position, width, className);
+        bar.drawingArea = this.drawingArea;
 		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineId + '_' + (++this._lastBarId).toString();
         this.raiseEvent('add', bar);
 	}

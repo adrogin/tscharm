@@ -61,6 +61,7 @@ export class ChartLines
 	}
 
 	public add(line: ChartLine): void {
+		line.drawingArea = this.htmlElement;
 		this._lines.at(this._lines.push(line) - 1).id = (++this._lastLineId).toString();
 		this._lineHeight = this.recalculateLineHeight();
 		this.recalculateLinePositions();
@@ -92,6 +93,7 @@ export class ChartLines
 		}
 
         this._lines.forEach(line => {
+			line.drawingArea = this.htmlElement;
             line.draw(this._htmlElement, this.lineHeight);
         });
 	}

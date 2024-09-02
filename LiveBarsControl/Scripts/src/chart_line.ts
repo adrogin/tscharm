@@ -10,6 +10,15 @@ export class ChartLine
 		return this._htmlElement;
 	}
 
+	private _drawingArea: HTMLElement;
+	get drawingArea(): HTMLElement {
+		return this._drawingArea;
+	}
+	set drawingArea(newDrawingArea: HTMLElement) {
+		this._drawingArea = newDrawingArea;
+		this._bars.drawingArea = this.drawingArea;
+	}
+
 	private _id: string = '';
 	get id(): string {
 		return this._id;
@@ -39,7 +48,7 @@ export class ChartLine
 
 	constructor(id?: string)
 	{
-		this._bars = new ChartBars(id);
+		this._bars = new ChartBars(id, this.drawingArea);
 		this._bars.bind('add', (bar: ChartBar) => { this._rightEdge = bar.position, bar.width });
 		this._bars.bind('remove', (bar: ChartBar) => {
 			if (bar.position + bar.width >= this._rightEdge) {
@@ -55,7 +64,7 @@ export class ChartLine
 	public draw(parentElement: HTMLElement, height: number): void
 	{
 		if (this._htmlElement == null) {
-			this._htmlElement = this.createHtmlElement(parentElement, height);
+			this._htmlElement = this.createHtmlElement(parentElement, height);			
 		}
 
 		this.bars.draw(this._htmlElement);
