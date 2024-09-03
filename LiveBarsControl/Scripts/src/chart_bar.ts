@@ -8,6 +8,8 @@ interface barHandleMouseEvent
 export class ChartBar
 {
 	private _htmlElement: HTMLElement;
+	private _leftHandle: HTMLElement;
+	private _rightHandle: HTMLElement;
 	private _drawingArea: HTMLElement;
 	get drawingArea(): HTMLElement {
 		return this._drawingArea;
@@ -91,7 +93,7 @@ export class ChartBar
 	{
 		function onResizeHandlerLeft(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startPosition: number, startWidth: number) {
 			chartBar.position = startPosition + event.clientX - mouseDownPositionX;
-			chartBar.width = startWidth + startPosition - event.clientX;
+			chartBar.width = startWidth + mouseDownPositionX - event.clientX;
 			chartBar.update();
 		}
 
@@ -100,42 +102,36 @@ export class ChartBar
 			chartBar.update();
 		}
 
-		function setMouseDownHandlerLeft(chartBar: ChartBar, eventName: string, startPosition: number, startWidth: number) {
+		function setMouseDownHandlerLeft(chartBar: ChartBar, eventName: string) {
 			return function (mouseDownEvent: MouseEvent) {
-				chartBar.drawingArea.addEventListener('mousemove', (mouseMoveEvent: MouseEvent) => onResizeHandlerLeft(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startPosition, startWidth));
+				mouseDownEvent.stopPropagation();
+				let startPosition: number = chartBar.position;
+				let startWidth: number = chartBar.width;
+
+				function handleResize(mouseMoveEvent: MouseEvent) { onResizeHandlerLeft(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startPosition, startWidth) };
+				chartBar.drawingArea.addEventListener('mousemove', handleResize);
+				chartBar.drawingArea.addEventListener('mouseup', () => chartBar.drawingArea.removeEventListener('mousemove', handleResize));
 				chartBar.raiseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
 			}
 		}
 
-		function setMouseDownHandlerRight(chartBar: ChartBar, eventName: string, startWidth: number) {
+		function setMouseDownHandlerRight(chartBar: ChartBar, eventName: string) {
 			return function (mouseDownEvent: MouseEvent) {
-				chartBar.drawingArea.addEventListener('mousemove', (mouseMoveEvent: MouseEvent) => onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startWidth));
+				mouseDownEvent.stopPropagation();
+				let startWidth: number = chartBar.width;
+
+				function handleResize(mouseMoveEvent: MouseEvent) { onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startWidth) };
+				chartBar.drawingArea.addEventListener('mousemove', handleResize);
+				chartBar.drawingArea.addEventListener('mouseup', () => chartBar.drawingArea.removeEventListener('mousemove', handleResize));
 				chartBar.raiseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
 			}
 		}
 
-		// function setResizehandlerRight(chartBar: ChartBar) {
-		// 	return function(mouseDownEvent: MouseEvent) {
-		// 		// function handleMouseMoveEvent(mouseMoveEvent: MouseEvent) {
-		// 		// 	onResizeHandlerRight(mouseMoveEvent, this, mouseDownEvent.clientX, this.width);
-		// 		// }
-		// 		// function handleMouseUpEvent() {
-		// 		// 	handleElement.removeEventListener('mousemove', handleMouseMoveEvent);
-		// 		// 	handleElement.removeEventListener('mouseup', handleMouseUpEvent);
-		// 		// }
-		// 		// handleElement.addEventListener('mousemove', handleMouseMoveEvent);
-		// 		// handleElement.addEventListener('mouseup', handleMouseUpEvent);
-		// 		handleElement.addEventListener('mousemove', (mouseMoveEvent: MouseEvent) => onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, chartBar.width));
-		// 	}
-		// }
+		this._leftHandle = HtmlFactory.createElement(barElement, 'div', 'barHandle_' + this.id + '_left', new Map([['float', 'left']]), this.handleClassName);
+		this._leftHandle.addEventListener('mousedown', setMouseDownHandlerLeft(this, 'leftHandleMouseDown'));
 
-		let handleElement = HtmlFactory.createElement(barElement, 'div', 'barHandle_' + this.id + '_left', new Map([['float', 'left']]), this.handleClassName);
-		handleElement.addEventListener('mousedown', setMouseDownHandlerLeft(this, 'leftHandleMouseDown', this.position, this.width));
-		// handleElement.addEventListener('mouseup', setMouseEventHandler(this, 'leftHandleMouseUp'));
-
-		handleElement = HtmlFactory.createElement(barElement, 'div', 'barHandle_' + this.id + '_right', new Map([['float', 'right']]), this.handleClassName);
-		handleElement.addEventListener('mousedown', setMouseDownHandlerRight(this, 'rightHandleMouseDown', this.width));
-		// handleElement.addEventListener('mouseup', setMouseEventHandler(this, 'rightHandleMouseUp'));
+		this._rightHandle = HtmlFactory.createElement(barElement, 'div', 'barHandle_' + this.id + '_right', new Map([['float', 'right']]), this.handleClassName);
+		this._rightHandle.addEventListener('mousedown', setMouseDownHandlerRight(this, 'rightHandleMouseDown'));
 	}
 
 	public bind(eventName: string, handler: barHandleMouseEvent): number
@@ -205,6 +201,21 @@ export class ChartBar
 			['left', this.position.toString() + 'px']
 		]);
 		let barElement = HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes, this.className);
+
+		function setMouseDownEventhandler(chartBar: ChartBar) {
+			return function (mouseDownEvent: MouseEvent) {
+				let startPosition: number = chartBar.position;
+
+				function handleDrag(mouseMoveEvent: MouseEvent) {
+					chartBar.position = startPosition + mouseMoveEvent.clientX - mouseDownEvent.clientX;
+					chartBar.update();
+				};
+				chartBar.drawingArea.addEventListener('mousemove', handleDrag);
+				chartBar.drawingArea.addEventListener('mouseup', () => chartBar.drawingArea.removeEventListener('mousemove', handleDrag));
+			}
+		}
+
+		barElement.addEventListener('mousedown', setMouseDownEventhandler(this));
 		this.createBarHandles(barElement);
 		
 		return barElement;

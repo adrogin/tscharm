@@ -117,7 +117,8 @@ export class Chart
     {
 		let attributes: Map<string, string> = new Map([
 			['width', this.width.toString() + 'px'],
-			['height', this.height.toString() + 'px']
+			['height', this.height.toString() + 'px'],
+			['overflow', 'scroll']
 		]);
 		return HtmlFactory.createElement(parentElement, 'div', 'chart', attributes, 'chart');
     }
