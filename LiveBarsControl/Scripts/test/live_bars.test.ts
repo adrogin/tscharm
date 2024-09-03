@@ -244,6 +244,6 @@ describe('Creating HTML elements', () => {
 
         expect(document.getElementsByClassName('chart').length).toBe(1);
         expect(document.getElementsByClassName('chartLine').length).toBe(1);
-        expect(document.getElementsByClassName('chartBar').length).toBe(1);
+        expect(document.getElementsByClassName('chartBar-normal').length).toBe(1);
     });
 });

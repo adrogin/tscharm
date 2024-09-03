@@ -142,10 +142,7 @@ export class ChartLines
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
-		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString() + 'px'],
-			['height', this.height.toString() + 'px']
-		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chartLines', attributes, 'chartLines');
+		return new HtmlFactory().setId('chartLines').setClassName('chartLines').setWidth(this.width).setHeight(this.height)
+			.createElement(parentElement);
     }
 }

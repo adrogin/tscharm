@@ -72,10 +72,7 @@ export class ChartLine
 
     private createHtmlElement(parentElement: HTMLElement, height: number): HTMLElement
     {
-		let attributes: Map<string, string> = new Map([
-			['height', height.toString() + 'px'],
-			['top', this.position.toString() + 'px']
-		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chartLine_' + this.id.toString(), attributes, 'chartLine');
+		return new HtmlFactory().setId('chartLine_' + this.id.toString()).setClassName('chartLine').setHeight(height).setYPosition(this.position)
+			.createElement(parentElement);
     }
 }

@@ -115,11 +115,7 @@ export class Chart
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
-		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString() + 'px'],
-			['height', this.height.toString() + 'px'],
-			['overflow', 'scroll']
-		]);
-		return HtmlFactory.createElement(parentElement, 'div', 'chart', attributes, 'chart');
+		return new HtmlFactory().setId('chart').setClassName('chart').setWidth(this.width).setHeight(this.height).setIsScrollable(true)
+			.createElement(parentElement);
     }
 }

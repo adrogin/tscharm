@@ -81,12 +81,7 @@ export class ChartBar
 
 	private update(): void
 	{
-		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString() + 'px'],
-			['left', this.position.toString() + 'px']
-		]);
-
-		HtmlFactory.setElementStyle(this._htmlElement, attributes);
+		new HtmlFactory().setWidth(this.width).setXPosition(this.position).updateElement(this._htmlElement);
 	}
 
 	private createBarHandles(barElement: HTMLElement)
@@ -127,10 +122,11 @@ export class ChartBar
 			}
 		}
 
-		this._leftHandle = HtmlFactory.createElement(barElement, 'div', 'barHandle_' + this.id + '_left', new Map([['float', 'left']]), this.handleClassName);
+		let htmlFactory = new HtmlFactory();
+		this._leftHandle = htmlFactory.setId('barHandle_' + this.id + '_left').setClassName(this.handleClassName).setAlign('left').createElement(barElement);
 		this._leftHandle.addEventListener('mousedown', setMouseDownHandlerLeft(this, 'leftHandleMouseDown'));
 
-		this._rightHandle = HtmlFactory.createElement(barElement, 'div', 'barHandle_' + this.id + '_right', new Map([['float', 'right']]), this.handleClassName);
+		this._rightHandle = htmlFactory.setId('barHandle_' + this.id + '_right').setClassName(this.handleClassName).setAlign('right').createElement(barElement);
 		this._rightHandle.addEventListener('mousedown', setMouseDownHandlerRight(this, 'rightHandleMouseDown'));
 	}
 
@@ -196,11 +192,7 @@ export class ChartBar
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
-		let attributes: Map<string, string> = new Map([
-			['width', this.width.toString() + 'px'],
-			['left', this.position.toString() + 'px']
-		]);
-		let barElement = HtmlFactory.createElement(parentElement, 'div', 'chartBar_' + this._id, attributes, this.className);
+		let barElement = new HtmlFactory().setId('chartBar_' + this._id).setClassName(this.className).setClassName(this.className).setWidth(this.width).setXPosition(this.position).createElement(parentElement);
 
 		function setMouseDownEventhandler(chartBar: ChartBar) {
 			return function (mouseDownEvent: MouseEvent) {
