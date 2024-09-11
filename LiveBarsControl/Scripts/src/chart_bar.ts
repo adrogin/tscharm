@@ -2,7 +2,7 @@ import { HtmlFactory } from "./html_factory";
 
 interface barHandleMouseEvent
 {
-    (arg1?: any, arg2?: number, arg3?: number): void;
+    (arg1: any, arg2?: number, arg3?: number): void;
 }
 
 export class ChartBar
@@ -75,6 +75,7 @@ export class ChartBar
 	private _onResizeRightSubscribers: barHandleMouseEvent[] = [];
 	private _onResizeLeftDoneSubscribers: barHandleMouseEvent[] = [];
 	private _onResizeRightDoneSubscribers: barHandleMouseEvent[] = [];
+	private _onDragDoneSubscribers: barHandleMouseEvent[] = [];
 
     public draw(parentElement: HTMLElement): void
     {
@@ -169,6 +170,8 @@ export class ChartBar
 				return this.bindSubscription(this._onResizeLeftDoneSubscribers, handler);
 			case 'onResizeRightDone':
 				return this.bindSubscription(this._onResizeRightDoneSubscribers, handler);
+			case 'onDragDone':
+				return this.bindSubscription(this._onDragDoneSubscribers, handler);
 			default:
                 return -1;
         }
@@ -202,7 +205,10 @@ export class ChartBar
 				case 'onResizeRightDone':
 					this._onResizeRightDoneSubscribers.splice(handlerId, 1);
 					break;
-				}
+				case 'onDragDone':
+					this._onDragDoneSubscribers.splice(handlerId, 1);
+					break;
+			}
         }
     }
 
@@ -241,6 +247,9 @@ export class ChartBar
 			case 'onResizeRightDone':
 				this.sendResizeEventToSubscribers(this._onResizeRightDoneSubscribers, chartBar.id, newValue);
 				break;
+			case 'onDragDone':
+				this.sendResizeEventToSubscribers(this._onDragDoneSubscribers, chartBar.id, newValue);
+				break;
 		}
     }
 
@@ -276,8 +285,15 @@ export class ChartBar
 					chartBar.position = startPosition + mouseMoveEvent.clientX - mouseDownEvent.clientX;
 					chartBar.update();
 				};
+
+				function handleMouseUp(mouseUpevent: MouseEvent) {
+					chartBar.drawingArea.removeEventListener('mousemove', handleDrag);
+					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
+					chartBar.raiseResizeEvent('onDragDone', chartBar, startPosition + mouseUpevent.clientX - mouseDownEvent.clientX);
+				}
+
 				chartBar.drawingArea.addEventListener('mousemove', handleDrag);
-				chartBar.drawingArea.addEventListener('mouseup', () => chartBar.drawingArea.removeEventListener('mousemove', handleDrag));
+				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
 			}
 		}
 

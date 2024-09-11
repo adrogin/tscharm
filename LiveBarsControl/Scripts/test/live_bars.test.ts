@@ -247,3 +247,191 @@ describe('Creating HTML elements', () => {
         expect(document.getElementsByClassName('chartBar-normal').length).toBe(1);
     });
 });
+
+describe('Resizing bars', () => {
+    let chartContainer;
+
+    beforeAll(() => {
+        chartContainer = document.createElement('div');
+        document.body.appendChild(chartContainer);
+    });
+
+    beforeEach(() => {
+        let chartElement = document.getElementById('chart');
+        if (chartElement != null) {
+            chartElement.remove();
+        }
+    });
+
+    test('Move left bar handle', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(0, 30);
+        chart.draw(chartContainer);
+
+        document.getElementById('barHandle_0_0_left').dispatchEvent(
+            new MouseEvent('mousedown', {
+                bubbles: true,
+                clientX: 2,
+                clientY: 5
+            }));
+
+        const chartDrawingArea = document.getElementById('chartLines');
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mousemove', {
+                bubbles: true,
+                clientX: 22,
+                clientY: 50
+            }));
+
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mouseup', {
+                bubbles: true,
+                clientX: 22,
+                clientY: 50
+            }));
+
+        const bar = chart.lines.get(0).bars.get(0);
+        expect(bar.position).toBe(20);
+        expect(bar.width).toBe(10);
+    });
+
+    test('Move right bar handle', () => {
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(0, 30);
+        chart.draw(chartContainer);
+
+        document.getElementById('barHandle_0_0_right').dispatchEvent(
+            new MouseEvent('mousedown', {
+                bubbles: true,
+                clientX: 28,
+                clientY: 5
+            }));
+
+        const chartDrawingArea = document.getElementById('chartLines');
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mousemove', {
+                bubbles: true,
+                clientX: 45,
+                clientY: 50
+            }));
+
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mouseup', {
+                bubbles: true,
+                clientX: 45,
+                clientY: 50
+            }));
+
+        const bar = chart.lines.get(0).bars.get(0);
+        expect(bar.position).toBe(0);
+        expect(bar.width).toBe(47);
+    });
+
+    test('Fire OnResizeLeftDone event', () => {
+        const onResizeDoneCallback = jest.fn( () => { } );
+
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(0, 30);
+        chart.draw(chartContainer);
+        chart.bindBarEvent('onResizeLeftDone', onResizeDoneCallback);
+        chart.bindBarEvent('onResizeRightDone', onResizeDoneCallback);
+
+        document.getElementById('barHandle_0_0_left').dispatchEvent(
+            new MouseEvent('mousedown', {
+                bubbles: true,
+                clientX: 2,
+                clientY: 5
+            }));
+
+        const chartDrawingArea = document.getElementById('chartLines');
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mousemove', {
+                bubbles: true,
+                clientX: 45,
+                clientY: 50
+            }));
+
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mouseup', {
+                bubbles: true,
+                clientX: 45,
+                clientY: 50
+            }));
+
+        expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
+        expect(onResizeDoneCallback).toHaveBeenLastCalledWith('0_0', 43);
+    });
+
+    test('Fire OnResizeRightDone event', () => {
+        const onResizeDoneCallback = jest.fn( () => { } );
+
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(0, 30);
+        chart.draw(chartContainer);
+        chart.bindBarEvent('onResizeLeftDone', onResizeDoneCallback);
+        chart.bindBarEvent('onResizeRightDone', onResizeDoneCallback);
+
+        document.getElementById('barHandle_0_0_right').dispatchEvent(
+            new MouseEvent('mousedown', {
+                bubbles: true,
+                clientX: 28,
+                clientY: 5
+            }));
+
+        const chartDrawingArea = document.getElementById('chartLines');
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mousemove', {
+                bubbles: true,
+                clientX: 21,
+                clientY: 50
+            }));
+
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mouseup', {
+                bubbles: true,
+                clientX: 21,
+                clientY: 50
+            }));
+
+        expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
+        expect(onResizeDoneCallback).toHaveBeenLastCalledWith('0_0', 23);
+    });
+
+    test('Dragging a bar', () => {
+        const onDragDoneCallback = jest.fn(() => {});
+
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(0, 30);
+        chart.draw(chartContainer);
+        chart.bindBarEvent('onDragDone', onDragDoneCallback);
+
+        document.getElementById('chartBar_0_0').dispatchEvent(
+            new MouseEvent('mousedown', {
+                bubbles: true,
+                clientX: 15,
+                clientY: 5
+            }));
+
+        const chartDrawingArea = document.getElementById('chartLines');
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mousemove', {
+                bubbles: true,
+                clientX: 52,
+                clientY: 30
+            }));
+
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mouseup', {
+                bubbles: true,
+                clientX: 52,
+                clientY: 50
+            }));
+
+        const bar = chart.lines.get(0).bars.get(0);
+        expect(bar.position).toBe(37);
+        expect(bar.width).toBe(30);
+
+        expect(onDragDoneCallback).toHaveBeenCalledTimes(1);
+        expect(onDragDoneCallback).toHaveBeenLastCalledWith('0_0', 37);
+    });
+});

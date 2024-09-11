@@ -55,7 +55,7 @@ export class ChartBars
         this.raiseEvent('remove', bar);
 	}
 
-	public get(index): ChartBar
+	public get(index: number): ChartBar
 	{
 		return this._bars[index];
 	}

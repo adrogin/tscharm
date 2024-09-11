@@ -31,4 +31,6 @@ export function BindBarEvents() {
         'onResizeLeftDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeLeftDone', [BarId, NewPosition]));
     chart.bindBarEvent(
         'onResizeRightDone', (BarId, NewWidth) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeRightDone', [BarId, NewWidth]));
+    chart.bindBarEvent(
+        'onDragDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnDragDone', [BarId, NewPosition]));
 }

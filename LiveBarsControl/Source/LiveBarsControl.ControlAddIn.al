@@ -20,4 +20,5 @@ controladdin "Live Bars"
 
     event OnResizeLeftDone(BarId: Text; NewPosition: Integer);
     event OnResizeRightDone(BarId: Text; NewWidth: Integer);
+    event OnDragDone(BarId: Text; NewPosition: Integer);
 }

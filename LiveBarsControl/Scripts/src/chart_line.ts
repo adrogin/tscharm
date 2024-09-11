@@ -49,7 +49,11 @@ export class ChartLine
 	constructor(id?: string)
 	{
 		this._bars = new ChartBars(id, this.drawingArea);
-		this._bars.bind('add', (bar: ChartBar) => { this._rightEdge = bar.position, bar.width });
+		this._bars.bind('add', (bar: ChartBar) => {
+			if (bar.position + bar.width > this.rightEdge) {
+				this._rightEdge = bar.position + bar.width;
+			}
+		});
 		this._bars.bind('remove', (bar: ChartBar) => {
 			if (bar.position + bar.width >= this._rightEdge) {
 				this._rightEdge = this.bars.getRightEdge();

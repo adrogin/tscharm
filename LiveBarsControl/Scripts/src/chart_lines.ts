@@ -67,8 +67,10 @@ export class ChartLines
 		this.recalculateLinePositions();
 	}
 
-	public addNew(): void {
-		this.add(new ChartLine());
+	public addNew(): ChartLine {
+		let newLine: ChartLine = new ChartLine();
+		this.add(newLine);
+		return newLine;
 	}
 
 	public remove(index: number): void {
