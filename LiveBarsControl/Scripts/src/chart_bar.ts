@@ -2,7 +2,7 @@ import { HtmlFactory } from "./html_factory";
 
 interface barHandleMouseEvent
 {
-    (chartbar: ChartBar, clientX: number, clientY: number): void;
+    (arg1?: any, arg2?: number, arg3?: number): void;
 }
 
 export class ChartBar
@@ -67,12 +67,16 @@ export class ChartBar
 		}
 	}
 
-	private _lefthandleMouseDown: barHandleMouseEvent[] = [];
-	private _lefthandleMouseUp: barHandleMouseEvent[] = [];
+	private _leftHandleMouseDown: barHandleMouseEvent[] = [];
+	private _leftHandleMouseUp: barHandleMouseEvent[] = [];
     private _rightHandleMouseDown: barHandleMouseEvent[] = [];
 	private _rightHandleMouseUp: barHandleMouseEvent[] = [];
+	private _onResizeLeftSubscribers: barHandleMouseEvent[] = [];
+	private _onResizeRightSubscribers: barHandleMouseEvent[] = [];
+	private _onResizeLeftDoneSubscribers: barHandleMouseEvent[] = [];
+	private _onResizeRightDoneSubscribers: barHandleMouseEvent[] = [];
 
-    draw(parentElement: HTMLElement): void
+    public draw(parentElement: HTMLElement): void
     {
 		if (this._htmlElement == null) {
 			this._htmlElement = this.createHtmlElement(parentElement)
@@ -90,11 +94,15 @@ export class ChartBar
 			chartBar.position = startPosition + event.clientX - mouseDownPositionX;
 			chartBar.width = startWidth + mouseDownPositionX - event.clientX;
 			chartBar.update();
+
+			chartBar.raiseResizeEvent('onResizeLeft', chartBar, startPosition + event.clientX - mouseDownPositionX);
 		}
 
 		function onResizeHandlerRight(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startWidth: number) {
 			chartBar.width = startWidth + event.clientX - mouseDownPositionX;
 			chartBar.update();
+
+			chartBar.raiseResizeEvent('onResizeRight', chartBar, startWidth + event.clientX - mouseDownPositionX);
 		}
 
 		function setMouseDownHandlerLeft(chartBar: ChartBar, eventName: string) {
@@ -104,9 +112,15 @@ export class ChartBar
 				let startWidth: number = chartBar.width;
 
 				function handleResize(mouseMoveEvent: MouseEvent) { onResizeHandlerLeft(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startPosition, startWidth) };
+				function handleMouseUp() {
+					chartBar.drawingArea.removeEventListener('mousemove', handleResize);
+					chartBar.raiseResizeEvent('onResizeLeftDone', chartBar, chartBar.position);
+					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
+				}
+
 				chartBar.drawingArea.addEventListener('mousemove', handleResize);
-				chartBar.drawingArea.addEventListener('mouseup', () => chartBar.drawingArea.removeEventListener('mousemove', handleResize));
-				chartBar.raiseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
+				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
+				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
 			}
 		}
 
@@ -116,9 +130,15 @@ export class ChartBar
 				let startWidth: number = chartBar.width;
 
 				function handleResize(mouseMoveEvent: MouseEvent) { onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startWidth) };
+				function handleMouseUp() {
+					chartBar.drawingArea.removeEventListener('mousemove', handleResize)
+					chartBar.raiseResizeEvent('onResizeRightDone', chartBar, chartBar.width);
+					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
+				}
+
 				chartBar.drawingArea.addEventListener('mousemove', handleResize);
-				chartBar.drawingArea.addEventListener('mouseup', () => chartBar.drawingArea.removeEventListener('mousemove', handleResize));
-				chartBar.raiseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
+				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
+				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
 			}
 		}
 
@@ -134,13 +154,21 @@ export class ChartBar
     {
         switch (eventName) {
             case 'leftHandleMouseDown':
-                return this.bindSubscription(this._lefthandleMouseDown, handler);
+                return this.bindSubscription(this._leftHandleMouseDown, handler);
             case 'leftHandleMouseUp':
-                return this.bindSubscription(this._lefthandleMouseUp, handler);
+                return this.bindSubscription(this._leftHandleMouseUp, handler);
 			case 'rightHandleMouseDown':
 				return this.bindSubscription(this._rightHandleMouseDown, handler);
 			case 'rightHandleMouseUp':
 				return this.bindSubscription(this._rightHandleMouseUp, handler);
+			case 'onResizeLeft':
+				return this.bindSubscription(this._onResizeLeftSubscribers, handler);
+			case 'onResizeRight':
+				return this.bindSubscription(this._onResizeRightSubscribers, handler);
+			case 'onResizeLeftDone':
+				return this.bindSubscription(this._onResizeLeftDoneSubscribers, handler);
+			case 'onResizeRightDone':
+				return this.bindSubscription(this._onResizeRightDoneSubscribers, handler);
 			default:
                 return -1;
         }
@@ -151,40 +179,86 @@ export class ChartBar
         if (handlerId != null && handlerId >= 0) {
             switch (eventName) {
                 case 'leftHandleMouseDown':
-                    this._lefthandleMouseDown.splice(handlerId, 1);
+                    this._leftHandleMouseDown.splice(handlerId, 1);
+					break;
                 case 'leftHandleMouseUp':
-                    this._lefthandleMouseUp.splice(handlerId, 1);
+                    this._leftHandleMouseUp.splice(handlerId, 1);
+					break;
 				case 'rightHandleMouseDown':
 					this._rightHandleMouseDown.splice(handlerId, 1);
+					break;
 				case 'rightHandleMouseUp':
 					this._rightHandleMouseUp.splice(handlerId, 1);
-			}
+					break;
+				case 'onResizeLeft':
+					this._onResizeLeftSubscribers.splice(handlerId, 1);
+					break;
+				case 'onResizeRight':
+					this._onResizeRightSubscribers.splice(handlerId, 1);
+					break;
+				case 'onResizeLeftDone':
+					this._onResizeLeftDoneSubscribers.splice(handlerId, 1);
+					break;
+				case 'onResizeRightDone':
+					this._onResizeRightDoneSubscribers.splice(handlerId, 1);
+					break;
+				}
         }
     }
 
-    private raiseEvent(eventName: string, chartBar: ChartBar, clientX: number, clientY: number)
+    private raiseMouseEvent(eventName: string, chartBar: ChartBar, clientX: number, clientY: number)
     {
         switch (eventName)
         {
             case 'leftHandleMouseDown':
-                this.sendEventToSubscribers(this._lefthandleMouseDown, chartBar, clientX, clientY);
+                this.sendHandleMouseEventToSubscribers(this._leftHandleMouseDown, chartBar, clientX, clientY);
+				break;
             case 'leftHandleMouseUp':
-                this.sendEventToSubscribers(this._lefthandleMouseUp, chartBar, clientX, clientY);
+                this.sendHandleMouseEventToSubscribers(this._leftHandleMouseUp, chartBar, clientX, clientY);
+				break;
 			case 'rightHandleMouseDown':
-				this.sendEventToSubscribers(this._rightHandleMouseDown, chartBar, clientX, clientY);
+				this.sendHandleMouseEventToSubscribers(this._rightHandleMouseDown, chartBar, clientX, clientY);
+				break;
 			case 'rightHandleMouseUp':
-				this.sendEventToSubscribers(this._rightHandleMouseUp, chartBar, clientX, clientY);
+				this.sendHandleMouseEventToSubscribers(this._rightHandleMouseUp, chartBar, clientX, clientY);
+				break;
 		}
     }
 
-    private sendEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBar: ChartBar, clientX: number, clientY: number)
+	private raiseResizeEvent(eventName: string, chartBar: ChartBar, newValue: number)
+    {
+        switch (eventName)
+        {
+			case 'onResizeLeft':
+				this.sendResizeEventToSubscribers(this._onResizeLeftSubscribers, chartBar.id, newValue);
+				break;
+			case 'onResizeRight':
+				this.sendResizeEventToSubscribers(this._onResizeRightSubscribers, chartBar.id, newValue);
+				break;
+			case 'onResizeLeftDone':
+				this.sendResizeEventToSubscribers(this._onResizeLeftDoneSubscribers, chartBar.id, newValue);
+				break;
+			case 'onResizeRightDone':
+				this.sendResizeEventToSubscribers(this._onResizeRightDoneSubscribers, chartBar.id, newValue);
+				break;
+		}
+    }
+
+    private sendHandleMouseEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBar: ChartBar, clientX: number, clientY: number)
     {
         eventHandlers.forEach(handler => {
             handler(chartBar, clientX, clientY);
         });
     }
 
-	private bindSubscription(subscribers: barHandleMouseEvent[], handler: barHandleMouseEvent): number
+	private sendResizeEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBarId: string, newValue: number)
+    {
+        eventHandlers.forEach(handler => {
+            handler(chartBarId, newValue);
+        });
+    }
+
+	private bindSubscription(subscribers: any[], handler: any): number
     {
         subscribers.push(handler);
         return subscribers.length - 1;

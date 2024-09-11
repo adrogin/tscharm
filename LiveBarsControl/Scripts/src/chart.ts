@@ -113,6 +113,14 @@ export class Chart
 		return Math.floor(this.getDrawAreaWidth() / this.lines.getMaxWidth());
 	}
 
+	public bindBarEvent(eventName: string, handler) {
+		for (let lineNo: number = 0; lineNo < this.lines.count(); lineNo++) {
+			for (let barNo: number = 0; barNo < this.lines.get(lineNo).bars.count(); barNo++) {
+				this.lines.get(lineNo).bars.get(barNo).bind(eventName, handler);
+			}
+		}
+	}
+
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		return new HtmlFactory().setId('chart').setClassName('chart').setWidth(this.width).setHeight(this.height).setIsScrollable(true)

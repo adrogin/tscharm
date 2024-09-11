@@ -15,5 +15,9 @@ controladdin "Live Bars"
     procedure RemoveLine(Index: Integer);
     procedure AddBar(LineIndex: Integer; Position: Integer; Width: Integer; ClassName: Text);
     procedure RemoveBar(LineIndex: Integer; BarIndex: Integer);
+    procedure BindBarEvents();
     procedure Draw();
+
+    event OnResizeLeftDone(BarId: Text; NewPosition: Integer);
+    event OnResizeRightDone(BarId: Text; NewWidth: Integer);
 }

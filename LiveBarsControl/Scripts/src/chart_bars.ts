@@ -36,6 +36,10 @@ export class ChartBars
         this._drawingArea = drawingArea;
     }
 
+    public count(): number {
+        return this._bars.length;
+    }
+
 	public add(position: number, width: number, className?: string): void
 	{
         let bar: ChartBar = new ChartBar(position, width, className);
@@ -95,8 +99,10 @@ export class ChartBars
             switch (eventName) {
                 case 'add':
                     this._onAddSubscribers.splice(handlerId, 1);
+                    break;
                 case 'remove':
                     this._onRemoveSubscribers.splice(handlerId, 1);
+                    break;
             }
         }
     }
@@ -107,8 +113,10 @@ export class ChartBars
         {
             case 'add':
                 this.sendEventToSubscribers(this._onAddSubscribers, chartBar);
+                break;
             case 'remove':
                 this.sendEventToSubscribers(this._onRemoveSubscribers, chartBar);
+                break;
         }
     }
 
