@@ -251,6 +251,30 @@ describe('Creating HTML elements', () => {
 describe('Resizing bars', () => {
     let chartContainer;
 
+    function dragAndDrop(dragElementId: string, mouseDownX: number, mouseDownY: number, mouseUpX: number, mouseUpY: number) {
+        document.getElementById(dragElementId).dispatchEvent(
+            new MouseEvent('mousedown', {
+                bubbles: true,
+                clientX: mouseDownX,
+                clientY: mouseDownY
+            }));
+
+        const chartDrawingArea = document.getElementById('chartLines');
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mousemove', {
+                bubbles: true,
+                clientX: mouseUpX,
+                clientY: mouseUpY
+            }));
+
+        chartDrawingArea.dispatchEvent(
+            new MouseEvent('mouseup', {
+                bubbles: true,
+                clientX: mouseUpX,
+                clientY: mouseUpY
+            }));    
+    }
+
     beforeAll(() => {
         chartContainer = document.createElement('div');
         document.body.appendChild(chartContainer);
@@ -268,27 +292,7 @@ describe('Resizing bars', () => {
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
 
-        document.getElementById('barHandle_0_0_left').dispatchEvent(
-            new MouseEvent('mousedown', {
-                bubbles: true,
-                clientX: 2,
-                clientY: 5
-            }));
-
-        const chartDrawingArea = document.getElementById('chartLines');
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mousemove', {
-                bubbles: true,
-                clientX: 22,
-                clientY: 50
-            }));
-
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mouseup', {
-                bubbles: true,
-                clientX: 22,
-                clientY: 50
-            }));
+        dragAndDrop('barHandle_0_0_left', 2, 5, 22, 50);
 
         const bar = chart.lines.get(0).bars.get(0);
         expect(bar.position).toBe(20);
@@ -300,27 +304,7 @@ describe('Resizing bars', () => {
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
 
-        document.getElementById('barHandle_0_0_right').dispatchEvent(
-            new MouseEvent('mousedown', {
-                bubbles: true,
-                clientX: 28,
-                clientY: 5
-            }));
-
-        const chartDrawingArea = document.getElementById('chartLines');
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mousemove', {
-                bubbles: true,
-                clientX: 45,
-                clientY: 50
-            }));
-
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mouseup', {
-                bubbles: true,
-                clientX: 45,
-                clientY: 50
-            }));
+        dragAndDrop('barHandle_0_0_right', 28, 5, 45, 50);
 
         const bar = chart.lines.get(0).bars.get(0);
         expect(bar.position).toBe(0);
@@ -336,27 +320,7 @@ describe('Resizing bars', () => {
         chart.bindBarEvent('onResizeLeftDone', onResizeDoneCallback);
         chart.bindBarEvent('onResizeRightDone', onResizeDoneCallback);
 
-        document.getElementById('barHandle_0_0_left').dispatchEvent(
-            new MouseEvent('mousedown', {
-                bubbles: true,
-                clientX: 2,
-                clientY: 5
-            }));
-
-        const chartDrawingArea = document.getElementById('chartLines');
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mousemove', {
-                bubbles: true,
-                clientX: 45,
-                clientY: 50
-            }));
-
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mouseup', {
-                bubbles: true,
-                clientX: 45,
-                clientY: 50
-            }));
+        dragAndDrop('barHandle_0_0_left', 2, 5, 45, 50);
 
         expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
         expect(onResizeDoneCallback).toHaveBeenLastCalledWith('0_0', 43);
@@ -371,27 +335,7 @@ describe('Resizing bars', () => {
         chart.bindBarEvent('onResizeLeftDone', onResizeDoneCallback);
         chart.bindBarEvent('onResizeRightDone', onResizeDoneCallback);
 
-        document.getElementById('barHandle_0_0_right').dispatchEvent(
-            new MouseEvent('mousedown', {
-                bubbles: true,
-                clientX: 28,
-                clientY: 5
-            }));
-
-        const chartDrawingArea = document.getElementById('chartLines');
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mousemove', {
-                bubbles: true,
-                clientX: 21,
-                clientY: 50
-            }));
-
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mouseup', {
-                bubbles: true,
-                clientX: 21,
-                clientY: 50
-            }));
+        dragAndDrop('barHandle_0_0_right', 28, 5, 21, 50);
 
         expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
         expect(onResizeDoneCallback).toHaveBeenLastCalledWith('0_0', 23);
@@ -405,27 +349,7 @@ describe('Resizing bars', () => {
         chart.draw(chartContainer);
         chart.bindBarEvent('onDragDone', onDragDoneCallback);
 
-        document.getElementById('chartBar_0_0').dispatchEvent(
-            new MouseEvent('mousedown', {
-                bubbles: true,
-                clientX: 15,
-                clientY: 5
-            }));
-
-        const chartDrawingArea = document.getElementById('chartLines');
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mousemove', {
-                bubbles: true,
-                clientX: 52,
-                clientY: 30
-            }));
-
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mouseup', {
-                bubbles: true,
-                clientX: 52,
-                clientY: 50
-            }));
+        dragAndDrop('chartBar_0_0', 15, 5, 52, 30);
 
         const bar = chart.lines.get(0).bars.get(0);
         expect(bar.position).toBe(37);
@@ -433,5 +357,40 @@ describe('Resizing bars', () => {
 
         expect(onDragDoneCallback).toHaveBeenCalledTimes(1);
         expect(onDragDoneCallback).toHaveBeenLastCalledWith('0_0', 37);
+    });
+
+    test('Multiple manipulations with a bar', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(55, 125);
+        line.bars.add(200, 40);
+
+        chart.draw(chartContainer);
+        let bar = chart.lines.get(0).bars.get(1);
+
+        dragAndDrop('barHandle_0_1_left', 57, 5, 120, 5);
+        expect(bar.position).toBe(118);
+        expect(bar.width).toBe(62);
+
+        dragAndDrop('barHandle_0_1_left', 120, 5, 80, 5);
+        expect(bar.position).toBe(78);
+        expect(bar.width).toBe(102);
+
+        dragAndDrop('barHandle_0_1_right', 179, 6, 99, 25);
+        expect(bar.position).toBe(78);
+        expect(bar.width).toBe(22);
+
+        dragAndDrop('barHandle_0_1_right', 100, 5, 110, 5);
+        expect(bar.position).toBe(78);
+        expect(bar.width).toBe(32);
+
+        dragAndDrop('chartBar_0_1', 90, 5, 120, 5);
+        expect(bar.position).toBe(108);
+        expect(bar.width).toBe(32);
+
+        dragAndDrop('chartBar_0_1', 123, 5, 100, 5);
+        expect(bar.position).toBe(85);
+        expect(bar.width).toBe(32);
     });
 });

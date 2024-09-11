@@ -2,7 +2,7 @@ import { HtmlFactory } from "./html_factory";
 
 interface barHandleMouseEvent
 {
-    (arg1: any, arg2?: number, arg3?: number): void;
+    (arg1: string|ChartBar, arg2?: number, arg3?: number): void;
 }
 
 export class ChartBar
@@ -67,15 +67,18 @@ export class ChartBar
 		}
 	}
 
-	private _leftHandleMouseDown: barHandleMouseEvent[] = [];
-	private _leftHandleMouseUp: barHandleMouseEvent[] = [];
-    private _rightHandleMouseDown: barHandleMouseEvent[] = [];
-	private _rightHandleMouseUp: barHandleMouseEvent[] = [];
-	private _onResizeLeftSubscribers: barHandleMouseEvent[] = [];
-	private _onResizeRightSubscribers: barHandleMouseEvent[] = [];
-	private _onResizeLeftDoneSubscribers: barHandleMouseEvent[] = [];
-	private _onResizeRightDoneSubscribers: barHandleMouseEvent[] = [];
-	private _onDragDoneSubscribers: barHandleMouseEvent[] = [];
+	private _eventSubscribers = new Map<string, barHandleMouseEvent[]>();
+	private _supportedEvents = new Set([
+		'leftHandleMouseDown',
+		'leftHandleMouseUp',
+		'rightHandleMouseDown',
+		'rightHandleMouseUp',
+		'onResizeLeft',
+		'onResizeRight',
+		'onResizeLeftDone',
+		'onResizeRightDone',
+		'onDragDone'
+	]);
 
     public draw(parentElement: HTMLElement): void
     {
@@ -153,118 +156,51 @@ export class ChartBar
 
 	public bind(eventName: string, handler: barHandleMouseEvent): number
     {
-        switch (eventName) {
-            case 'leftHandleMouseDown':
-                return this.bindSubscription(this._leftHandleMouseDown, handler);
-            case 'leftHandleMouseUp':
-                return this.bindSubscription(this._leftHandleMouseUp, handler);
-			case 'rightHandleMouseDown':
-				return this.bindSubscription(this._rightHandleMouseDown, handler);
-			case 'rightHandleMouseUp':
-				return this.bindSubscription(this._rightHandleMouseUp, handler);
-			case 'onResizeLeft':
-				return this.bindSubscription(this._onResizeLeftSubscribers, handler);
-			case 'onResizeRight':
-				return this.bindSubscription(this._onResizeRightSubscribers, handler);
-			case 'onResizeLeftDone':
-				return this.bindSubscription(this._onResizeLeftDoneSubscribers, handler);
-			case 'onResizeRightDone':
-				return this.bindSubscription(this._onResizeRightDoneSubscribers, handler);
-			case 'onDragDone':
-				return this.bindSubscription(this._onDragDoneSubscribers, handler);
-			default:
-                return -1;
-        }
+		if (!this._supportedEvents.has(eventName)) {
+			return -1
+		}
+
+		let subscribers = this._eventSubscribers.get(eventName);
+		if (subscribers == null) {
+			subscribers = this._eventSubscribers.set(eventName, []).get(eventName);
+		}
+
+		return this.bindSubscription(subscribers, handler);
     }
 
     public unbind(eventName: string, handlerId: number)
     {
         if (handlerId != null && handlerId >= 0) {
-            switch (eventName) {
-                case 'leftHandleMouseDown':
-                    this._leftHandleMouseDown.splice(handlerId, 1);
-					break;
-                case 'leftHandleMouseUp':
-                    this._leftHandleMouseUp.splice(handlerId, 1);
-					break;
-				case 'rightHandleMouseDown':
-					this._rightHandleMouseDown.splice(handlerId, 1);
-					break;
-				case 'rightHandleMouseUp':
-					this._rightHandleMouseUp.splice(handlerId, 1);
-					break;
-				case 'onResizeLeft':
-					this._onResizeLeftSubscribers.splice(handlerId, 1);
-					break;
-				case 'onResizeRight':
-					this._onResizeRightSubscribers.splice(handlerId, 1);
-					break;
-				case 'onResizeLeftDone':
-					this._onResizeLeftDoneSubscribers.splice(handlerId, 1);
-					break;
-				case 'onResizeRightDone':
-					this._onResizeRightDoneSubscribers.splice(handlerId, 1);
-					break;
-				case 'onDragDone':
-					this._onDragDoneSubscribers.splice(handlerId, 1);
-					break;
-			}
+			this._eventSubscribers.get(eventName).splice(handlerId, 1);
         }
     }
 
     private raiseMouseEvent(eventName: string, chartBar: ChartBar, clientX: number, clientY: number)
     {
-        switch (eventName)
-        {
-            case 'leftHandleMouseDown':
-                this.sendHandleMouseEventToSubscribers(this._leftHandleMouseDown, chartBar, clientX, clientY);
-				break;
-            case 'leftHandleMouseUp':
-                this.sendHandleMouseEventToSubscribers(this._leftHandleMouseUp, chartBar, clientX, clientY);
-				break;
-			case 'rightHandleMouseDown':
-				this.sendHandleMouseEventToSubscribers(this._rightHandleMouseDown, chartBar, clientX, clientY);
-				break;
-			case 'rightHandleMouseUp':
-				this.sendHandleMouseEventToSubscribers(this._rightHandleMouseUp, chartBar, clientX, clientY);
-				break;
-		}
+		this.sendHandleMouseEventToSubscribers(this._eventSubscribers.get(eventName), chartBar, clientX, clientY);
     }
 
 	private raiseResizeEvent(eventName: string, chartBar: ChartBar, newValue: number)
     {
-        switch (eventName)
-        {
-			case 'onResizeLeft':
-				this.sendResizeEventToSubscribers(this._onResizeLeftSubscribers, chartBar.id, newValue);
-				break;
-			case 'onResizeRight':
-				this.sendResizeEventToSubscribers(this._onResizeRightSubscribers, chartBar.id, newValue);
-				break;
-			case 'onResizeLeftDone':
-				this.sendResizeEventToSubscribers(this._onResizeLeftDoneSubscribers, chartBar.id, newValue);
-				break;
-			case 'onResizeRightDone':
-				this.sendResizeEventToSubscribers(this._onResizeRightDoneSubscribers, chartBar.id, newValue);
-				break;
-			case 'onDragDone':
-				this.sendResizeEventToSubscribers(this._onDragDoneSubscribers, chartBar.id, newValue);
-				break;
-		}
+		this.sendResizeEventToSubscribers(this._eventSubscribers.get(eventName), chartBar.id, newValue);
     }
 
     private sendHandleMouseEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBar: ChartBar, clientX: number, clientY: number)
     {
-        eventHandlers.forEach(handler => {
-            handler(chartBar, clientX, clientY);
-        });
+		if (eventHandlers != null) {
+			eventHandlers.forEach(handler => {
+				handler(chartBar, clientX, clientY);
+			});
+		}
     }
 
 	private sendResizeEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBarId: string, newValue: number)
     {
-        eventHandlers.forEach(handler => {
-            handler(chartBarId, newValue);
-        });
+		if (eventHandlers != null) {
+			eventHandlers.forEach(handler => {
+				handler(chartBarId, newValue);
+			});
+		}
     }
 
 	private bindSubscription(subscribers: any[], handler: any): number
