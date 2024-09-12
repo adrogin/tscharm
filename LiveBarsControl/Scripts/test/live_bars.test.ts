@@ -393,4 +393,30 @@ describe('Resizing bars', () => {
         expect(bar.position).toBe(85);
         expect(bar.width).toBe(32);
     });
+
+    test('Left resize limit', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(55, 125);
+        line.bars.add(200, 40);
+        chart.draw(chartContainer);
+
+        dragAndDrop('barHandle_0_1_left', 57, 5, 30, 5);
+
+        expect(line.bars.get(1).position).toBe(50);
+    });
+
+    test('Right resize limit', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(55, 125);
+        line.bars.add(200, 40);
+        chart.draw(chartContainer);
+
+        dragAndDrop('barHandle_0_1_right', 127, 5, 220, 5);
+
+        expect(line.bars.get(1).width).toBe(145);
+    });
 });

@@ -31,6 +31,16 @@ export class ChartBars
         this._parentLineId = newParentLineId;
     }
 
+    private maxResizeAllowed(barsCollection: ChartBar[]) {
+        return function(position: number, width: number): { leftBoundary: number, rightBoundary: number }
+        {
+            return {
+                leftBoundary: Math.max(...barsCollection.map(bar => bar.position + bar.width).filter(x => x < position)),
+                rightBoundary: Math.min(...barsCollection.map(bar => bar.position).filter(x => x > position + width))
+            }
+        }
+    }
+
     constructor(parentLineId: string, drawingArea: HTMLElement) {
         this._parentLineId = parentLineId;
         this._drawingArea = drawingArea;
@@ -44,6 +54,7 @@ export class ChartBars
 	{
         let bar: ChartBar = new ChartBar(position, width, className);
         bar.drawingArea = this.drawingArea;
+        bar.getMaxResizeAllowed = this.maxResizeAllowed(this._bars);
 		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineId + '_' + (++this._lastBarId).toString();
         this.raiseEvent('add', bar);
 	}

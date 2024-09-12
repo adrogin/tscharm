@@ -5,6 +5,10 @@ import { HtmlFactory } from "./html_factory";
 export class ChartLine
 {
 	private _bars: ChartBars;
+	get bars(): ChartBars {
+		return this._bars;
+	}
+
 	private _htmlElement: HTMLElement;
 	get htmlElement(): HTMLElement {
 		return this._htmlElement;
@@ -26,10 +30,6 @@ export class ChartLine
 	set id(newId: string) {
 		this._id = newId;
 		this._bars.parentLineId = newId;
-	}
-
-	get bars(): ChartBars {
-		return this._bars;
 	}
 
 	private _rightEdge: number = 0;
