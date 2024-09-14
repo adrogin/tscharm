@@ -35,8 +35,8 @@ export class ChartBars
         return function(position: number, width: number): { leftBoundary: number, rightBoundary: number }
         {
             return {
-                leftBoundary: Math.max(...barsCollection.map(bar => bar.position + bar.width).filter(x => x < position)),
-                rightBoundary: Math.min(...barsCollection.map(bar => bar.position).filter(x => x > position + width))
+                leftBoundary: Math.max(...barsCollection.map(bar => bar.position + bar.width).filter(x => x <= position)),
+                rightBoundary: Math.min(...barsCollection.map(bar => bar.position).filter(x => x >= position + width))
             }
         }
     }

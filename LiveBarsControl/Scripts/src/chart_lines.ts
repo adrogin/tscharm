@@ -29,11 +29,9 @@ export class ChartLines
     }
 
     private _vSpacing: number = 10;
-
 	get vSpacing(): number {
 		return this._vSpacing;
 	}
-
 	set vSpacing(newVSpacing: number) {
 		this._vSpacing = newVSpacing;
 		this.scaleHeightToFit();
@@ -59,6 +57,22 @@ export class ChartLines
 	get lineHeight(): number {
 		return this._lineHeight;
 	}
+
+	private _positionX: number;
+	get positionX(): number {
+		return this._positionX;
+	}
+	set positionX(newPositionX: number) {
+		this._positionX = newPositionX;
+	}
+
+	// private _positionY: number;
+	// get positionY(): number {
+	// 	return this._positionY;
+	// }
+	// set positionY(newPositionY: number) {
+	// 	this._positionY = newPositionY;
+	// }
 
 	public add(line: ChartLine): void {
 		line.drawingArea = this.htmlElement;
@@ -145,6 +159,6 @@ export class ChartLines
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		return new HtmlFactory().setId('chartLines').setClassName('chartLines').setWidth(this.width).setHeight(this.height)
-			.createElement(parentElement);
+			.setXPosition(this.positionX).createElement(parentElement);
     }
 }

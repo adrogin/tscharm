@@ -100,7 +100,7 @@ export class ChartBar
 			const newPosition = startPosition + event.clientX - mouseDownPositionX;
 			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
 			chartBar.position = newPosition < maxResize.leftBoundary ? maxResize.leftBoundary : newPosition;
-			chartBar.width = startWidth + mouseDownPositionX - event.clientX;
+			chartBar.width = startWidth + startPosition - chartBar.position;
 			chartBar.update();
 
 			chartBar.raiseResizeEvent('onResizeLeft', chartBar, newPosition);
@@ -224,7 +224,12 @@ export class ChartBar
 				let startPosition: number = chartBar.position;
 
 				function handleDrag(mouseMoveEvent: MouseEvent) {
-					chartBar.position = startPosition + mouseMoveEvent.clientX - mouseDownEvent.clientX;
+					const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
+					const newPosition = startPosition + mouseMoveEvent.clientX - mouseDownEvent.clientX;
+					chartBar.position = 
+						newPosition < maxResize.leftBoundary ? maxResize.leftBoundary : 
+						newPosition + chartBar.width > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.width :
+							newPosition;
 					chartBar.update();
 				};
 

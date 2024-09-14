@@ -1,6 +1,19 @@
 import { Chart } from "../src/chart"
 import { ChartLine } from "../src/chart_line";
 
+function createChartContainer(): HTMLElement {
+    let chartContainer = document.createElement('div');
+    document.body.appendChild(chartContainer);
+    return chartContainer;
+}
+
+function removeChart() {
+    let chartElement = document.getElementById('chart');
+    if (chartElement != null) {
+        chartElement.remove();
+    }
+}
+
 describe('Basic object instantiation tests', () => {
     test('Instantiate chart and get draw area width', () => {
         let chart: Chart = new Chart(200, 100);
@@ -170,15 +183,11 @@ describe('Creating HTML elements', () => {
     }
 
     beforeAll(() => {
-        chartContainer = document.createElement('div');
-        document.body.appendChild(chartContainer);
+        chartContainer = createChartContainer();
     });
 
     beforeEach(() => {
-        let chartElement = document.getElementById('chart');
-        if (chartElement != null) {
-            chartElement.remove();
-        }
+        removeChart();
     });
 
     test('Create HTML element for the chart and add to container', () => {
@@ -276,15 +285,11 @@ describe('Resizing bars', () => {
     }
 
     beforeAll(() => {
-        chartContainer = document.createElement('div');
-        document.body.appendChild(chartContainer);
+        chartContainer = createChartContainer();
     });
 
     beforeEach(() => {
-        let chartElement = document.getElementById('chart');
-        if (chartElement != null) {
-            chartElement.remove();
-        }
+        removeChart();
     });
 
     test('Move left bar handle', () => {
@@ -405,6 +410,7 @@ describe('Resizing bars', () => {
         dragAndDrop('barHandle_0_1_left', 57, 5, 30, 5);
 
         expect(line.bars.get(1).position).toBe(50);
+        expect(line.bars.get(1).width).toBe(130);
     });
 
     test('Right resize limit', () => {
@@ -415,8 +421,91 @@ describe('Resizing bars', () => {
         line.bars.add(200, 40);
         chart.draw(chartContainer);
 
-        dragAndDrop('barHandle_0_1_right', 127, 5, 220, 5);
+        dragAndDrop('barHandle_0_1_right', 123, 5, 220, 5);
 
+        expect(line.bars.get(1).position).toBe(55);
         expect(line.bars.get(1).width).toBe(145);
+    });
+
+    test('Left resize limit with adjacent bar', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(50, 125);
+        line.bars.add(200, 40);
+        chart.draw(chartContainer);
+
+        dragAndDrop('barHandle_0_1_left', 52, 5, 30, 5);
+
+        expect(line.bars.get(1).position).toBe(50);
+        expect(line.bars.get(1).width).toBe(125);
+    });
+
+    test('Right resize limit with adjacent bar', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(55, 125);
+        line.bars.add(180, 40);
+        chart.draw(chartContainer);
+
+        dragAndDrop('barHandle_0_1_right', 123, 5, 220, 5);
+
+        expect(line.bars.get(1).position).toBe(55);
+        expect(line.bars.get(1).width).toBe(125);
+    });
+
+    test('Drag left limit', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(60, 125);
+        line.bars.add(200, 40);
+        chart.draw(chartContainer);
+
+        dragAndDrop('chartBar_0_1', 80, 5, 30, 5);
+
+        expect(line.bars.get(1).position).toBe(50);
+        expect(line.bars.get(1).width).toBe(125);
+    });
+
+    test('Drag right limit', () => {
+        let chart = new Chart(250, 200);
+        const line = chart.lines.addNew();
+        line.bars.add(0, 50);
+        line.bars.add(60, 125);
+        line.bars.add(200, 40);
+        chart.draw(chartContainer);
+
+        dragAndDrop('chartBar_0_1', 80, 5, 220, 5);
+
+        expect(line.bars.get(1).position).toBe(75);
+        expect(line.bars.get(1).width).toBe(125);
+    });
+});
+
+describe('Chart axes and marking', () => {
+    let chartContainer;
+
+    beforeAll(() => {
+        chartContainer = createChartContainer();
+    });
+
+    beforeEach(() => {
+        removeChart();
+    });
+
+    test('Enabling axes reduces the chart drawing area and shifts the lines origin point', () => {
+        let chart = new Chart(200, 100);
+        chart.showAxes = true;
+        chart.xAxis.height = 15;
+        chart.yAxis.width = 15;
+        chart.vMargin = 7;
+        chart.hMargin = 7;
+
+        chart.draw(chartContainer)
+    
+        expect(chart.getDrawAreaWidth()).toBe(171);
+        expect(chart.getDrawAreaHeight()).toBe(71);
     });
 });

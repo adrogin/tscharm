@@ -1,9 +1,13 @@
 div.chart {
     margin: 0;
+    overflow: hidden;
 }
 
 div.chartLines {
     margin: 0;
+    position: relative;
+    float: left;
+    overflow: hidden;
 }
 
 div.chartLine {
@@ -75,4 +79,26 @@ div.barHandle {
         transparent 40px,
         transparent 80px
       )
+}
+
+div.chartAxis {
+    margin: 0;
+    position: relative;
+    float: left;
+    box-sizing: border-box;
+    background-color: black;
+}
+
+div.chartPartTop {
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+div.chartPartMain {
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
 }

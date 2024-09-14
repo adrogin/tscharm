@@ -11,6 +11,7 @@ controladdin "Live Bars"
     StyleSheets = 'Scripts/stylesheets/chart.css';
 
     procedure CreateChart(Width: Integer; Height: Integer);
+    procedure ShowLabels();
     procedure AddNewLine();
     procedure RemoveLine(Index: Integer);
     procedure AddBar(LineIndex: Integer; Position: Integer; Width: Integer; ClassName: Text);

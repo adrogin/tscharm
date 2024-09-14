@@ -26,6 +26,10 @@ export function Draw() {
     chart.draw(document.getElementById('controlAddIn'));
 }
 
+export function ShowLabels() {
+    chart.showAxes = true;
+}
+
 export function BindBarEvents() {
     chart.bindBarEvent(
         'onResizeLeftDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeLeftDone', [BarId, NewPosition]));
