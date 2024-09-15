@@ -1,13 +1,14 @@
 import { ChartXAxis, ChartYAxis } from "./chart_axis";
 import { ChartLines } from "./chart_lines";
+import { ChartRuler } from "./chart_ruler";
 import { HtmlFactory } from "./html_factory";
 
 export class Chart
 {
 	constructor(width?: number, height?: number) {
 		this._lines = new ChartLines();
-		this._xAxis = new ChartXAxis();
-		this._yAxis = new ChartYAxis();
+		this._xAxis = new ChartXAxis(new ChartRuler());
+		this._yAxis = new ChartYAxis(new ChartRuler());
 		this.height = height;
 		this.width = width;
 	}
@@ -42,24 +43,6 @@ export class Chart
 		this._unitSize = this.recalculateUnitScale();
 	}
 
-	private _hMargin: number = 5;
-	get hMargin(): number {
-		return this._hMargin;
-	}
-	set hMargin(newHMargin: number) {
-		this._hMargin = newHMargin;
-		this._unitSize = this.recalculateUnitScale();
-	}
-
-	private _vMargin: number = 5;
-	get vMargin(): number {
-		return this._vMargin;
-	}
-	set vMargin(newVMargin: number) {
-		this._vMargin = newVMargin;
-		this._lines.scaleHeightToFit();
-	}
-
 	private _xAxis: ChartXAxis;
 	get xAxis(): ChartXAxis {
 		return this._xAxis;
@@ -76,6 +59,7 @@ export class Chart
 	}
 	set showAxes(newShowAxes: boolean) {
 		this._showAxes = newShowAxes;
+		this.setAxesSizeAndPosition();
 		this.setLinesAreaPositionSize();
 	}
 
@@ -87,15 +71,15 @@ export class Chart
 	private _unitSize: number;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
 
 	private setAxesSizeAndPosition() {
-		this.xAxis.position = this.yAxis.width + this.hMargin;
-		this.xAxis.width = this.width - this.yAxis.width - this.hMargin;
-		this.yAxis.position = this.xAxis.height + this.vMargin;
-		this.yAxis.height = this.height - this.xAxis.height - this.vMargin;
+		this.xAxis.position = this.getLeftAxisAreaWidth();
+		this.xAxis.width = this.getDrawAreaWidth();
+		this.yAxis.position = this.getTopPartHeight();
+		this.yAxis.height = this.getDrawAreaHeight();
 		this.setLinesAreaPositionSize();
 	}
 
 	private setLinesAreaPositionSize() {
-		this.lines.positionX = this.getLeftAxisAreaWidth();
+		this.lines.positionX = 0;
 		this.lines.width = this.width - this.getLeftAxisAreaWidth();
 	}
 
@@ -142,7 +126,7 @@ export class Chart
 	}
 
 	private getTopPartHeight(): number {
-		return this.showAxes ? this.xAxis.height + this.vMargin : 0;
+		return this.showAxes ? this.xAxis.height : 0;
 	}
 
 	private getMainPartHeight(): number {
@@ -151,12 +135,12 @@ export class Chart
 
 	private getLeftAxisAreaWidth(): number
 	{
-		return this.showAxes ? this.yAxis.width + this.hMargin : 0;
+		return this.showAxes ? this.yAxis.width : 0;
 	}
 
     private createChartHtmlElement(parentElement: HTMLElement): HTMLElement
     {
-		return new HtmlFactory().setId('chart').setClassName('chart').setWidth(this.width).setHeight(this.height).setIsScrollable(true)
+		return new HtmlFactory().setId('chart').setClassName('chart').setWidth(this.width).setHeight(this.height)
 			.createElement(parentElement);
     }
 

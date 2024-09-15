@@ -12,6 +12,8 @@ controladdin "Live Bars"
 
     procedure CreateChart(Width: Integer; Height: Integer);
     procedure ShowLabels();
+    procedure SetXAxisMarks(Marks: JsonArray);
+    procedure SetYAxisMarks(Marks: JsonArray);
     procedure AddNewLine();
     procedure RemoveLine(Index: Integer);
     procedure AddBar(LineIndex: Integer; Position: Integer; Width: Integer; ClassName: Text);

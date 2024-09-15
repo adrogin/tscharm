@@ -1,15 +1,10 @@
-import { ChartMark } from "./chart_mark";
 import { HtmlFactory } from "./html_factory";
+import { AxisDirection, AxisMarker } from "./axis_marker";
 
 export class ChartXAxis
 {
-	private _marks: ChartMark[];
-	get marks(): ChartMark[]
-	{
-		return this._marks;
-	}
-	set marks(newMarks: ChartMark[]) {
-		this._marks = newMarks;
+	constructor (marker: AxisMarker) {
+		this._axisMarker = marker;
 	}
 
 	private _width: number = 0;
@@ -20,7 +15,7 @@ export class ChartXAxis
 		this._width = newWidth;
 	}
 
-	private _height: number = 20;
+	private _height: number = 25;
 	get height(): number {
 		return this._height;
 	}
@@ -37,29 +32,30 @@ export class ChartXAxis
 	}
 
 	private _htmlElement: HTMLElement;
+	private _axisMarker: AxisMarker;
+
+	initializeMarker(...args) {
+		this._axisMarker.initialize(args);
+	}
 
     public draw(parentElement: HTMLElement): void {
 		if (this._htmlElement != null)
 			return;
 
-		this._htmlElement = new HtmlFactory().setClassName('chartAxis').setWidth(this.width).setHeight(this.height)
+		this._htmlElement = new HtmlFactory().setClassName('chartAxisX').setWidth(this.width)
 			.setXPosition(this.position)
 			.createElement(parentElement);
+		this._axisMarker.setMarks(this._htmlElement, AxisDirection.LeftRight);
 	}
 }
 
 export class ChartYAxis
 {
-	private _marks: ChartMark[];
-	get marks(): ChartMark[]
-	{
-		return this._marks;
-	}
-	set marks(newMarks: ChartMark[]) {
-		this._marks = newMarks;
+	constructor (marker: AxisMarker) {
+		this._axisMarker = marker;
 	}
 
-	private _width: number = 20;
+	private _width: number = 25;
 	get width(): number {
 		return this._width;
 	}
@@ -84,13 +80,19 @@ export class ChartYAxis
 	}
 
 	private _htmlElement: HTMLElement;
+	private _axisMarker: AxisMarker;
+
+	initializeMarker(...args) {
+		this._axisMarker.initialize(args);
+	}
 
 	draw(parentElement: HTMLElement): void
     {
 		if (this._htmlElement != null)
 			return;
 
-		this._htmlElement = new HtmlFactory().setClassName('chartAxis').setWidth(this.width).setHeight(this.height)
+		this._htmlElement = new HtmlFactory().setClassName('chartAxisY').setWidth(this.width).setHeight(this.height)
 			.createElement(parentElement);
+		this._axisMarker.setMarks(this._htmlElement, AxisDirection.TopDown);
     }
 }

@@ -30,6 +30,10 @@ export function ShowLabels() {
     chart.showAxes = true;
 }
 
+export function SetXAxisMarks(Marks) {
+    chart.xAxis.initializeMarker(Marks);
+}
+
 export function BindBarEvents() {
     chart.bindBarEvent(
         'onResizeLeftDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeLeftDone', [BarId, NewPosition]));
