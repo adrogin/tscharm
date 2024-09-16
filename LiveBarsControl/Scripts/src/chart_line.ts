@@ -46,6 +46,14 @@ export class ChartLine
 		this._position = newPosition;
 	}
 
+	private _label: string;
+    get label(): string {
+        return this._label;
+    }
+    set label(newLabel: string) {
+        this._label = newLabel;
+    }
+
 	constructor(id?: string)
 	{
 		this._bars = new ChartBars(id, this.drawingArea);
@@ -65,18 +73,18 @@ export class ChartLine
 		}
 	}
 
-	public draw(parentElement: HTMLElement, height: number): void
+	public draw(parentElement: HTMLElement, size: number): void
 	{
 		if (this._htmlElement == null) {
-			this._htmlElement = this.createHtmlElement(parentElement, height);			
+			this._htmlElement = this.createHtmlElement(parentElement, size);			
 		}
 
 		this.bars.draw(this._htmlElement);
 	}
 
-    private createHtmlElement(parentElement: HTMLElement, height: number): HTMLElement
+    private createHtmlElement(parentElement: HTMLElement, size: number): HTMLElement
     {
-		return new HtmlFactory().setId('chartLine_' + this.id.toString()).setClassName('chartLine').setHeight(height).setYPosition(this.position)
+		return new HtmlFactory().setId('chartLine_' + this.id.toString()).setClassName('chartLine').setHeight(size).setYPosition(this.position)
 			.createElement(parentElement);
     }
 }

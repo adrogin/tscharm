@@ -34,8 +34,8 @@ export class ChartXAxis
 	private _htmlElement: HTMLElement;
 	private _axisMarker: AxisMarker;
 
-	initializeMarker(...args) {
-		this._axisMarker.initialize(args);
+	initializeMarker(labels: string[], positions?: {position: number, size: number}[]) {
+		this._axisMarker.initialize(labels, positions);
 	}
 
     public draw(parentElement: HTMLElement): void {
@@ -43,7 +43,6 @@ export class ChartXAxis
 			return;
 
 		this._htmlElement = new HtmlFactory().setClassName('chartAxisX').setWidth(this.width)
-			.setXPosition(this.position)
 			.createElement(parentElement);
 		this._axisMarker.setMarks(this._htmlElement, AxisDirection.LeftRight);
 	}
@@ -55,7 +54,7 @@ export class ChartYAxis
 		this._axisMarker = marker;
 	}
 
-	private _width: number = 25;
+	private _width: number = 60;
 	get width(): number {
 		return this._width;
 	}
@@ -82,17 +81,15 @@ export class ChartYAxis
 	private _htmlElement: HTMLElement;
 	private _axisMarker: AxisMarker;
 
-	initializeMarker(...args) {
-		this._axisMarker.initialize(args);
+	initializeMarker(labels: string[], positions?: {position: number, size: number}[]) {
+		this._axisMarker.initialize(labels, positions);
 	}
 
 	draw(parentElement: HTMLElement): void
     {
-		if (this._htmlElement != null)
-			return;
-
-		this._htmlElement = new HtmlFactory().setClassName('chartAxisY').setWidth(this.width).setHeight(this.height)
-			.createElement(parentElement);
+		if (this._htmlElement == null)
+			this._htmlElement = new HtmlFactory().setClassName('chartAxisY').setWidth(this.width).setHeight(this.height)
+				.createElement(parentElement);
 		this._axisMarker.setMarks(this._htmlElement, AxisDirection.TopDown);
     }
 }

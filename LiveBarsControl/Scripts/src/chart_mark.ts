@@ -1,8 +1,12 @@
 export class ChartMark
 {
-	constructor (labelText: string, position?: number) {
+	constructor (labelText: string, position?: { position?: number, size?: number }) {
 		this.text = labelText;
-		this.position = position;
+
+		if (position != null) {
+			this.position = position.position;
+			this.size = position.size;
+		}
 	}
 
 	private _position: number;
@@ -12,7 +16,15 @@ export class ChartMark
 	set position(newPosition: number) {
 		this._position = newPosition;
 	}
-	
+
+	private _size: number;
+	get size(): number {
+		return this._size;
+	}
+	set size(newSize: number) {
+		this._size = newSize;
+	}
+
 	private _className: string = 'chartMark';
 	
 	private _text: string;

@@ -14,6 +14,14 @@ export function RemoveLine(Index) {
     chart.lines.remove(Index);
 }
 
+export function SetLineLabel(Index, Label) {
+    chart.lines.get(Index).label = Label;
+}
+
+export function SetAllLineLabels(Labels) {
+    chart.lines.setLabels(Labels);
+}
+
 export function AddBar(LineIndex, Position, Width, ClassName) {
     chart.lines.get(LineIndex).bars.add(Position, Width, ClassName);
 }
@@ -24,6 +32,11 @@ export function RemoveBar(LineIndex, BarIndex) {
 
 export function Draw() {
     chart.draw(document.getElementById('controlAddIn'));
+}
+
+export function Clear() {
+    chart.htmlElement.remove();
+    chart = null;
 }
 
 export function ShowLabels() {

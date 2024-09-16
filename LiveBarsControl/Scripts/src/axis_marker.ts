@@ -8,6 +8,6 @@ export enum AxisDirection
 
 export interface AxisMarker
 {
-    initialize(...args): void
+    initialize(labels: string[], positions?: { position: number, size: number }[]): void
     setMarks(parentElement: HTMLElement, direction: AxisDirection): void
 }

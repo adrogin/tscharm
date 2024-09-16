@@ -7,18 +7,13 @@ export class ChartRuler implements AxisMarker
     private _marks: ChartMark[] = [];
     private _htmlElements: HTMLElement[] = [];
 
-    public initialize(args) {
-        if (args == null || !args.length)
-            return;
-
-        for (let i: number = 0; i < args[0].length; i++) {
-            let markPosition: number = null;
-
-            if (args.length > 1 && args[1][i] != null) {
-                markPosition = args[1][i];
+    public initialize(labels: string[], positions?: { position: number, size: number }[]) {
+        for (let i: number = 0; i < labels.length; i++) {
+            let position: { position: number, size: number };
+            if (positions != null) {
+                position = positions[i];
             }
-
-            this._marks.push(new ChartMark(args[0][i], markPosition));
+            this._marks.push(new ChartMark(labels[i], position));
         };
     }
 
@@ -36,7 +31,7 @@ export class ChartRuler implements AxisMarker
         let xPosition: number = 0;
         let yPosition: number = 0;
 
-        if (isHorizontal) {
+        if (isHorizontal()) {
             step = Math.floor(parentElement.clientWidth / this._marks.length);
         }
         else {
@@ -52,23 +47,25 @@ export class ChartRuler implements AxisMarker
         if (direction == AxisDirection.BottomUp)
             yPosition = parentElement.clientHeight;
 
-        const htmlFactory: HtmlFactory = new HtmlFactory().setClassName('chartLabel');
+        const htmlFactory: HtmlFactory = new HtmlFactory();
         this._marks.forEach(mark => {
             if (mark.position == null) {
-                mark.position = isHorizontal ? xPosition : yPosition;
+                mark.position = isHorizontal() ? xPosition : yPosition;
+                mark.size = Math.abs(step);
             }
 
-            if (isHorizontal) {
-                htmlFactory.setXPosition(mark.position).setWidth(Math.abs(step));
+            htmlFactory.setClassName('chartLabel');
+            if (isHorizontal()) {
+                htmlFactory.setXPosition(mark.position).setWidth(mark.size);
             }
             else {
-                htmlFactory.setYPosition(mark.position).setHeight(Math.abs(step));
+                htmlFactory.setYPosition(mark.position).setHeight(mark.size);
             }
 
             let markHtml = htmlFactory.createElement(parentElement);
             markHtml.innerText = mark.text;
             this._htmlElements.push(markHtml);
-            isHorizontal ? xPosition += step : yPosition += step;
+            isHorizontal() ? xPosition += step : yPosition += step;
         });
     }
 }

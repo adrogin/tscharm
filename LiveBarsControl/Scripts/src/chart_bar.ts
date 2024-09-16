@@ -58,6 +58,8 @@ export class ChartBar
 		this._handleClassName = newHandleClassName;
 	}
 
+	// Default function allows unbounded resizing and can be replaced by an alternative implementation.
+	// ChartBars class injects a function that detects neighbours' boundaries and limits resizing respectively.
 	public getMaxResizeAllowed = (leftBoundary: number, rightBoundary: number) => { return { leftBoundary, rightBoundary } }
 
 	constructor(position: number, width: number, className?: string) {

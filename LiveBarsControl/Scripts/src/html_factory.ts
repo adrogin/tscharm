@@ -1,22 +1,25 @@
 export class HtmlFactory
 {
-    private _width: number;
-    private _height: number;
-    private _tag: string = 'div';
-    private _className: string;
-    private _id: string;
-    private _isScrollable: boolean;
-    private _xPosition: number;
-    private _yPosition: number;
-    private _align: string;
+    private _tag = 'div';
+    private _properties = new Map<string, string>();
 
     setWidth(newWidth: number) {
-        this._width = newWidth;
+        this._properties.set('width', newWidth.toString());
         return this;
     }
 
     setHeight(newHeight: number) {
-        this._height = newHeight;
+        this._properties.set('height', newHeight.toString());
+        return this;
+    }
+
+    setAutoHeight() {
+        this._properties.set('autoHeight', 'true');
+        return this;
+    }
+
+    setAutoWidth() {
+        this._properties.set('autoWidth', 'true');
         return this;
     }
 
@@ -26,51 +29,53 @@ export class HtmlFactory
     }
 
     setClassName(newClassName: string) {
-        this._className = newClassName;
+        this._properties.set('className', newClassName);
         return this;
     }
 
     setId(newId: string) {
-        this._id = newId;
+        this._properties.set('id', newId);
         return this;
     }
 
     setIsScrollable(newIsScrollable: boolean) {
-        this._isScrollable = newIsScrollable;
+        this._properties.set('isScrollable', newIsScrollable.toString());
         return this;
     }
 
     setAlign(newAlign: string) {
-        this._align = newAlign;
+        this._properties.set('align', newAlign);
         return this;
     }
 
     setXPosition(newXPosition: number) {
-        this._xPosition = newXPosition;
+        this._properties.set('xPosition', newXPosition.toString());
         return this;
     }
 
     setYPosition(newYPosition: number) {
-        this._yPosition = newYPosition;
+        this._properties.set('yPosition', newYPosition.toString());
         return this;
     }
 
     createElement(parentElement: HTMLElement): HTMLElement
     {
         let element = parentElement.ownerDocument.createElement(this._tag);
-        if (this._id != null)
-            element.setAttribute('id', this._id);
+        if (this._properties.get('id') != null)
+            element.setAttribute('id', this._properties.get('id'));
 
         this.setElementStyle(element);
-        element.setAttribute('class', this._className);
+        element.setAttribute('class', this._properties.get('className'));
 
         parentElement.appendChild(element);
+        this.resetFactory();
         return element;
     }
 
     updateElement(element: HTMLElement): void
     {
         this.setElementStyle(element);
+        this.resetFactory();
     }
 
     private setElementStyle(element: HTMLElement)
@@ -81,13 +86,13 @@ export class HtmlFactory
                 attributes.set(name, value);
         }
 
-        addAttributeIfNotEmpty('width', this._width ? this._width.toString() + 'px' : null, attributes);
-        addAttributeIfNotEmpty('height', this._height ? this._height.toString() + 'px' : null, attributes);
-        addAttributeIfNotEmpty('left', this._xPosition ? this._xPosition.toString() + 'px' : null, attributes);
-        addAttributeIfNotEmpty('top', this._yPosition ? this._yPosition.toString() + 'px' : null, attributes);
-        addAttributeIfNotEmpty('float', this._align, attributes);
+        addAttributeIfNotEmpty('width', this._properties.get('width') ? this._properties.get('width') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('height', this._properties.get('height') ? this._properties.get('height') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('left', this._properties.get('xPosition') ? this._properties.get('xPosition') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('top', this._properties.get('yPosition') ? this._properties.get('yPosition') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('float', this._properties.get('align'), attributes);
         
-        if (this._isScrollable)
+        if (this._properties.get('isScrollable'))
             attributes.set('overflow', 'scroll');
 
         let style: string = '';
@@ -96,5 +101,9 @@ export class HtmlFactory
         });
 
         element.setAttribute('style', style);
+    }
+
+    private resetFactory() {
+        this._properties.clear();
     }
 }

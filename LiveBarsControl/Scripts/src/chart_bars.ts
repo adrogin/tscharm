@@ -11,6 +11,7 @@ export class ChartBars
     private _onAddSubscribers: eventHandler[] = [];
     private _onRemoveSubscribers: eventHandler[] = [];
     private _lastBarId: number = -1;
+
     private _drawingArea: HTMLElement;
 	get drawingArea(): HTMLElement {
 		return this._drawingArea;

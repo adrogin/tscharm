@@ -1,13 +1,14 @@
 div.chart {
     margin: 0;
-    overflow: scroll;
+    overflow: visible;
 }
 
 div.chartLines {
     margin: 0;
-    position: relative;
+    position: absolute;
     float: left;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 div.chartLine {
@@ -16,7 +17,8 @@ div.chartLine {
     width: 100%;
     background-color: azure;
     overflow: hidden;
-    position: relative;
+    position: absolute;
+    float: left;
 }
 
 div.chartBar-normal {
@@ -81,6 +83,15 @@ div.barHandle {
       )
 }
 
+div.chartOriginPoint {
+    box-sizing: border-box;
+    float: left;
+    text-align: right;
+    padding-right: 2px;
+    border-right: 1px solid black;
+    height: 100%;
+}
+
 div.chartAxisX {
     margin: 0;
     position: relative;
@@ -88,15 +99,21 @@ div.chartAxisX {
     box-sizing: border-box;
     overflow: hidden;
     height: 100%;
+    background-color: aliceblue;
 }
 
 div.chartAxisY {
     margin: 0;
     position: relative;
     float: left;
+    margin-right: 5px;
+    padding-right: 2px;
+    border-right: 1px black;
     box-sizing: border-box;
     overflow: hidden;
-    padding-right: 5px;
+    background-color: aliceblue;
+    font-size: 10px;
+    width: 100%;
 }
 
 div.chartPartTop {
@@ -114,15 +131,21 @@ div.chartPartMain {
     overflow: hidden;
 }
 
+div.chartPartLeftSideBar {
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+    float: left;
+}
+
 div.chartLabel {
     margin: 0;
     position: absolute;
     box-sizing: border-box;
     float: left;
-    border-right: 2px solid black;
-    border-top: 1px solid black;
-    padding-right: 5px;
-    padding-bottom: 0;
     text-align: right;
-    vertical-align: bottom;
+    padding-right: 2px;
+    width: 100%;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
 }

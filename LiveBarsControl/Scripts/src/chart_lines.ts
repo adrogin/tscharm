@@ -66,14 +66,6 @@ export class ChartLines
 		this._positionX = newPositionX;
 	}
 
-	// private _positionY: number;
-	// get positionY(): number {
-	// 	return this._positionY;
-	// }
-	// set positionY(newPositionY: number) {
-	// 	this._positionY = newPositionY;
-	// }
-
 	public add(line: ChartLine): void {
 		line.drawingArea = this.htmlElement;
 		this._lines.at(this._lines.push(line) - 1).id = (++this._lastLineId).toString();
@@ -101,6 +93,23 @@ export class ChartLines
 	public count(): number
 	{
 		return this._lines.length;
+	}
+
+	public setLabels(labels: string[]) {
+		let maxLabelIndex = labels.length <= this._lines.length ? labels.length : this._lines.length;
+		for (let i: number = 0; i < maxLabelIndex; i++) {
+			this._lines[i].label = labels[i];
+		}
+	}
+
+	public getLabels(): string[]
+	{
+		return this._lines.map(line => line.label == null ? '' : line.label);
+	}
+
+	public getPositions(): {position: number, size: number}[]
+	{
+		return this._lines.map(line => ({ position: line.position, size: this.height }));
 	}
 
 	public draw(parentElement: HTMLElement) {

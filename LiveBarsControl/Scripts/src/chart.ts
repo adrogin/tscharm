@@ -18,8 +18,10 @@ export class Chart
 		return this._htmlElement;
 	}
 
-	private _headerElement;
-	private _mainElement;
+	private _headerElement: HTMLElement;
+	private _mainElement: HTMLElement;
+	private _leftSideBarElement: HTMLElement;
+	private _originPointElement: HTMLElement;
 
 	private _height: number;
 	get height(): number {
@@ -41,6 +43,14 @@ export class Chart
 		this.setAxesSizeAndPosition();
         this._lines.width = this.getDrawAreaWidth();
 		this._unitSize = this.recalculateUnitScale();
+	}
+
+	private _leftSideBarWidth: number = 65;
+	get leftSideBarWidth(): number {
+		return this._leftSideBarWidth;
+	}
+	set leftSideBarWidth(newLeftSideBarWidth: number) {
+		this._leftSideBarWidth = newLeftSideBarWidth;
 	}
 
 	private _xAxis: ChartXAxis;
@@ -71,7 +81,7 @@ export class Chart
 	private _unitSize: number;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
 
 	private setAxesSizeAndPosition() {
-		this.xAxis.position = this.getLeftAxisAreaWidth();
+		this.xAxis.position = this.getLeftSideBarWidth();
 		this.xAxis.width = this.getDrawAreaWidth();
 		this.yAxis.position = this.getTopPartHeight();
 		this.yAxis.height = this.getDrawAreaHeight();
@@ -79,8 +89,9 @@ export class Chart
 	}
 
 	private setLinesAreaPositionSize() {
-		this.lines.positionX = 0;
-		this.lines.width = this.width - this.getLeftAxisAreaWidth();
+		this.lines.positionX = this.leftSideBarWidth + 1;
+		this.lines.width = this.width - this.getLeftSideBarWidth();
+		this.lines.height = this.getMainPartHeight();
 	}
 
 	public draw(parentElement: HTMLElement): void
@@ -88,14 +99,17 @@ export class Chart
 		if (this._htmlElement == null) {
 			this._htmlElement = this.createChartHtmlElement(parentElement);
 			this._headerElement = this.createTopHtmlElement(this.htmlElement);
+			this._originPointElement = this.createOriginPointElement(this._headerElement);
 			this._mainElement = this.createMainHtmlElement(this.htmlElement);
+			this._leftSideBarElement = this.createLeftSideBarElement(this._mainElement);
 		}
 
 		if (this.showAxes) {
-	        this._xAxis.draw(this._headerElement);
-        	this._yAxis.draw(this._mainElement);
+	        this.xAxis.draw(this._headerElement);
+			this.yAxis.initializeMarker(this.lines.getLabels(), this.lines.getPositions());
+        	this.yAxis.draw(this._leftSideBarElement);
 		}
-		this._lines.draw(this._mainElement);
+		this.lines.draw(this._mainElement);
 	}
 
 	public drawGrid(): void
@@ -104,7 +118,7 @@ export class Chart
 
 	public getDrawAreaWidth(): number
 	{
-		return this.width - this.getLeftAxisAreaWidth();
+		return this.width - this.getLeftSideBarWidth();
 	}
 
 	public getDrawAreaHeight(): number
@@ -133,9 +147,9 @@ export class Chart
 		return this.height - this.getTopPartHeight();
 	}
 
-	private getLeftAxisAreaWidth(): number
+	private getLeftSideBarWidth(): number
 	{
-		return this.showAxes ? this.yAxis.width : 0;
+		return this.showAxes ? this.leftSideBarWidth : 0;
 	}
 
     private createChartHtmlElement(parentElement: HTMLElement): HTMLElement
@@ -151,6 +165,17 @@ export class Chart
 
 	private createMainHtmlElement(parentElement: HTMLElement): HTMLElement {
 		return new HtmlFactory().setId('chartPartMain').setClassName('chartPartMain').setWidth(this.width).setHeight(this.getMainPartHeight())
+			.createElement(parentElement);
+	}
+
+	private createLeftSideBarElement(parentElement: HTMLElement): HTMLElement {
+		return new HtmlFactory().setId('chartPartLeftSideBar').setClassName('chartPartLeftSideBar').setWidth(this.leftSideBarWidth)
+			.setHeight(this.getMainPartHeight())
+			.createElement(parentElement);
+	}
+
+	private createOriginPointElement(parentElement: HTMLElement): HTMLElement {
+		return new HtmlFactory().setId('chartOriginPoint').setClassName('chartOriginPoint').setWidth(this.leftSideBarWidth)
 			.createElement(parentElement);
 	}
 }
