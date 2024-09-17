@@ -1,12 +1,15 @@
 import { ChartXAxis, ChartYAxis } from "./chart_axis";
 import { ChartLines } from "./chart_lines";
 import { ChartRuler } from "./chart_ruler";
+import { EventHub } from "./event_hub";
+import { EventHubImpl } from "./event_hub_impl";
 import { HtmlFactory } from "./html_factory";
 
 export class Chart
 {
 	constructor(width?: number, height?: number) {
-		this._lines = new ChartLines();
+		this._eventHub = new EventHubImpl();
+		this._lines = new ChartLines().setEventHub(this._eventHub);
 		this._xAxis = new ChartXAxis(new ChartRuler());
 		this._yAxis = new ChartYAxis(new ChartRuler());
 		this.height = height;
@@ -22,6 +25,8 @@ export class Chart
 	private _mainElement: HTMLElement;
 	private _leftSideBarElement: HTMLElement;
 	private _originPointElement: HTMLElement;
+
+	private _eventHub: EventHub;
 
 	private _height: number;
 	get height(): number {
@@ -131,12 +136,8 @@ export class Chart
 		return Math.floor(this.getDrawAreaWidth() / this.lines.getMaxWidth());
 	}
 
-	public bindBarEvent(eventName: string, handler) {
-		for (let lineNo: number = 0; lineNo < this.lines.count(); lineNo++) {
-			for (let barNo: number = 0; barNo < this.lines.get(lineNo).bars.count(); barNo++) {
-				this.lines.get(lineNo).bars.get(barNo).bind(eventName, handler);
-			}
-		}
+	public bindEventHandler(eventName: string, handler) {
+		this._eventHub.bind(eventName, handler);
 	}
 
 	private getTopPartHeight(): number {

@@ -1,4 +1,5 @@
 import { ChartBar } from "./chart_bar";
+import { EventHub } from "./event_hub";
 
 interface eventHandler
 {
@@ -8,8 +9,6 @@ interface eventHandler
 export class ChartBars
 {
 	private _bars: ChartBar[] = [];
-    private _onAddSubscribers: eventHandler[] = [];
-    private _onRemoveSubscribers: eventHandler[] = [];
     private _lastBarId: number = -1;
 
     private _drawingArea: HTMLElement;
@@ -30,6 +29,27 @@ export class ChartBars
     }
     set parentLineId(newParentLineId: string) {
         this._parentLineId = newParentLineId;
+    }
+
+    private _eventHub: EventHub;
+
+	public setEventHub(hub: EventHub): ChartBars {
+		this._eventHub = hub;
+        this._bars.forEach(bar => {
+            bar.setEventHub(this._eventHub);
+        });
+
+        this.registerEvents();
+        return this;
+	}
+
+    registerEvents() {
+        if (this._eventHub.componentEventsRegistered('chartBars'))
+            return;
+
+        const supportedEvents = ['barAdd', 'barRemove'];
+        if (this._eventHub != null)
+            this._eventHub.registerEvents('chartBars', supportedEvents);
     }
 
     private maxResizeAllowed(barsCollection: ChartBar[]) {
@@ -53,18 +73,18 @@ export class ChartBars
 
 	public add(position: number, width: number, className?: string): void
 	{
-        let bar: ChartBar = new ChartBar(position, width, className);
+        let bar: ChartBar = new ChartBar(position, width, className).setEventHub(this._eventHub);
         bar.drawingArea = this.drawingArea;
         bar.getMaxResizeAllowed = this.maxResizeAllowed(this._bars);
 		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineId + '_' + (++this._lastBarId).toString();
-        this.raiseEvent('add', bar);
+        this.raiseEvent('barAdd', bar);
 	}
 
 	public remove(index: number): void
 	{
         let bar: ChartBar = this._bars[index];
 		this._bars.splice(index, 1);
-        this.raiseEvent('remove', bar);
+        this.raiseEvent('barRemove', bar);
 	}
 
 	public get(index: number): ChartBar
@@ -95,53 +115,19 @@ export class ChartBars
 
     public bind(eventName: string, handler: eventHandler): number
     {
-        switch (eventName) {
-            case 'add':
-                return this.bindSubscription(this._onAddSubscribers, handler);
-            case 'remove':
-                return this.bindSubscription(this._onRemoveSubscribers, handler);
-            default:
-                return -1;
-        }
+        if (this._eventHub != null)
+            return this._eventHub.bind(eventName, handler);
     }
 
     public unbind(eventName: string, handlerId: number)
     {
-        if (handlerId != null && handlerId >= 0) {
-            switch (eventName) {
-                case 'add':
-                    this._onAddSubscribers.splice(handlerId, 1);
-                    break;
-                case 'remove':
-                    this._onRemoveSubscribers.splice(handlerId, 1);
-                    break;
-            }
-        }
+        if (this._eventHub != null)
+            this._eventHub.unbind(eventName, handlerId);
     }
 
     private raiseEvent(eventName: string, chartBar: ChartBar)
     {
-        switch (eventName)
-        {
-            case 'add':
-                this.sendEventToSubscribers(this._onAddSubscribers, chartBar);
-                break;
-            case 'remove':
-                this.sendEventToSubscribers(this._onRemoveSubscribers, chartBar);
-                break;
-        }
-    }
-
-    private sendEventToSubscribers(eventHandlers: eventHandler[], chartBar: ChartBar)
-    {
-        eventHandlers.forEach(handler => {
-            handler(chartBar);
-        });
-    }
-
-    private bindSubscription(subscribers: eventHandler[], handler: eventHandler): number
-    {
-        subscribers.push(handler);
-        return subscribers.length - 1;
+        if (this._eventHub != null)
+            this._eventHub.raiseEvent(eventName, chartBar);
     }
 }

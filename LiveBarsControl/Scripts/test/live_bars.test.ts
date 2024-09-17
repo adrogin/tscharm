@@ -1,5 +1,6 @@
 import { Chart } from "../src/chart"
 import { ChartLine } from "../src/chart_line";
+import { EventHub } from "../src/event_hub";
 
 function createChartContainer(): HTMLElement {
     let chartContainer = document.createElement('div');
@@ -17,14 +18,14 @@ function removeChart() {
 describe('Basic object instantiation tests', () => {
     test('Instantiate chart and get draw area width', () => {
         let chart: Chart = new Chart(200, 100);
-        chart.hMargin = 10;
+        // chart.hMargin = 10;
 
         expect(chart.getDrawAreaWidth()).toBe(180);
     });
 
     test('Instantiate chart and get draw area height', () => {
         let chart: Chart = new Chart(200, 100);
-        chart.vMargin = 7;
+        // chart.vMargin = 7;
 
         expect(chart.getDrawAreaHeight()).toBe(86);
     });
@@ -322,8 +323,8 @@ describe('Resizing bars', () => {
         let chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindBarEvent('onResizeLeftDone', onResizeDoneCallback);
-        chart.bindBarEvent('onResizeRightDone', onResizeDoneCallback);
+        chart.bindEventHandler('onResizeLeftDone', onResizeDoneCallback);
+        chart.bindEventHandler('onResizeRightDone', onResizeDoneCallback);
 
         dragAndDrop('barHandle_0_0_left', 2, 5, 45, 50);
 
@@ -337,8 +338,8 @@ describe('Resizing bars', () => {
         let chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindBarEvent('onResizeLeftDone', onResizeDoneCallback);
-        chart.bindBarEvent('onResizeRightDone', onResizeDoneCallback);
+        chart.bindEventHandler('onResizeLeftDone', onResizeDoneCallback);
+        chart.bindEventHandler('onResizeRightDone', onResizeDoneCallback);
 
         dragAndDrop('barHandle_0_0_right', 28, 5, 21, 50);
 
@@ -352,7 +353,7 @@ describe('Resizing bars', () => {
         let chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindBarEvent('onDragDone', onDragDoneCallback);
+        chart.bindEventHandler('onDragDone', onDragDoneCallback);
 
         dragAndDrop('chartBar_0_0', 15, 5, 52, 30);
 
@@ -500,8 +501,8 @@ describe('Chart axes and marking', () => {
         chart.showAxes = true;
         chart.xAxis.height = 15;
         chart.yAxis.width = 15;
-        chart.vMargin = 7;
-        chart.hMargin = 7;
+        // chart.vMargin = 7;
+        // chart.hMargin = 7;
 
         chart.draw(chartContainer)
     

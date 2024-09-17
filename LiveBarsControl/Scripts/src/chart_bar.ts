@@ -1,4 +1,5 @@
 import { HtmlFactory } from "./html_factory";
+import { EventHub } from "./event_hub";
 
 interface barHandleMouseEvent
 {
@@ -58,6 +59,33 @@ export class ChartBar
 		this._handleClassName = newHandleClassName;
 	}
 
+	private _eventHub: EventHub;
+
+	public setEventHub(hub: EventHub): ChartBar {
+		this._eventHub = hub;
+		this.registerEvents();
+		return this;
+	}
+
+	private registerEvents() {
+		if (this._eventHub.componentEventsRegistered('chartBar'))
+			return;
+
+		const supportedEvents = [
+			'leftHandleMouseDown',
+			'leftHandleMouseUp',
+			'rightHandleMouseDown',
+			'rightHandleMouseUp',
+			'onResizeLeft',
+			'onResizeRight',
+			'onResizeLeftDone',
+			'onResizeRightDone',
+			'onDragDone'
+		];
+	
+		this._eventHub.registerEvents('chartBar', supportedEvents);	
+	}
+
 	// Default function allows unbounded resizing and can be replaced by an alternative implementation.
 	// ChartBars class injects a function that detects neighbours' boundaries and limits resizing respectively.
 	public getMaxResizeAllowed = (leftBoundary: number, rightBoundary: number) => { return { leftBoundary, rightBoundary } }
@@ -71,18 +99,7 @@ export class ChartBar
 		}
 	}
 
-	private _eventSubscribers = new Map<string, barHandleMouseEvent[]>();
-	private _supportedEvents = new Set([
-		'leftHandleMouseDown',
-		'leftHandleMouseUp',
-		'rightHandleMouseDown',
-		'rightHandleMouseUp',
-		'onResizeLeft',
-		'onResizeRight',
-		'onResizeLeftDone',
-		'onResizeRightDone',
-		'onDragDone'
-	]);
+	// private _eventSubscribers = new Map<string, barHandleMouseEvent[]>();
 
     public draw(parentElement: HTMLElement): void
     {
@@ -164,57 +181,22 @@ export class ChartBar
 
 	public bind(eventName: string, handler: barHandleMouseEvent): number
     {
-		if (!this._supportedEvents.has(eventName)) {
-			return -1
-		}
-
-		let subscribers = this._eventSubscribers.get(eventName);
-		if (subscribers == null) {
-			subscribers = this._eventSubscribers.set(eventName, []).get(eventName);
-		}
-
-		return this.bindSubscription(subscribers, handler);
-    }
+		return this._eventHub.bind(eventName, handler);
+	}
 
     public unbind(eventName: string, handlerId: number)
     {
-        if (handlerId != null && handlerId >= 0) {
-			this._eventSubscribers.get(eventName).splice(handlerId, 1);
-        }
+		this._eventHub.unbind(eventName, handlerId);
     }
 
     private raiseMouseEvent(eventName: string, chartBar: ChartBar, clientX: number, clientY: number)
     {
-		this.sendHandleMouseEventToSubscribers(this._eventSubscribers.get(eventName), chartBar, clientX, clientY);
+		this._eventHub.raiseEvent(eventName, chartBar, clientX, clientY);
     }
 
 	private raiseResizeEvent(eventName: string, chartBar: ChartBar, newValue: number)
     {
-		this.sendResizeEventToSubscribers(this._eventSubscribers.get(eventName), chartBar.id, newValue);
-    }
-
-    private sendHandleMouseEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBar: ChartBar, clientX: number, clientY: number)
-    {
-		if (eventHandlers != null) {
-			eventHandlers.forEach(handler => {
-				handler(chartBar, clientX, clientY);
-			});
-		}
-    }
-
-	private sendResizeEventToSubscribers(eventHandlers: barHandleMouseEvent[], chartBarId: string, newValue: number)
-    {
-		if (eventHandlers != null) {
-			eventHandlers.forEach(handler => {
-				handler(chartBarId, newValue);
-			});
-		}
-    }
-
-	private bindSubscription(subscribers: any[], handler: any): number
-    {
-        subscribers.push(handler);
-        return subscribers.length - 1;
+		this._eventHub.raiseEvent(eventName, chartBar.id, newValue);
     }
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement

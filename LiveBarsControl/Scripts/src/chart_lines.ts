@@ -1,5 +1,7 @@
 import { ChartLine } from "./chart_line";
 import { HtmlFactory } from "./html_factory";
+import { EventHub } from "./event_hub";
+import { EventHubImpl } from "./event_hub_impl";
 
 export class ChartLines
 {
@@ -66,7 +68,23 @@ export class ChartLines
 		this._positionX = newPositionX;
 	}
 
+	private _eventHub: EventHub;
+	public setEventHub(hub: EventHub): ChartLines {
+		this._eventHub = hub;
+		this.registerEvents();
+		return this;
+	}
+
+	private registerEvents() {
+		if (this._eventHub.componentEventsRegistered('chartLines'))
+			return;
+
+		const supportedEvents = [];
+		this._eventHub.registerEvents('chartLines', supportedEvents);
+	}
+
 	public add(line: ChartLine): void {
+		line.setEventHub(this._eventHub);
 		line.drawingArea = this.htmlElement;
 		this._lines.at(this._lines.push(line) - 1).id = (++this._lastLineId).toString();
 		this._lineHeight = this.recalculateLineHeight();

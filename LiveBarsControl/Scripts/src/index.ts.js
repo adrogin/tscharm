@@ -48,10 +48,10 @@ export function SetXAxisMarks(Marks) {
 }
 
 export function BindBarEvents() {
-    chart.bindBarEvent(
+    chart.bindEventHandler(
         'onResizeLeftDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeLeftDone', [BarId, NewPosition]));
-    chart.bindBarEvent(
+    chart.bindEventHandler(
         'onResizeRightDone', (BarId, NewWidth) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeRightDone', [BarId, NewWidth]));
-    chart.bindBarEvent(
+    chart.bindEventHandler(
         'onDragDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnDragDone', [BarId, NewPosition]));
 }
