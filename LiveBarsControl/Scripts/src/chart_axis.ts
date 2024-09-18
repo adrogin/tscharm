@@ -32,6 +32,10 @@ export class ChartXAxis
 	}
 
 	private _htmlElement: HTMLElement;
+	get htmlElement(): HTMLElement {
+		return this._htmlElement;
+	}
+
 	private _axisMarker: AxisMarker;
 
 	initializeMarker(labels: string[], positions?: {position: number, size: number}[]) {

@@ -1,4 +1,4 @@
-import { ChartBars } from "./chart_bars";
+import { ChartBars, registerEvents as registerBarsEvents } from "./chart_bars";
 import { ChartBar } from "./chart_bar";
 import { HtmlFactory } from "./html_factory";
 import { EventHub } from "./event_hub";
@@ -24,13 +24,22 @@ export class ChartLine
 		this._bars.drawingArea = this.drawingArea;
 	}
 
-	private _id: string = '';
-	get id(): string {
+	private _htmlId: string = '';
+	get htmlId(): string {
+		return this._htmlId;
+	}
+	set htmlId(newHtmlId: string) {
+		this._htmlId = newHtmlId;
+		this._bars.parentLineHtmlId = newHtmlId;
+	}
+
+	private _id: number;
+	get id(): number {
 		return this._id;
 	}
-	set id(newId: string) {
+	set id(newId: number) {
 		this._id = newId;
-		this._bars.parentLineId = newId;
+		this._bars.parentLineNo = newId;
 	}
 
 	private _rightEdge: number = 0;
@@ -60,7 +69,6 @@ export class ChartLine
 	public setEventHub(hub: EventHub): ChartLine {
 		this._eventHub = hub;
 		this._bars.setEventHub(hub);
-		this.registerEvents();
 
 		this._bars.bind('barAdd', (bar: ChartBar) => {
 			if (bar.position + bar.width > this.rightEdge) {
@@ -76,21 +84,13 @@ export class ChartLine
 		return this;
 	}
 
-	private registerEvents()
-	{
-		if (this._eventHub.componentEventsRegistered('chartLine'))
-			return;
-
-		const supportedEvents = [];
-		this._eventHub.registerEvents('chartLine', supportedEvents);
-	}
-
 	constructor(id?: string)
 	{
 		this._bars = new ChartBars(id, this.drawingArea);
+		this._bars.parentLineNo = this.id;
 
 		if (id != null) {
-			this._id = id;
+			this._htmlId = id;
 		}
 	}
 
@@ -105,7 +105,14 @@ export class ChartLine
 
     private createHtmlElement(parentElement: HTMLElement, size: number): HTMLElement
     {
-		return new HtmlFactory().setId('chartLine_' + this.id.toString()).setClassName('chartLine').setHeight(size).setYPosition(this.position)
+		return new HtmlFactory().setId('chartLine_' + this.htmlId.toString()).setClassName('chartLine').setHeight(size).setYPosition(this.position)
 			.createElement(parentElement);
     }
+}
+
+export function registerEvents(eventHub: EventHub)
+{
+	const supportedEvents = [];
+	eventHub.registerEvents('chartLine', supportedEvents);
+	registerBarsEvents(eventHub);
 }

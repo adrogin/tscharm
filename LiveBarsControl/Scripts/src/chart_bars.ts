@@ -1,4 +1,4 @@
-import { ChartBar } from "./chart_bar";
+import { ChartBar, registerEvents as registerBarEvents } from "./chart_bar";
 import { EventHub } from "./event_hub";
 
 interface eventHandler
@@ -23,12 +23,20 @@ export class ChartBars
         });
 	}
 
-    private _parentLineId: string = '';
-    get parentLineId(): string {
-        return this._parentLineId;
+    private _parentLineHtmlId: string = '';
+    get parentLineHtmlId(): string {
+        return this._parentLineHtmlId;
     }
-    set parentLineId(newParentLineId: string) {
-        this._parentLineId = newParentLineId;
+    set parentLineHtmlId(newParentLineHtmlId: string) {
+        this._parentLineHtmlId = newParentLineHtmlId;
+    }
+
+    private _parentLineNo: number;
+    get parentLineNo(): number {
+        return this._parentLineNo;
+    }
+    set parentLineNo(newParentLineNo: number) {
+        this._parentLineNo = newParentLineNo;
     }
 
     private _eventHub: EventHub;
@@ -39,18 +47,8 @@ export class ChartBars
             bar.setEventHub(this._eventHub);
         });
 
-        this.registerEvents();
         return this;
 	}
-
-    registerEvents() {
-        if (this._eventHub.componentEventsRegistered('chartBars'))
-            return;
-
-        const supportedEvents = ['barAdd', 'barRemove'];
-        if (this._eventHub != null)
-            this._eventHub.registerEvents('chartBars', supportedEvents);
-    }
 
     private maxResizeAllowed(barsCollection: ChartBar[]) {
         return function(position: number, width: number): { leftBoundary: number, rightBoundary: number }
@@ -63,7 +61,7 @@ export class ChartBars
     }
 
     constructor(parentLineId: string, drawingArea: HTMLElement) {
-        this._parentLineId = parentLineId;
+        this._parentLineHtmlId = parentLineId;
         this._drawingArea = drawingArea;
     }
 
@@ -76,7 +74,9 @@ export class ChartBars
         let bar: ChartBar = new ChartBar(position, width, className).setEventHub(this._eventHub);
         bar.drawingArea = this.drawingArea;
         bar.getMaxResizeAllowed = this.maxResizeAllowed(this._bars);
-		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineId + '_' + (++this._lastBarId).toString();
+		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineHtmlId + '_' + (++this._lastBarId).toString();
+        bar.lineNo = this.parentLineNo;
+        bar.barNo = this._lastBarId;
         this.raiseEvent('barAdd', bar);
 	}
 
@@ -130,4 +130,12 @@ export class ChartBars
         if (this._eventHub != null)
             this._eventHub.raiseEvent(eventName, chartBar);
     }
+}
+
+export function registerEvents(eventHub: EventHub) {
+    const supportedEvents = ['barAdd', 'barRemove'];
+    if (eventHub != null)
+        eventHub.registerEvents('chartBars', supportedEvents);
+
+    registerBarEvents(eventHub);
 }

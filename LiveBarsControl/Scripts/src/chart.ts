@@ -1,5 +1,5 @@
 import { ChartXAxis, ChartYAxis } from "./chart_axis";
-import { ChartLines } from "./chart_lines";
+import { ChartLines, registerEvents as registerLinesEvents} from "./chart_lines";
 import { ChartRuler } from "./chart_ruler";
 import { EventHub } from "./event_hub";
 import { EventHubImpl } from "./event_hub_impl";
@@ -9,6 +9,8 @@ export class Chart
 {
 	constructor(width?: number, height?: number) {
 		this._eventHub = new EventHubImpl();
+		this.registerEvents();
+
 		this._lines = new ChartLines().setEventHub(this._eventHub);
 		this._xAxis = new ChartXAxis(new ChartRuler());
 		this._yAxis = new ChartYAxis(new ChartRuler());
@@ -99,6 +101,13 @@ export class Chart
 		this.lines.height = this.getMainPartHeight();
 	}
 
+	private registerEvents(): void
+	{
+		const supportedEvents = ['onChartDraw'];
+		this._eventHub.registerEvents('chart', supportedEvents);
+		registerLinesEvents(this._eventHub);
+	}
+
 	public draw(parentElement: HTMLElement): void
     {
 		if (this._htmlElement == null) {
@@ -115,6 +124,8 @@ export class Chart
         	this.yAxis.draw(this._leftSideBarElement);
 		}
 		this.lines.draw(this._mainElement);
+
+		this._eventHub.raiseEvent('onChartDraw');
 	}
 
 	public drawGrid(): void

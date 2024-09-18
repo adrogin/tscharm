@@ -27,6 +27,22 @@ export class ChartBar
 		this._id = newId;
 	}
 
+	private _lineNo: number;
+	get lineNo(): number {
+		return this._lineNo;
+	}
+	set lineNo(newLineNo: number) {
+		this._lineNo = newLineNo;
+	}
+
+	private _barNo: number;
+	get barNo(): number {
+		return this._barNo;
+	}
+	set barNo(newBarNo: number) {
+		this._barNo = newBarNo;
+	}
+
 	private _position: number;  // Position in relative units
 	get position(): number {
 		return this._position;
@@ -63,27 +79,7 @@ export class ChartBar
 
 	public setEventHub(hub: EventHub): ChartBar {
 		this._eventHub = hub;
-		this.registerEvents();
 		return this;
-	}
-
-	private registerEvents() {
-		if (this._eventHub.componentEventsRegistered('chartBar'))
-			return;
-
-		const supportedEvents = [
-			'leftHandleMouseDown',
-			'leftHandleMouseUp',
-			'rightHandleMouseDown',
-			'rightHandleMouseUp',
-			'onResizeLeft',
-			'onResizeRight',
-			'onResizeLeftDone',
-			'onResizeRightDone',
-			'onDragDone'
-		];
-	
-		this._eventHub.registerEvents('chartBar', supportedEvents);	
 	}
 
 	// Default function allows unbounded resizing and can be replaced by an alternative implementation.
@@ -98,8 +94,6 @@ export class ChartBar
 			this._className = className;
 		}
 	}
-
-	// private _eventSubscribers = new Map<string, barHandleMouseEvent[]>();
 
     public draw(parentElement: HTMLElement): void
     {
@@ -196,7 +190,7 @@ export class ChartBar
 
 	private raiseResizeEvent(eventName: string, chartBar: ChartBar, newValue: number)
     {
-		this._eventHub.raiseEvent(eventName, chartBar.id, newValue);
+		this._eventHub.raiseEvent(eventName, chartBar.lineNo, chartBar.barNo, newValue);
     }
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
@@ -208,6 +202,7 @@ export class ChartBar
 				let startPosition: number = chartBar.position;
 
 				function handleDrag(mouseMoveEvent: MouseEvent) {
+					const prevBarPosition = chartBar.position;
 					const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
 					const newPosition = startPosition + mouseMoveEvent.clientX - mouseDownEvent.clientX;
 					chartBar.position = 
@@ -215,12 +210,15 @@ export class ChartBar
 						newPosition + chartBar.width > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.width :
 							newPosition;
 					chartBar.update();
+
+					if (chartBar.position != prevBarPosition)
+						chartBar.raiseResizeEvent('onDrag', chartBar, chartBar.position);
 				};
 
-				function handleMouseUp(mouseUpevent: MouseEvent) {
+				function handleMouseUp(mouseUpEvent: MouseEvent) {
 					chartBar.drawingArea.removeEventListener('mousemove', handleDrag);
 					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
-					chartBar.raiseResizeEvent('onDragDone', chartBar, startPosition + mouseUpevent.clientX - mouseDownEvent.clientX);
+					chartBar.raiseResizeEvent('onDragDone', chartBar, startPosition + mouseUpEvent.clientX - mouseDownEvent.clientX);
 				}
 
 				chartBar.drawingArea.addEventListener('mousemove', handleDrag);
@@ -233,4 +231,21 @@ export class ChartBar
 		
 		return barElement;
     }
+}
+
+export function registerEvents(eventHub: EventHub) {
+	const supportedEvents = [
+		'leftHandleMouseDown',
+		'leftHandleMouseUp',
+		'rightHandleMouseDown',
+		'rightHandleMouseUp',
+		'onResizeLeft',
+		'onResizeRight',
+		'onResizeLeftDone',
+		'onResizeRightDone',
+		'onDrag',
+		'onDragDone'
+	];
+
+	eventHub.registerEvents('chartBar', supportedEvents);	
 }

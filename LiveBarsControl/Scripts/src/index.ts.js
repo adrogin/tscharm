@@ -1,9 +1,12 @@
 import { Chart } from "./chart.ts";
+import { Slider } from "./slider.ts";
 
 var chart;
+var slider;
 
 export function CreateChart(Width, Height) {
     chart = new Chart(Width, Height);
+    slider = new Slider(chart);
 }
 
 export function AddNewLine() {

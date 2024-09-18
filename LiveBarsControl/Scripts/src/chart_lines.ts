@@ -1,7 +1,6 @@
-import { ChartLine } from "./chart_line";
+import { ChartLine, registerEvents as registerLineEvents } from "./chart_line";
 import { HtmlFactory } from "./html_factory";
 import { EventHub } from "./event_hub";
-import { EventHubImpl } from "./event_hub_impl";
 
 export class ChartLines
 {
@@ -71,22 +70,14 @@ export class ChartLines
 	private _eventHub: EventHub;
 	public setEventHub(hub: EventHub): ChartLines {
 		this._eventHub = hub;
-		this.registerEvents();
 		return this;
-	}
-
-	private registerEvents() {
-		if (this._eventHub.componentEventsRegistered('chartLines'))
-			return;
-
-		const supportedEvents = [];
-		this._eventHub.registerEvents('chartLines', supportedEvents);
 	}
 
 	public add(line: ChartLine): void {
 		line.setEventHub(this._eventHub);
 		line.drawingArea = this.htmlElement;
-		this._lines.at(this._lines.push(line) - 1).id = (++this._lastLineId).toString();
+		this._lines.at(this._lines.push(line) - 1).htmlId = (++this._lastLineId).toString();
+		line.id = this._lastLineId;
 		this._lineHeight = this.recalculateLineHeight();
 		this.recalculateLinePositions();
 	}
@@ -188,4 +179,10 @@ export class ChartLines
 		return new HtmlFactory().setId('chartLines').setClassName('chartLines').setWidth(this.width).setHeight(this.height)
 			.setXPosition(this.positionX).createElement(parentElement);
     }
+}
+
+export function registerEvents(eventHub: EventHub) {
+	const supportedEvents = [];
+	eventHub.registerEvents('chartLines', supportedEvents);
+	registerLineEvents(eventHub);
 }

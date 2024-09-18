@@ -1,25 +1,40 @@
 export class HtmlFactory
 {
     private _tag = 'div';
-    private _properties = new Map<string, string>();
+    private _attributes = new Map<string, string>();
 
-    setWidth(newWidth: number) {
-        this._properties.set('width', newWidth.toString());
-        return this;
-    }
-
-    setHeight(newHeight: number) {
-        this._properties.set('height', newHeight.toString());
+    setAlign(newAlign: string) {
+        this._attributes.set('align', newAlign);
         return this;
     }
 
     setAutoHeight() {
-        this._properties.set('autoHeight', 'true');
+        this._attributes.set('autoHeight', 'true');
         return this;
     }
 
     setAutoWidth() {
-        this._properties.set('autoWidth', 'true');
+        this._attributes.set('autoWidth', 'true');
+        return this;
+    }
+
+    setClassName(newClassName: string) {
+        this._attributes.set('className', newClassName);
+        return this;
+    }
+
+    setHeight(newHeight: number) {
+        this._attributes.set('height', newHeight.toString());
+        return this;
+    }
+
+    setId(newId: string) {
+        this._attributes.set('id', newId);
+        return this;
+    }
+
+    setIsScrollable(newIsScrollable: boolean) {
+        this._attributes.set('isScrollable', newIsScrollable.toString());
         return this;
     }
 
@@ -28,44 +43,48 @@ export class HtmlFactory
         return this;
     }
 
-    setClassName(newClassName: string) {
-        this._properties.set('className', newClassName);
+    setText(newText: string) {
+        this._attributes.set('text', newText);
         return this;
     }
 
-    setId(newId: string) {
-        this._properties.set('id', newId);
+    setVisible(isVisible: boolean) {
+        if (isVisible) {
+            this._attributes.set('display', 'block');
+            this._attributes.set('visiblity', 'visible');
+        }
+        else {
+            this._attributes.set('display', 'none');
+            this._attributes.set('visiblity', 'hidden');
+        }
+
         return this;
     }
 
-    setIsScrollable(newIsScrollable: boolean) {
-        this._properties.set('isScrollable', newIsScrollable.toString());
-        return this;
-    }
-
-    setAlign(newAlign: string) {
-        this._properties.set('align', newAlign);
+    setWidth(newWidth: number) {
+        this._attributes.set('width', newWidth.toString());
         return this;
     }
 
     setXPosition(newXPosition: number) {
-        this._properties.set('xPosition', newXPosition.toString());
+        this._attributes.set('xPosition', newXPosition.toString());
         return this;
     }
 
     setYPosition(newYPosition: number) {
-        this._properties.set('yPosition', newYPosition.toString());
+        this._attributes.set('yPosition', newYPosition.toString());
         return this;
     }
 
     createElement(parentElement: HTMLElement): HTMLElement
     {
         let element = parentElement.ownerDocument.createElement(this._tag);
-        if (this._properties.get('id') != null)
-            element.setAttribute('id', this._properties.get('id'));
+        if (this._attributes.get('id') != null)
+            element.setAttribute('id', this._attributes.get('id'));
 
         this.setElementStyle(element);
-        element.setAttribute('class', this._properties.get('className'));
+        element.setAttribute('class', this._attributes.get('className'));
+        this.setElementText(element);
 
         parentElement.appendChild(element);
         this.resetFactory();
@@ -75,10 +94,19 @@ export class HtmlFactory
     updateElement(element: HTMLElement): void
     {
         this.setElementStyle(element);
+        this.setElementText(element);
         this.resetFactory();
     }
 
-    private setElementStyle(element: HTMLElement)
+    private setElementText(element: HTMLElement): void
+    {
+        const text = this._attributes.get('text');
+        if (text) {
+            element.innerText = text;
+        }
+    }
+
+    private setElementStyle(element: HTMLElement): void
     {
         let attributes = new Map<string, string>();
         function addAttributeIfNotEmpty(name: string, value: string, attributes: Map<string, string>) {
@@ -86,13 +114,15 @@ export class HtmlFactory
                 attributes.set(name, value);
         }
 
-        addAttributeIfNotEmpty('width', this._properties.get('width') ? this._properties.get('width') + 'px' : null, attributes);
-        addAttributeIfNotEmpty('height', this._properties.get('height') ? this._properties.get('height') + 'px' : null, attributes);
-        addAttributeIfNotEmpty('left', this._properties.get('xPosition') ? this._properties.get('xPosition') + 'px' : null, attributes);
-        addAttributeIfNotEmpty('top', this._properties.get('yPosition') ? this._properties.get('yPosition') + 'px' : null, attributes);
-        addAttributeIfNotEmpty('float', this._properties.get('align'), attributes);
-        
-        if (this._properties.get('isScrollable'))
+        addAttributeIfNotEmpty('width', this._attributes.get('width') ? this._attributes.get('width') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('height', this._attributes.get('height') ? this._attributes.get('height') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('left', this._attributes.get('xPosition') ? this._attributes.get('xPosition') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('top', this._attributes.get('yPosition') ? this._attributes.get('yPosition') + 'px' : null, attributes);
+        addAttributeIfNotEmpty('float', this._attributes.get('align'), attributes);
+        addAttributeIfNotEmpty('display', this._attributes.get('display'), attributes);
+        addAttributeIfNotEmpty('visibility', this._attributes.get('visibility'), attributes);
+
+        if (this._attributes.get('isScrollable'))
             attributes.set('overflow', 'scroll');
 
         let style: string = '';
@@ -104,6 +134,6 @@ export class HtmlFactory
     }
 
     private resetFactory() {
-        this._properties.clear();
+        this._attributes.clear();
     }
 }

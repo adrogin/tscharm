@@ -149,3 +149,13 @@ div.chartLabel {
     border-top: 1px solid black;
     border-right: 1px solid black;
 }
+
+div.sliderIndicator {
+    position: absolute;
+    width: 40px;
+    background-color: blueviolet;
+    color: floralwhite;
+    border: 2px solid white;
+    border-radius: 10% / 50%;
+    text-align: center;
+}
