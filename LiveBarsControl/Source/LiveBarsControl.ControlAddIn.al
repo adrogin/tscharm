@@ -6,7 +6,6 @@ controladdin "Live Bars"
     HorizontalShrink = true;
     RequestedHeight = 500;
     MinimumHeight = 500;
-    RequestedWidth = 1100;
 
     Scripts = 'Scripts/dist/main.js';
     StyleSheets = 'Scripts/stylesheets/chart.css';

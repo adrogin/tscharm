@@ -1,6 +1,6 @@
 div.chart {
     margin: 0;
-    overflow: visible;
+    overflow: auto;
 }
 
 div.chartLines {

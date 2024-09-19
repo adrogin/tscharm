@@ -15,20 +15,52 @@ function removeChart() {
     }
 }
 
+function dragAndDrop(dragElementId: string, mouseDownX: number, mouseDownY: number, mouseUpX: number, mouseUpY: number) {
+    document.getElementById(dragElementId).dispatchEvent(
+        new MouseEvent('mousedown', {
+            bubbles: true,
+            clientX: mouseDownX,
+            clientY: mouseDownY
+        }));
+
+    const chartDrawingArea = document.getElementById('chartLines');
+    chartDrawingArea.dispatchEvent(
+        new MouseEvent('mousemove', {
+            bubbles: true,
+            clientX: mouseUpX,
+            clientY: mouseUpY
+        }));
+
+    chartDrawingArea.dispatchEvent(
+        new MouseEvent('mouseup', {
+            bubbles: true,
+            clientX: mouseUpX,
+            clientY: mouseUpY
+        }));    
+}
+
 describe('Basic object instantiation tests', () => {
     test('Instantiate chart and get draw area width', () => {
         let chart: Chart = new Chart(200, 100);
-        // chart.hMargin = 10;
 
-        expect(chart.getDrawAreaWidth()).toBe(180);
+        expect(chart.getDrawAreaWidth()).toBe(200);
     });
 
     test('Instantiate chart and get draw area height', () => {
         let chart: Chart = new Chart(200, 100);
-        // chart.vMargin = 7;
 
-        expect(chart.getDrawAreaHeight()).toBe(86);
+        expect(chart.getDrawAreaHeight()).toBe(100);
     });
+
+    test('Instantiate chart with the top and left sidebar areas', () => {
+        let chart = new Chart(200, 100);
+        chart.xAxis.height = 15;
+        chart.leftSideBarWidth = 30;
+        chart.showAxes = true;
+
+        expect(chart.getDrawAreaWidth()).toBe(170);
+        expect(chart.getDrawAreaHeight()).toBe(85);
+    })
 });
 
 describe('Adding lines to chart', () => {
@@ -128,9 +160,8 @@ describe('Adding lines to chart', () => {
 describe('Adding/removing bars in the line', () => {
     test('Adding a bar to a chart line shifts the right edge to the width of the bar', () => {
         let chart: Chart = new Chart();
-        let chartLine = new ChartLine();
+        let chartLine = chart.lines.addNew();
         chartLine.bars.add(0, 10);
-        chart.lines.add(chartLine);
         
         expect(chart.lines.get(0).rightEdge).toBe(10);
         expect(chart.lines.getMaxWidth()).toBe(10);
@@ -138,11 +169,10 @@ describe('Adding/removing bars in the line', () => {
 
     test('Adding a bar to the right of an existing bar shifts the right edge', () => {
         let chart: Chart = new Chart();
-        let chartLine = new ChartLine();
+        let chartLine = chart.lines.addNew();
         chartLine.bars.add(0, 10);
         chartLine.bars.add(15, 20);
         chartLine.bars.add(40, 10);
-        chart.lines.add(chartLine);
         
         expect(chart.lines.get(0).rightEdge).toBe(50);
         expect(chart.lines.getMaxWidth()).toBe(50);
@@ -150,10 +180,9 @@ describe('Adding/removing bars in the line', () => {
 
     test('Adding a bar to the left of an existing bar does not shift the right edge', () => {
         let chart: Chart = new Chart();
-        let chartLine = new ChartLine();
+        let chartLine = chart.lines.addNew();
         chartLine.bars.add(0, 10);
         chartLine.bars.add(40, 10);
-        chart.lines.add(chartLine);
         
         chartLine.bars.add(15, 20);
 
@@ -197,7 +226,7 @@ describe('Creating HTML elements', () => {
         chart.draw(chartContainer);
 
         verifyElement('chart', chartContainer);
-        verifyElement('chartLines', chart.htmlElement);
+        verifyElement('chartLines', chart.mainElement);
     });
 
     test('Add 3 lines to the chart and draw', () => {
@@ -261,30 +290,6 @@ describe('Creating HTML elements', () => {
 describe('Resizing bars', () => {
     let chartContainer;
 
-    function dragAndDrop(dragElementId: string, mouseDownX: number, mouseDownY: number, mouseUpX: number, mouseUpY: number) {
-        document.getElementById(dragElementId).dispatchEvent(
-            new MouseEvent('mousedown', {
-                bubbles: true,
-                clientX: mouseDownX,
-                clientY: mouseDownY
-            }));
-
-        const chartDrawingArea = document.getElementById('chartLines');
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mousemove', {
-                bubbles: true,
-                clientX: mouseUpX,
-                clientY: mouseUpY
-            }));
-
-        chartDrawingArea.dispatchEvent(
-            new MouseEvent('mouseup', {
-                bubbles: true,
-                clientX: mouseUpX,
-                clientY: mouseUpY
-            }));    
-    }
-
     beforeAll(() => {
         chartContainer = createChartContainer();
     });
@@ -326,10 +331,10 @@ describe('Resizing bars', () => {
         chart.bindEventHandler('onResizeLeftDone', onResizeDoneCallback);
         chart.bindEventHandler('onResizeRightDone', onResizeDoneCallback);
 
-        dragAndDrop('barHandle_0_0_left', 2, 5, 45, 50);
+        dragAndDrop('barHandle_0_0_left', 2, 5, 18, 50);
 
         expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
-        expect(onResizeDoneCallback).toHaveBeenLastCalledWith('0_0', 43);
+        expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 16);
     });
 
     test('Fire OnResizeRightDone event', () => {
@@ -344,7 +349,7 @@ describe('Resizing bars', () => {
         dragAndDrop('barHandle_0_0_right', 28, 5, 21, 50);
 
         expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
-        expect(onResizeDoneCallback).toHaveBeenLastCalledWith('0_0', 23);
+        expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 23);
     });
 
     test('Dragging a bar', () => {
@@ -362,7 +367,7 @@ describe('Resizing bars', () => {
         expect(bar.width).toBe(30);
 
         expect(onDragDoneCallback).toHaveBeenCalledTimes(1);
-        expect(onDragDoneCallback).toHaveBeenLastCalledWith('0_0', 37);
+        expect(onDragDoneCallback).toHaveBeenLastCalledWith(0, 0, 37);
     });
 
     test('Multiple manipulations with a bar', () => {
@@ -398,6 +403,18 @@ describe('Resizing bars', () => {
         dragAndDrop('chartBar_0_1', 123, 5, 100, 5);
         expect(bar.position).toBe(85);
         expect(bar.width).toBe(32);
+    });
+});
+
+describe('Resizing limits', () => {
+    let chartContainer;
+
+    beforeAll(() => {
+        chartContainer = createChartContainer();
+    });
+
+    beforeEach(() => {
+        removeChart();
     });
 
     test('Left resize limit', () => {
@@ -483,6 +500,36 @@ describe('Resizing bars', () => {
         expect(line.bars.get(1).position).toBe(75);
         expect(line.bars.get(1).width).toBe(125);
     });
+
+    test('OnResizeLeft negative limit', () => {
+        const onResizeDoneCallback = jest.fn( () => { } );
+
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(0, 30);
+        chart.draw(chartContainer);
+        chart.bindEventHandler('onResizeLeftDone', onResizeDoneCallback);
+        chart.bindEventHandler('onResizeRightDone', onResizeDoneCallback);
+
+        dragAndDrop('barHandle_0_0_left', 2, 5, 45, 50);
+
+        expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
+        expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 29);
+    });
+
+    test('Fire OnResizeRight negative limit', () => {
+        const onResizeDoneCallback = jest.fn( () => { } );
+
+        let chart: Chart = new Chart(100, 100);
+        chart.lines.addNew().bars.add(20, 50);
+        chart.draw(chartContainer);
+        chart.bindEventHandler('onResizeLeftDone', onResizeDoneCallback);
+        chart.bindEventHandler('onResizeRightDone', onResizeDoneCallback);
+
+        dragAndDrop('barHandle_0_0_right', 68, 5, 11, 50);
+
+        expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
+        expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 1);
+    });
 });
 
 describe('Chart axes and marking', () => {
@@ -501,8 +548,6 @@ describe('Chart axes and marking', () => {
         chart.showAxes = true;
         chart.xAxis.height = 15;
         chart.yAxis.width = 15;
-        // chart.vMargin = 7;
-        // chart.hMargin = 7;
 
         chart.draw(chartContainer)
     

@@ -24,8 +24,20 @@ export class Chart
 	}
 
 	private _headerElement: HTMLElement;
+	get headerElement(): HTMLElement {
+		return this._headerElement;
+	}
+
 	private _mainElement: HTMLElement;
+	get mainElement(): HTMLElement {
+		return this._mainElement;
+	}
+
 	private _leftSideBarElement: HTMLElement;
+	get leftSideBarElement(): HTMLElement {
+		return this.leftSideBarElement;
+	}
+
 	private _originPointElement: HTMLElement;
 
 	private _eventHub: EventHub;

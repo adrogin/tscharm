@@ -110,22 +110,39 @@ export class ChartBar
 	private createBarHandles(barElement: HTMLElement)
 	{
 		function onResizeHandlerLeft(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startPosition: number, startWidth: number) {
-			const newPosition = startPosition + event.clientX - mouseDownPositionX;
+			const currPosition = chartBar.position;
+			let newPosition = startPosition + event.clientX - mouseDownPositionX;
 			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-			chartBar.position = newPosition < maxResize.leftBoundary ? maxResize.leftBoundary : newPosition;
-			chartBar.width = startWidth + startPosition - chartBar.position;
+			
+			if (newPosition < maxResize.leftBoundary)
+				newPosition = maxResize.leftBoundary;
+
+			let newWidth = startWidth + startPosition - newPosition;
+			if (newWidth <= 0) {
+				newWidth = 1;
+				newPosition = startWidth + startPosition - newWidth;
+			}
+
+			chartBar.position = newPosition;
+			chartBar.width = newWidth;
 			chartBar.update();
 
-			chartBar.raiseResizeEvent('onResizeLeft', chartBar, newPosition);
+			if (chartBar.position != currPosition)
+				chartBar.raiseResizeEvent('onResizeLeft', chartBar, chartBar.position);
 		}
 
 		function onResizeHandlerRight(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startWidth: number) {
-			const newWidth = startWidth + event.clientX - mouseDownPositionX;
+			const currWidth = chartBar.width;
+			let newWidth = startWidth + event.clientX - mouseDownPositionX;
+			if (newWidth <= 0)
+				newWidth = 1;
+
 			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
 			chartBar.width = chartBar.position + newWidth > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.position : newWidth;
 			chartBar.update();
 
-			chartBar.raiseResizeEvent('onResizeRight', chartBar, newWidth);
+			if (chartBar.width != currWidth)
+				chartBar.raiseResizeEvent('onResizeRight', chartBar, chartBar.width);
 		}
 
 		function setMouseDownHandlerLeft(chartBar: ChartBar, eventName: string) {
