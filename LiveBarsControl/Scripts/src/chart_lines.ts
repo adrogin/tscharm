@@ -29,6 +29,17 @@ export class ChartLines
         this.scaleHeightToFit();
     }
 
+	private _unitSize: number = 1;
+	get unitSize(): number {
+		return this._unitSize;
+	}
+	set unitSize(newUnitSize: number) {
+		this._unitSize = newUnitSize;
+		this._lines.forEach(line => {
+			line.bars.unitSize = this.unitSize;
+		});
+	}
+
     private _vSpacing: number = 10;
 	get vSpacing(): number {
 		return this._vSpacing;
@@ -78,6 +89,7 @@ export class ChartLines
 		line.drawingArea = this.htmlElement;
 		this._lines.at(this._lines.push(line) - 1).htmlId = (++this._lastLineId).toString();
 		line.id = this._lastLineId;
+		line.bars.unitSize = this.unitSize;
 		this._lineHeight = this.recalculateLineHeight();
 		this.recalculateLinePositions();
 	}

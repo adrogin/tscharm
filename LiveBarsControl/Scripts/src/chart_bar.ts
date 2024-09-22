@@ -59,6 +59,14 @@ export class ChartBar
 		this._width = newWidth;
 	}
 
+	public getScaledPosition(): number {
+		return this.position * this.unitSize;
+	}
+
+	public getScaledWidth(): number {
+		return this.width * this.unitSize;
+	}
+
 	private _className: string = 'chartBar-normal';
 	get className(): string {
 		return this._className;
@@ -82,6 +90,14 @@ export class ChartBar
 		return this;
 	}
 
+	private _unitSize: number = 1;
+    get unitSize(): number {
+        return this._unitSize;
+    }
+    set unitSize(newUnitSize: number) {
+        this._unitSize = newUnitSize;
+    }
+
 	// Default function allows unbounded resizing and can be replaced by an alternative implementation.
 	// ChartBars class injects a function that detects neighbours' boundaries and limits resizing respectively.
 	public getMaxResizeAllowed = (leftBoundary: number, rightBoundary: number) => { return { leftBoundary, rightBoundary } }
@@ -104,16 +120,16 @@ export class ChartBar
 
 	private update(): void
 	{
-		new HtmlFactory().setWidth(this.width).setXPosition(this.position).updateElement(this._htmlElement);
+		new HtmlFactory().setWidth(this.getScaledWidth()).setXPosition(this.getScaledPosition()).updateElement(this._htmlElement);
 	}
 
 	private createBarHandles(barElement: HTMLElement)
 	{
 		function onResizeHandlerLeft(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startPosition: number, startWidth: number) {
 			const currPosition = chartBar.position;
-			let newPosition = startPosition + event.clientX - mouseDownPositionX;
+			let newPosition = startPosition + (event.clientX - mouseDownPositionX) / chartBar.unitSize;
 			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-			
+
 			if (newPosition < maxResize.leftBoundary)
 				newPosition = maxResize.leftBoundary;
 
@@ -133,7 +149,7 @@ export class ChartBar
 
 		function onResizeHandlerRight(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startWidth: number) {
 			const currWidth = chartBar.width;
-			let newWidth = startWidth + event.clientX - mouseDownPositionX;
+			let newWidth = startWidth + (event.clientX - mouseDownPositionX) / chartBar.unitSize;
 			if (newWidth <= 0)
 				newWidth = 1;
 
@@ -151,7 +167,9 @@ export class ChartBar
 				let startPosition: number = chartBar.position;
 				let startWidth: number = chartBar.width;
 
-				function handleResize(mouseMoveEvent: MouseEvent) { onResizeHandlerLeft(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startPosition, startWidth) };
+				function handleResize(mouseMoveEvent: MouseEvent) {
+					onResizeHandlerLeft(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startPosition, startWidth)
+				};
 				function handleMouseUp() {
 					chartBar.drawingArea.removeEventListener('mousemove', handleResize);
 					chartBar.raiseResizeEvent('onResizeLeftDone', chartBar, chartBar.position);
@@ -160,7 +178,7 @@ export class ChartBar
 
 				chartBar.drawingArea.addEventListener('mousemove', handleResize);
 				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
-				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
+				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX / chartBar.unitSize, mouseDownEvent.clientY);
 			}
 		}
 
@@ -169,7 +187,9 @@ export class ChartBar
 				mouseDownEvent.stopPropagation();
 				let startWidth: number = chartBar.width;
 
-				function handleResize(mouseMoveEvent: MouseEvent) { onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startWidth) };
+				function handleResize(mouseMoveEvent: MouseEvent) {
+					onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startWidth)
+				};
 				function handleMouseUp() {
 					chartBar.drawingArea.removeEventListener('mousemove', handleResize)
 					chartBar.raiseResizeEvent('onResizeRightDone', chartBar, chartBar.width);
@@ -212,7 +232,8 @@ export class ChartBar
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
-		let barElement = new HtmlFactory().setId('chartBar_' + this._id).setClassName(this.className).setClassName(this.className).setWidth(this.width).setXPosition(this.position).createElement(parentElement);
+		let barElement = new HtmlFactory().setId('chartBar_' + this._id).setClassName(this.className).setClassName(this.className)
+			.setWidth(this.getScaledWidth()).setXPosition(this.getScaledPosition()).createElement(parentElement);
 
 		function setMouseDownEventhandler(chartBar: ChartBar) {
 			return function (mouseDownEvent: MouseEvent) {
@@ -221,7 +242,7 @@ export class ChartBar
 				function handleDrag(mouseMoveEvent: MouseEvent) {
 					const prevBarPosition = chartBar.position;
 					const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-					const newPosition = startPosition + mouseMoveEvent.clientX - mouseDownEvent.clientX;
+					const newPosition = startPosition + (mouseMoveEvent.clientX - mouseDownEvent.clientX) / chartBar.unitSize;
 					chartBar.position = 
 						newPosition < maxResize.leftBoundary ? maxResize.leftBoundary : 
 						newPosition + chartBar.width > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.width :
@@ -235,7 +256,8 @@ export class ChartBar
 				function handleMouseUp(mouseUpEvent: MouseEvent) {
 					chartBar.drawingArea.removeEventListener('mousemove', handleDrag);
 					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
-					chartBar.raiseResizeEvent('onDragDone', chartBar, startPosition + mouseUpEvent.clientX - mouseDownEvent.clientX);
+					// chartBar.raiseResizeEvent('onDragDone', chartBar, startPosition + (mouseUpEvent.clientX - mouseDownEvent.clientX) / chartBar.unitSize);
+					chartBar.raiseResizeEvent('onDragDone', chartBar, chartBar.position);
 				}
 
 				chartBar.drawingArea.addEventListener('mousemove', handleDrag);

@@ -14,8 +14,8 @@ export class Chart
 		this._lines = new ChartLines().setEventHub(this._eventHub);
 		this._xAxis = new ChartXAxis(new ChartRuler());
 		this._yAxis = new ChartYAxis(new ChartRuler());
-		this.height = height;
-		this.width = width;
+		this.height = height == null ? document.body.clientHeight : height;
+		this.width = width == null ? document.body.clientWidth : width;
 	}
 
 	private _htmlElement: HTMLElement;
@@ -97,7 +97,23 @@ export class Chart
 		return this._lines;
 	}
 
-	private _unitSize: number;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
+	private _unitSize: number = 1;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
+	get unitSize(): number {
+		return this._unitSize;
+	}
+	set unitSize(newUnitSize: number) {
+		this._unitSize = newUnitSize;
+	}
+
+	private _minValue: number;
+	private _maxValue: number;
+
+	public setScale(minValue: number, maxValue: number) {
+		this._minValue = minValue;
+		this._maxValue = maxValue;
+		this._unitSize = maxValue > minValue ? this.getDrawAreaWidth() / (this._maxValue - this._minValue) : 1;
+		this.lines.unitSize = this._unitSize;
+	}
 
 	private setAxesSizeAndPosition() {
 		this.xAxis.position = this.getLeftSideBarWidth();

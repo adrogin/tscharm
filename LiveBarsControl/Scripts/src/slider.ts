@@ -29,7 +29,7 @@ export class Slider
         function resizeLeftHandler(slider: Slider) {
             return function(lineNo: number, barNo: number, newPosition: number): void
             {
-                setIndicatorElement(slider._leftIndicatorElement, newPosition);
+                setIndicatorElement(slider._leftIndicatorElement, newPosition * slider._chart.unitSize, newPosition.toString());
             }
         }
     
@@ -37,21 +37,26 @@ export class Slider
         {
             return function(lineNo: number, barNo: number, newSize: number): void
             {
-                setIndicatorElement(slider._rightIndicatorElement, slider._chart.lines.get(lineNo).bars.get(barNo).position + newSize);
+                const position = (slider._chart.lines.get(lineNo).bars.get(barNo).position + newSize);
+                setIndicatorElement(slider._rightIndicatorElement, position * slider._chart.unitSize, position.toString());
             }
         }
 
         function dragHandler(slider: Slider)
         {
             return function(lineNo: number, barNo: number, newPosition: number) {
-                setIndicatorElement(slider._leftIndicatorElement, newPosition);
-                setIndicatorElement(slider._rightIndicatorElement, newPosition + slider._chart.lines.get(lineNo).bars.get(barNo).width);
+                setIndicatorElement(slider._leftIndicatorElement, newPosition * slider._chart.unitSize, newPosition.toString());
+
+                const rightPosition = newPosition + slider._chart.lines.get(lineNo).bars.get(barNo).width;
+                setIndicatorElement(slider._rightIndicatorElement, rightPosition * slider._chart.unitSize, rightPosition.toString());
             }
         }
 
-        function setIndicatorElement(htmlElement: HTMLElement, position: number): void
+        function setIndicatorElement(htmlElement: HTMLElement, position: number, text: string): void
         {
-            new HtmlFactory().setClassName("sliderIndicator").setXPosition(position - htmlElement.clientWidth / 2).setText(position.toString()).setVisible(true)
+            new HtmlFactory().setClassName("sliderIndicator")
+                .setXPosition(position - htmlElement.clientWidth / 2)
+                .setText(text).setVisible(true)
                 .updateElement(htmlElement);
         }
     

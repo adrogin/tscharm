@@ -13,7 +13,6 @@ controladdin "Live Bars"
     procedure CreateChart(Width: Integer; Height: Integer);
     procedure ShowLabels();
     procedure SetXAxisMarks(Marks: JsonArray);
-    procedure SetYAxisMarks(Marks: JsonArray);
     procedure AddNewLine();
     procedure RemoveLine(Index: Integer);
     procedure SetLineLabel(Index: Integer; Label: Text);
@@ -23,8 +22,11 @@ controladdin "Live Bars"
     procedure BindBarEvents();
     procedure Draw();
     procedure Clear();
+    procedure SetScale(MinValue: Integer; MaxValue: Integer);
+    procedure RequestDocumentSize();
 
-    event OnResizeLeftDone(BarId: Text; NewPosition: Integer);
-    event OnResizeRightDone(BarId: Text; NewWidth: Integer);
-    event OnDragDone(BarId: Text; NewPosition: Integer);
+    event OnResizeLeftDone(LineId: Integer; BarId: Integer; NewPosition: Integer);
+    event OnResizeRightDone(LlineId: Integer; BarId: Integer; NewWidth: Integer);
+    event OnDragDone(LineId: Integer; BarId: Integer; NewPosition: Integer);
+    event OnDocumentSizeReceived(Width: Integer; Height: Integer);
 }

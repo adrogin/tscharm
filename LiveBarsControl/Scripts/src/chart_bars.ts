@@ -50,6 +50,17 @@ export class ChartBars
         return this;
 	}
 
+    private _unitSize: number = 1;
+    get unitSize(): number {
+        return this._unitSize;
+    }
+    set unitSize(newUnitSize: number) {
+        this._unitSize = newUnitSize;
+        this._bars.forEach(bar => {
+            bar.unitSize = newUnitSize;
+        });
+    }
+
     private maxResizeAllowed(barsCollection: ChartBar[]) {
         return function(position: number, width: number): { leftBoundary: number, rightBoundary: number }
         {
@@ -77,6 +88,7 @@ export class ChartBars
 		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineHtmlId + '_' + (++this._lastBarId).toString();
         bar.lineNo = this.parentLineNo;
         bar.barNo = this._lastBarId;
+        bar.unitSize = this.unitSize;
         this.raiseEvent('barAdd', bar);
 	}
 

@@ -5,7 +5,7 @@ var chart;
 var slider;
 
 export function CreateChart(Width, Height) {
-    chart = new Chart(Width, Height);
+    chart = new Chart(Width <= 0? null : Width, Height <= 0 ? null : Height);
     slider = new Slider(chart);
 }
 
@@ -42,6 +42,14 @@ export function Clear() {
     chart = null;
 }
 
+export function RequestDocumentSize() {
+    SendDocumentSize(document.body.clientWidth, document.body.clientHeight);
+}
+
+export function SendDocumentSize(width, height) {
+    Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnDocumentSizeReceived', [width, height]);
+}
+
 export function ShowLabels() {
     chart.showAxes = true;
 }
@@ -50,11 +58,15 @@ export function SetXAxisMarks(Marks) {
     chart.xAxis.initializeMarker(Marks);
 }
 
+export function SetScale(MinValue, MaxValue) {
+    chart.setScale(MinValue, MaxValue);
+}
+
 export function BindBarEvents() {
     chart.bindEventHandler(
-        'onResizeLeftDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeLeftDone', [BarId, NewPosition]));
+        'onResizeLeftDone', (LineId, BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeLeftDone', [LineId, BarId, NewPosition]));
     chart.bindEventHandler(
-        'onResizeRightDone', (BarId, NewWidth) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeRightDone', [BarId, NewWidth]));
+        'onResizeRightDone', (LineId, BarId, NewWidth) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnResizeRightDone', [LineId, BarId, NewWidth]));
     chart.bindEventHandler(
-        'onDragDone', (BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnDragDone', [BarId, NewPosition]));
+        'onDragDone', (LineId, BarId, NewPosition) => Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnDragDone', [LineId, BarId, NewPosition]));
 }

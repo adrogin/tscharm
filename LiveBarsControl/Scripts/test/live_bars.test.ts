@@ -1,6 +1,5 @@
 import { Chart } from "../src/chart"
 import { ChartLine } from "../src/chart_line";
-import { EventHub } from "../src/event_hub";
 
 function createChartContainer(): HTMLElement {
     let chartContainer = document.createElement('div');
@@ -530,6 +529,21 @@ describe('Resizing limits', () => {
         expect(onResizeDoneCallback).toHaveBeenCalledTimes(1);
         expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 1);
     });
+
+    test('OnDragDone sends the boundary value when the resizing limit is hit', () => {
+        const onDragDoneCallback = jest.fn( () => {} );
+
+        let chart: Chart = new Chart(100, 100);
+        let chartLine = chart.lines.addNew();
+        chartLine.bars.add(20, 30);
+        chartLine.bars.add(60, 20);
+        chart.draw(chartContainer);
+        chart.bindEventHandler('onDragDone', onDragDoneCallback);
+        
+        dragAndDrop('chartBar_0_0', 35, 5, 80, 5);
+
+        expect(onDragDoneCallback).toHaveBeenCalledWith(0, 0, 30);
+    });
 });
 
 describe('Chart axes and marking', () => {
@@ -543,15 +557,16 @@ describe('Chart axes and marking', () => {
         removeChart();
     });
 
-    test('Enabling axes reduces the chart drawing area and shifts the lines origin point', () => {
+    test('Side and top bar size are 0 if the ShowAxes option is disabled', () => {
         let chart = new Chart(200, 100);
-        chart.showAxes = true;
         chart.xAxis.height = 15;
         chart.yAxis.width = 15;
+        chart.leftSideBarWidth = 25;
+        chart.showAxes = false;
 
         chart.draw(chartContainer)
     
-        expect(chart.getDrawAreaWidth()).toBe(171);
-        expect(chart.getDrawAreaHeight()).toBe(71);
+        expect(chart.getDrawAreaWidth()).toBe(200);
+        expect(chart.getDrawAreaHeight()).toBe(100);
     });
 });
