@@ -29,14 +29,25 @@ export class ChartLines
         this.scaleHeightToFit();
     }
 
-	private _unitSize: number = 1;
-	get unitSize(): number {
-		return this._unitSize;
+	private _unitScale: number = 1;
+	get unitScale(): number {
+		return this._unitScale;
 	}
-	set unitSize(newUnitSize: number) {
-		this._unitSize = newUnitSize;
+	set unitScale(newUnitScale: number) {
+		this._unitScale = newUnitScale;
 		this._lines.forEach(line => {
-			line.bars.unitSize = this.unitSize;
+			line.bars.unitScale = this.unitScale;
+		});
+	}
+
+	private _minValue: number = 0;
+	get minValue(): number {
+		return this._minValue;
+	}
+	set minValue(newMinValue: number) {
+		this._minValue = newMinValue;
+		this._lines.forEach(line => {
+			line.bars.minValue = this.minValue;
 		});
 	}
 
@@ -89,7 +100,8 @@ export class ChartLines
 		line.drawingArea = this.htmlElement;
 		this._lines.at(this._lines.push(line) - 1).htmlId = (++this._lastLineId).toString();
 		line.id = this._lastLineId;
-		line.bars.unitSize = this.unitSize;
+		line.bars.unitScale = this.unitScale;
+		line.bars.minValue = this.minValue;
 		this._lineHeight = this.recalculateLineHeight();
 		this.recalculateLinePositions();
 	}

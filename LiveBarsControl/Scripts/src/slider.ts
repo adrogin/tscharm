@@ -29,7 +29,7 @@ export class Slider
         function resizeLeftHandler(slider: Slider) {
             return function(lineNo: number, barNo: number, newPosition: number): void
             {
-                setIndicatorElement(slider._leftIndicatorElement, newPosition * slider._chart.unitSize, newPosition.toString());
+                setIndicatorElement(slider._leftIndicatorElement, (newPosition- slider._chart.minValue) * slider._chart.unitScale, slider.formatIndicatorText(newPosition));
             }
         }
     
@@ -38,17 +38,21 @@ export class Slider
             return function(lineNo: number, barNo: number, newSize: number): void
             {
                 const position = (slider._chart.lines.get(lineNo).bars.get(barNo).position + newSize);
-                setIndicatorElement(slider._rightIndicatorElement, position * slider._chart.unitSize, position.toString());
+                setIndicatorElement(slider._rightIndicatorElement, (position - slider._chart.minValue) * slider._chart.unitScale, slider.formatIndicatorText(position));
             }
         }
 
         function dragHandler(slider: Slider)
         {
             return function(lineNo: number, barNo: number, newPosition: number) {
-                setIndicatorElement(slider._leftIndicatorElement, newPosition * slider._chart.unitSize, newPosition.toString());
+                setIndicatorElement(
+                    slider._leftIndicatorElement, (newPosition - slider._chart.minValue) * slider._chart.unitScale,
+                    slider.formatIndicatorText(newPosition));
 
                 const rightPosition = newPosition + slider._chart.lines.get(lineNo).bars.get(barNo).width;
-                setIndicatorElement(slider._rightIndicatorElement, rightPosition * slider._chart.unitSize, rightPosition.toString());
+                setIndicatorElement(
+                    slider._rightIndicatorElement, (rightPosition - slider._chart.minValue) * slider._chart.unitScale,
+                    slider.formatIndicatorText(rightPosition));
             }
         }
 
@@ -67,6 +71,19 @@ export class Slider
                 htmlFactory.setVisible(false).updateElement(slider._rightIndicatorElement);
             }
         }
+    }
+
+    public formatIndicatorText(value: number): string
+    {
+        if (this._chart.valueType == "number")
+            return value.toString();
+
+        if (this._chart.valueType == "date") {
+            let date = new Date(value);
+            return date.getHours().toString().padStart(2, '0') + ":" + date.getMinutes().toString().padStart(2, '0');
+        }
+
+        return "";
     }
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement

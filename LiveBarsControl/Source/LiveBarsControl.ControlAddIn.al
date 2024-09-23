@@ -18,11 +18,13 @@ controladdin "Live Bars"
     procedure SetLineLabel(Index: Integer; Label: Text);
     procedure SetAllLineLabels(Labels: JsonArray);
     procedure AddBar(LineIndex: Integer; Position: Integer; Width: Integer; ClassName: Text);
+    procedure AddBar(LineIndex: Integer; StartDateTime: DateTime; Duration: Integer; ClassName: Text);
     procedure RemoveBar(LineIndex: Integer; BarIndex: Integer);
     procedure BindBarEvents();
     procedure Draw();
     procedure Clear();
-    procedure SetScale(MinValue: Integer; MaxValue: Integer);
+    procedure SetNumericScale(MinValue: Integer; MaxValue: Integer);
+    procedure SetDateTimeScale(MinValue: DateTime; MaxValue: DateTime);
     procedure RequestDocumentSize();
 
     event OnResizeLeftDone(LineId: Integer; BarId: Integer; NewPosition: Integer);

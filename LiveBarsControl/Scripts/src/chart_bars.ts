@@ -50,16 +50,27 @@ export class ChartBars
         return this;
 	}
 
-    private _unitSize: number = 1;
-    get unitSize(): number {
-        return this._unitSize;
+    private _unitScale: number;
+    get unitScale(): number {
+        return this._unitScale;
     }
-    set unitSize(newUnitSize: number) {
-        this._unitSize = newUnitSize;
+    set unitScale(newUnitScale: number) {
+        this._unitScale = newUnitScale;
         this._bars.forEach(bar => {
-            bar.unitSize = newUnitSize;
+            bar.unitScale = newUnitScale;
         });
     }
+
+    private _minValue: number = 0;
+	get minValue(): number {
+		return this._minValue;
+	}
+	set minValue(newMinValue: number) {
+		this._minValue = newMinValue;
+		this._bars.forEach(bar => {
+			bar.minValue = this.minValue;
+		});
+	}
 
     private maxResizeAllowed(barsCollection: ChartBar[]) {
         return function(position: number, width: number): { leftBoundary: number, rightBoundary: number }
@@ -88,7 +99,8 @@ export class ChartBars
 		this._bars.at(this._bars.push(bar) - 1).id = this._parentLineHtmlId + '_' + (++this._lastBarId).toString();
         bar.lineNo = this.parentLineNo;
         bar.barNo = this._lastBarId;
-        bar.unitSize = this.unitSize;
+        bar.unitScale = this.unitScale;
+        bar.minValue = this.minValue;
         this.raiseEvent('barAdd', bar);
 	}
 
@@ -117,13 +129,13 @@ export class ChartBars
         return rightEdge;
     }
 
-	public draw(parentElement: HTMLElement): void
-	{
+    public draw(parentElement: HTMLElement): void
+    {
         // Bars collection has no HTML element of its own, line is the parent of every bar.
         this._bars.forEach(bar => {
             bar.draw(parentElement);
         });
-	}
+    }
 
     public bind(eventName: string, handler: eventHandler): number
     {

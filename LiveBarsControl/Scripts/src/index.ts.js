@@ -26,7 +26,8 @@ export function SetAllLineLabels(Labels) {
 }
 
 export function AddBar(LineIndex, Position, Width, ClassName) {
-    chart.lines.get(LineIndex).bars.add(Position, Width, ClassName);
+    const barPosition = typeof Position == "string" ? new Date(Position).getTime() : Position;
+    chart.lines.get(LineIndex).bars.add(barPosition, Width, ClassName);
 }
 
 export function RemoveBar(LineIndex, BarIndex) {
@@ -58,8 +59,16 @@ export function SetXAxisMarks(Marks) {
     chart.xAxis.initializeMarker(Marks);
 }
 
-export function SetScale(MinValue, MaxValue) {
+export function SetNumericScale(MinValue, MaxValue) {
     chart.setScale(MinValue, MaxValue);
+}
+
+export function SetDateTimeScale(MinValue, MaxValue) {
+    chart.setScale(new Date(MinValue), new Date(MaxValue));
+}
+
+export function SetDuration(Value) {
+    console.log(Value);
 }
 
 export function BindBarEvents() {

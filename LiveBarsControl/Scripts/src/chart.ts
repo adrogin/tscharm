@@ -61,7 +61,7 @@ export class Chart
 		this._width = newWidth;
 		this.setAxesSizeAndPosition();
         this._lines.width = this.getDrawAreaWidth();
-		this._unitSize = this.recalculateUnitScale();
+		this._unitScale = this.recalculateUnitScale();
 	}
 
 	private _leftSideBarWidth: number = 65;
@@ -97,22 +97,44 @@ export class Chart
 		return this._lines;
 	}
 
-	private _unitSize: number = 1;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
-	get unitSize(): number {
-		return this._unitSize;
-	}
-	set unitSize(newUnitSize: number) {
-		this._unitSize = newUnitSize;
+	private _unitScale: number = 1;  // Unit size in pixels. Used to calculate actual size of the bars when scaling.
+	get unitScale(): number {
+		return this._unitScale;
 	}
 
 	private _minValue: number;
-	private _maxValue: number;
+	get minValue(): number {
+		return this._minValue
+	}
 
-	public setScale(minValue: number, maxValue: number) {
-		this._minValue = minValue;
-		this._maxValue = maxValue;
-		this._unitSize = maxValue > minValue ? this.getDrawAreaWidth() / (this._maxValue - this._minValue) : 1;
-		this.lines.unitSize = this._unitSize;
+	private _maxValue: number;
+	get maxValue(): number {
+		return this._maxValue;
+	}
+
+	private _valueType: string;
+	get valueType(): string {
+		return this._valueType;
+	}
+
+	public setScale(minValue: number|Date, maxValue: number|Date) {
+		if ((typeof minValue == "number" && typeof maxValue != "number") || minValue instanceof Date && !(maxValue instanceof Date)) {
+			throw new TypeError('MinValue and MaxValue must be of the same type.');
+		}
+
+		this._minValue = minValue instanceof Date ? minValue.getTime() : minValue;
+		this._maxValue = maxValue instanceof Date ? maxValue.getTime() : maxValue;
+		if (typeof minValue == "number" && typeof maxValue == "number") {
+			this._unitScale = maxValue > minValue ? this.getDrawAreaWidth() / (maxValue - minValue) : 1;
+			this._valueType = "number";
+		}
+		else if (minValue instanceof Date && maxValue instanceof Date) {
+			this._unitScale = maxValue > minValue ? this.getDrawAreaWidth() / (maxValue.getTime() - minValue.getTime()) : 1;
+			this._valueType = "date";
+		}
+
+		this.lines.unitScale = this._unitScale;
+		this.lines.minValue = this._minValue;
 	}
 
 	private setAxesSizeAndPosition() {

@@ -570,3 +570,26 @@ describe('Chart axes and marking', () => {
         expect(chart.getDrawAreaHeight()).toBe(100);
     });
 });
+
+describe('Chart scaling', () => {
+    test('Set numeric chart scale', () => {
+        let chart = new Chart(100, 100);
+        chart.setScale(0, 50);
+
+        expect(chart.unitScale).toBe(2);
+    });
+
+    test('Set datetime chart scale', () => {
+        let chart = new Chart(100, 100);
+        chart.setScale(new Date('2024-01-01 12:00:00'), new Date('2024-01-02 12:00:00'));
+
+        expect(chart.unitScale).toBeCloseTo(0.00000116, 8);
+    });
+
+    test('Attempt setting a scale with min and max values of different types', () => {
+        let chart = new Chart(100, 100);
+        let setScale = () => chart.setScale(10, new Date('2024-08-10'));
+
+        expect(setScale).toThrow(TypeError);
+    });
+});

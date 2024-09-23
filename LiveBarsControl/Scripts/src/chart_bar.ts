@@ -59,12 +59,20 @@ export class ChartBar
 		this._width = newWidth;
 	}
 
+	private _minValue: number = 0;
+	get minValue(): number {
+		return this._minValue;
+	}
+	set minValue(newMinValue: number) {
+		this._minValue = newMinValue;
+	}
+
 	public getScaledPosition(): number {
-		return this.position * this.unitSize;
+		return (this.position - this.minValue) * this.unitScale;
 	}
 
 	public getScaledWidth(): number {
-		return this.width * this.unitSize;
+		return this.width * this.unitScale;
 	}
 
 	private _className: string = 'chartBar-normal';
@@ -90,12 +98,12 @@ export class ChartBar
 		return this;
 	}
 
-	private _unitSize: number = 1;
-    get unitSize(): number {
-        return this._unitSize;
+	private _unitScale: number = 1;
+    get unitScale(): number {
+        return this._unitScale;
     }
-    set unitSize(newUnitSize: number) {
-        this._unitSize = newUnitSize;
+    set unitScale(newUnitScale: number) {
+        this._unitScale = newUnitScale;
     }
 
 	// Default function allows unbounded resizing and can be replaced by an alternative implementation.
@@ -127,7 +135,7 @@ export class ChartBar
 	{
 		function onResizeHandlerLeft(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startPosition: number, startWidth: number) {
 			const currPosition = chartBar.position;
-			let newPosition = startPosition + (event.clientX - mouseDownPositionX) / chartBar.unitSize;
+			let newPosition = startPosition + (event.clientX - mouseDownPositionX) / chartBar.unitScale;
 			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
 
 			if (newPosition < maxResize.leftBoundary)
@@ -149,7 +157,7 @@ export class ChartBar
 
 		function onResizeHandlerRight(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startWidth: number) {
 			const currWidth = chartBar.width;
-			let newWidth = startWidth + (event.clientX - mouseDownPositionX) / chartBar.unitSize;
+			let newWidth = startWidth + (event.clientX - mouseDownPositionX) / chartBar.unitScale;
 			if (newWidth <= 0)
 				newWidth = 1;
 
@@ -178,7 +186,7 @@ export class ChartBar
 
 				chartBar.drawingArea.addEventListener('mousemove', handleResize);
 				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
-				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX / chartBar.unitSize, mouseDownEvent.clientY);
+				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX / chartBar.unitScale, mouseDownEvent.clientY);
 			}
 		}
 
@@ -232,7 +240,7 @@ export class ChartBar
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
-		let barElement = new HtmlFactory().setId('chartBar_' + this._id).setClassName(this.className).setClassName(this.className)
+		let barElement = new HtmlFactory().setId('chartBar_' + this._id).setClassName(this.className)
 			.setWidth(this.getScaledWidth()).setXPosition(this.getScaledPosition()).createElement(parentElement);
 
 		function setMouseDownEventhandler(chartBar: ChartBar) {
@@ -242,7 +250,7 @@ export class ChartBar
 				function handleDrag(mouseMoveEvent: MouseEvent) {
 					const prevBarPosition = chartBar.position;
 					const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-					const newPosition = startPosition + (mouseMoveEvent.clientX - mouseDownEvent.clientX) / chartBar.unitSize;
+					const newPosition = startPosition + (mouseMoveEvent.clientX - mouseDownEvent.clientX) / chartBar.unitScale;
 					chartBar.position = 
 						newPosition < maxResize.leftBoundary ? maxResize.leftBoundary : 
 						newPosition + chartBar.width > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.width :
@@ -256,7 +264,6 @@ export class ChartBar
 				function handleMouseUp(mouseUpEvent: MouseEvent) {
 					chartBar.drawingArea.removeEventListener('mousemove', handleDrag);
 					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
-					// chartBar.raiseResizeEvent('onDragDone', chartBar, startPosition + (mouseUpEvent.clientX - mouseDownEvent.clientX) / chartBar.unitSize);
 					chartBar.raiseResizeEvent('onDragDone', chartBar, chartBar.position);
 				}
 
