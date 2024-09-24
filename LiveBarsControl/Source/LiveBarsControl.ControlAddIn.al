@@ -23,8 +23,8 @@ controladdin "Live Bars"
     procedure BindBarEvents();
     procedure Draw();
     procedure Clear();
-    procedure SetNumericScale(MinValue: Integer; MaxValue: Integer);
-    procedure SetDateTimeScale(MinValue: DateTime; MaxValue: DateTime);
+    procedure SetScale(MinValue: Integer; MaxValue: Integer);
+    procedure SetScale(MinValue: DateTime; MaxValue: DateTime);
     procedure RequestDocumentSize();
 
     event OnResizeLeftDone(LineId: Integer; BarId: Integer; NewPosition: Integer);

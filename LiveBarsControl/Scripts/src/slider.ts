@@ -1,4 +1,4 @@
-import { Chart } from "./chart";
+import { Chart, ChartValueType } from "./chart";
 import { HtmlFactory } from "./html_factory";
 
 export class Slider
@@ -75,10 +75,10 @@ export class Slider
 
     public formatIndicatorText(value: number): string
     {
-        if (this._chart.valueType == "number")
+        if (this._chart.valueType == ChartValueType.Number)
             return value.toString();
 
-        if (this._chart.valueType == "date") {
+        if (this._chart.valueType == ChartValueType.DateTime) {
             let date = new Date(value);
             return date.getHours().toString().padStart(2, '0') + ":" + date.getMinutes().toString().padStart(2, '0');
         }

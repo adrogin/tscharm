@@ -132,6 +132,7 @@ describe('Adding lines to chart', () => {
     test('Add 3 lines, verify positions', () => {
         let chart: Chart = new Chart(100, 100);
         chart.lines.vSpacing = 10;
+        chart.lines.maxLineHeight = 20;
 
         chart.lines.addNew();
         chart.lines.addNew();
@@ -145,6 +146,7 @@ describe('Adding lines to chart', () => {
     test('Add 3 lines, remove one, verify positions', () => {
         let chart: Chart = new Chart(100, 100);
         chart.lines.vSpacing = 10;
+        chart.lines.maxLineHeight = 20;
 
         chart.lines.addNew();
         chart.lines.addNew();
@@ -568,6 +570,25 @@ describe('Chart axes and marking', () => {
     
         expect(chart.getDrawAreaWidth()).toBe(200);
         expect(chart.getDrawAreaHeight()).toBe(100);
+    });
+
+    test('Mark height on the Y axis is derived from the line height and vertical spacing', () => {
+        let chart = new Chart(100, 100);
+
+        for (let i: number = 0; i < 5; i++) {
+            chart.lines.addNew();
+        }
+
+        chart.yAxis.initializeMarker(['0', '1', '2', '3', '4'], chart.lines.getPositions());
+
+        expect(chart.yAxis.axisMarker.marks.length).toBe(chart.lines.count());
+
+        let i: number = 0;
+        chart.yAxis.axisMarker.marks.forEach(mark => {
+            expect(mark.position).toBe(chart.lines.get(i).position);
+            expect(mark.size).toBe(chart.lines.lineHeight + chart.lines.vSpacing);
+            expect(mark.text).toBe((i++).toString());
+        });
     });
 });
 

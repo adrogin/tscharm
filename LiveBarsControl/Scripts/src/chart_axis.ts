@@ -84,6 +84,9 @@ export class ChartYAxis
 
 	private _htmlElement: HTMLElement;
 	private _axisMarker: AxisMarker;
+	get axisMarker(): AxisMarker {
+		return this._axisMarker;
+	}
 
 	initializeMarker(labels: string[], positions?: {position: number, size: number}[]) {
 		this._axisMarker.initialize(labels, positions);

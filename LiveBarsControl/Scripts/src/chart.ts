@@ -5,6 +5,11 @@ import { EventHub } from "./event_hub";
 import { EventHubImpl } from "./event_hub_impl";
 import { HtmlFactory } from "./html_factory";
 
+export enum ChartValueType {
+	Number,
+	DateTime
+}
+
 export class Chart
 {
 	constructor(width?: number, height?: number) {
@@ -16,6 +21,13 @@ export class Chart
 		this._yAxis = new ChartYAxis(new ChartRuler());
 		this.height = height == null ? document.body.clientHeight : height;
 		this.width = width == null ? document.body.clientWidth : width;
+
+		this._eventHub.bind('linesAreaHeightChanged', ( (chart) => {
+			return function(newHeight) {
+				if (chart.mainElement && chart.mainElement.clientHeight !== newHeight)
+					chart.resizeMainHtmlElement(chart.mainElement, newHeight);
+			}
+		})(this));
 	}
 
 	private _htmlElement: HTMLElement;
@@ -47,10 +59,12 @@ export class Chart
 		return this._height;
 	}
 	set height(newHeight: number) {
+		if (newHeight === this.height)
+			return;
+
 		this._height = newHeight;
 		this.setAxesSizeAndPosition();
         this._lines.height = this.getDrawAreaHeight();
-		this._lines.scaleHeightToFit();
 	}
 
 	private _width: number;
@@ -61,7 +75,6 @@ export class Chart
 		this._width = newWidth;
 		this.setAxesSizeAndPosition();
         this._lines.width = this.getDrawAreaWidth();
-		this._unitScale = this.recalculateUnitScale();
 	}
 
 	private _leftSideBarWidth: number = 65;
@@ -102,18 +115,18 @@ export class Chart
 		return this._unitScale;
 	}
 
-	private _minValue: number;
+	private _minValue: number = 0;
 	get minValue(): number {
 		return this._minValue
 	}
 
-	private _maxValue: number;
+	private _maxValue: number = 0;
 	get maxValue(): number {
 		return this._maxValue;
 	}
 
-	private _valueType: string;
-	get valueType(): string {
+	private _valueType: ChartValueType = ChartValueType.Number;
+	get valueType(): ChartValueType {
 		return this._valueType;
 	}
 
@@ -126,11 +139,11 @@ export class Chart
 		this._maxValue = maxValue instanceof Date ? maxValue.getTime() : maxValue;
 		if (typeof minValue == "number" && typeof maxValue == "number") {
 			this._unitScale = maxValue > minValue ? this.getDrawAreaWidth() / (maxValue - minValue) : 1;
-			this._valueType = "number";
+			this._valueType = ChartValueType.Number;
 		}
 		else if (minValue instanceof Date && maxValue instanceof Date) {
 			this._unitScale = maxValue > minValue ? this.getDrawAreaWidth() / (maxValue.getTime() - minValue.getTime()) : 1;
-			this._valueType = "date";
+			this._valueType = ChartValueType.DateTime;
 		}
 
 		this.lines.unitScale = this._unitScale;
@@ -228,6 +241,11 @@ export class Chart
 	private createMainHtmlElement(parentElement: HTMLElement): HTMLElement {
 		return new HtmlFactory().setId('chartPartMain').setClassName('chartPartMain').setWidth(this.width).setHeight(this.getMainPartHeight())
 			.createElement(parentElement);
+	}
+
+	private resizeMainHtmlElement(mainElement: HTMLElement, newHeight: number): void {
+		new HtmlFactory().setId('chartPartMain').setClassName('chartPartMain').setWidth(this.width).setHeight(newHeight)
+			.updateElement(mainElement);
 	}
 
 	private createLeftSideBarElement(parentElement: HTMLElement): HTMLElement {

@@ -5,6 +5,10 @@ import { HtmlFactory } from "./html_factory";
 export class ChartRuler implements AxisMarker
 {
     private _marks: ChartMark[] = [];
+    get marks(): ChartMark[] {
+        return this._marks;
+    }
+
     private _htmlElements: HTMLElement[] = [];
 
     public initialize(labels: string[], positions?: { position: number, size: number }[]) {

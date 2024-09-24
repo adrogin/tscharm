@@ -26,7 +26,7 @@ export class ChartLines
     }
     set height(newHeight: number) {
         this._height = newHeight;
-        this.scaleHeightToFit();
+		this._eventHub.raiseEvent('linesAreaHeightChanged', this.height);
     }
 
 	private _unitScale: number = 1;
@@ -57,10 +57,9 @@ export class ChartLines
 	}
 	set vSpacing(newVSpacing: number) {
 		this._vSpacing = newVSpacing;
-		this.scaleHeightToFit();
 	}
 
-	private _minLineHeight: number = 2;
+	private _minLineHeight: number = 10;
 	get minLineHeight(): number {
 		return this._minLineHeight;
 	}
@@ -68,7 +67,7 @@ export class ChartLines
 		this._minLineHeight = newMinLineHeight;
 	}
 
-	private _maxLineHeight: number = 20;
+	private _maxLineHeight: number = 40;
 	get maxLineHeight(): number {
 		return this._maxLineHeight;
 	}
@@ -104,6 +103,7 @@ export class ChartLines
 		line.bars.minValue = this.minValue;
 		this._lineHeight = this.recalculateLineHeight();
 		this.recalculateLinePositions();
+		this.scaleHeightToFit();
 	}
 
 	public addNew(): ChartLine {
@@ -142,7 +142,7 @@ export class ChartLines
 
 	public getPositions(): {position: number, size: number}[]
 	{
-		return this._lines.map(line => ({ position: line.position, size: this.height }));
+		return this._lines.map(line => ({ position: line.position, size: this.lineHeight + this.vSpacing }));
 	}
 
 	public draw(parentElement: HTMLElement) {
@@ -154,11 +154,6 @@ export class ChartLines
 			line.drawingArea = this.htmlElement;
             line.draw(this._htmlElement, this.lineHeight);
         });
-	}
-
-	public scaleHeightToFit()
-	{
-		this._lineHeight = this.recalculateLineHeight();
 	}
 
 	public getMaxWidth(): number
@@ -198,6 +193,14 @@ export class ChartLines
 		}
 	}
 
+	private scaleHeightToFit(): void
+	{
+		let requiredHeight = this.lineHeight * this._lines.length + this.vSpacing * (this._lines.length - 1);
+		if (requiredHeight > this.height) {
+			this.height = requiredHeight;
+		}
+	}
+
     private createHtmlElement(parentElement: HTMLElement): HTMLElement
     {
 		return new HtmlFactory().setId('chartLines').setClassName('chartLines').setWidth(this.width).setHeight(this.height)
@@ -206,7 +209,7 @@ export class ChartLines
 }
 
 export function registerEvents(eventHub: EventHub) {
-	const supportedEvents = [];
+	const supportedEvents = ['linesAreaHeightChanged'];
 	eventHub.registerEvents('chartLines', supportedEvents);
 	registerLineEvents(eventHub);
 }

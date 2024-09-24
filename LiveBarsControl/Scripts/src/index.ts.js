@@ -59,12 +59,12 @@ export function SetXAxisMarks(Marks) {
     chart.xAxis.initializeMarker(Marks);
 }
 
-export function SetNumericScale(MinValue, MaxValue) {
+export function SetScale(MinValue, MaxValue) {
+    if (typeof MinValue === "string") {
+        MinValue = new Date(MinValue);
+        MaxValue = new Date(MaxValue);
+    }
     chart.setScale(MinValue, MaxValue);
-}
-
-export function SetDateTimeScale(MinValue, MaxValue) {
-    chart.setScale(new Date(MinValue), new Date(MaxValue));
 }
 
 export function SetDuration(Value) {

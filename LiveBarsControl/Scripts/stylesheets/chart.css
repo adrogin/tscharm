@@ -1,6 +1,6 @@
 div.chart {
     margin: 0;
-    overflow: auto;
+    overflow: hidden;
 }
 
 div.chartLines {
@@ -128,7 +128,7 @@ div.chartPartMain {
     margin: 0;
     position: relative;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: auto;
 }
 
 div.chartPartLeftSideBar {
