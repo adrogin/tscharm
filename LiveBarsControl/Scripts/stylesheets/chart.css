@@ -110,7 +110,6 @@ div.chartAxisY {
     padding-right: 2px;
     border-right: 1px black;
     box-sizing: border-box;
-    overflow: hidden;
     background-color: aliceblue;
     font-size: 10px;
     width: 100%;
@@ -128,13 +127,13 @@ div.chartPartMain {
     margin: 0;
     position: relative;
     box-sizing: border-box;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 div.chartPartLeftSideBar {
     position: relative;
     box-sizing: border-box;
-    overflow: hidden;
     float: left;
 }
 
@@ -146,6 +145,7 @@ div.chartLabel {
     text-align: right;
     padding-right: 2px;
     width: 100%;
+    background-color: aliceblue;
     border-top: 1px solid black;
     border-right: 1px solid black;
 }
