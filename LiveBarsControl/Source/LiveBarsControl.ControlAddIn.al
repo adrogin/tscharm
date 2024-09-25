@@ -11,7 +11,7 @@ controladdin "Live Bars"
     StyleSheets = 'Scripts/stylesheets/chart.css';
 
     procedure CreateChart(Width: Integer; Height: Integer);
-    procedure ShowLabels();
+    procedure ShowLabels(Show: Boolean);
     procedure SetXAxisMarks(Marks: JsonArray);
     procedure AddNewLine();
     procedure RemoveLine(Index: Integer);

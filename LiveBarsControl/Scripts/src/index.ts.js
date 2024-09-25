@@ -51,8 +51,8 @@ export function SendDocumentSize(width, height) {
     Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('OnDocumentSizeReceived', [width, height]);
 }
 
-export function ShowLabels() {
-    chart.showAxes = true;
+export function ShowLabels(Show) {
+    chart.showAxes = Show;
 }
 
 export function SetXAxisMarks(Marks) {

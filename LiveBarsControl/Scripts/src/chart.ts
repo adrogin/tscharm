@@ -95,7 +95,7 @@ export class Chart
 		return this._yAxis;
 	}
 
-	private _showAxes: boolean = false;
+	private _showAxes: boolean = true;
 	get showAxes(): boolean {
 		return this._showAxes;
 	}
@@ -159,7 +159,7 @@ export class Chart
 	}
 
 	private setLinesAreaPositionSize() {
-		this.lines.positionX = this.leftSideBarWidth + 1;
+		this.lines.positionX = this.leftSideBarWidth;
 		this.lines.width = this.width - this.getLeftSideBarWidth();
 		this.lines.height = this.getMainPartHeight();
 	}

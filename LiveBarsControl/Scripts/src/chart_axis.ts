@@ -15,7 +15,7 @@ export class ChartXAxis
 		this._width = newWidth;
 	}
 
-	private _height: number = 25;
+	private _height: number = 30;
 	get height(): number {
 		return this._height;
 	}
@@ -46,7 +46,7 @@ export class ChartXAxis
 		if (this._htmlElement != null)
 			return;
 
-		this._htmlElement = new HtmlFactory().setClassName('chartAxisX').setWidth(this.width)
+		this._htmlElement = new HtmlFactory().setClassName('chartAxisX').setWidth(this.width).setXPosition(this.position)
 			.createElement(parentElement);
 		this._axisMarker.setMarks(this._htmlElement, AxisDirection.LeftRight);
 	}
