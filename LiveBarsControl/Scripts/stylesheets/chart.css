@@ -109,7 +109,9 @@ div.chartAxisY {
     position: absolute;
     float: left;
     padding-right: 2px;
-    border-right: 1px black;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
     box-sizing: border-box;
     background-color: aliceblue;
     font-size: 10px;
@@ -139,7 +141,7 @@ div.chartPartLeftSideBar {
     float: left;
 }
 
-div.chartLabel {
+div.chartLabelX {
     margin: 0;
     position: absolute;
     box-sizing: border-box;
@@ -147,9 +149,20 @@ div.chartLabel {
     text-align: right;
     padding-right: 2px;
     width: 100%;
-    background-color: aliceblue;
     border-top: 1px solid black;
+    border-bottom: 1px solid black;
     border-right: 1px solid black;
+}
+
+div.chartLabelY {
+    margin: 0;
+    position: absolute;
+    box-sizing: border-box;
+    float: left;
+    text-align: right;
+    padding-right: 2px;
+    width: 100%;
+    border-top: 1px solid black;
 }
 
 div.sliderIndicator {

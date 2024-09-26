@@ -1,28 +1,37 @@
 {
-  "name": "livebarscontrol",
+  "name": "tscharm",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "npx jest",
-    "build": "webpack"
+    "build": "webpack",
+    "prettier": "prettier **/*.ts --write"
+  },
+  "prettier": {
+    "tabWidth": 4
   },
   "author": "ADR",
   "license": "MIT",
   "type": "module",
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@babel/eslint-parser": "^7.25.1",
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-typescript": "^7.24.7",
+    "@eslint/js": "^9.11.1",
+    "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.12",
     "babel-jest": "^29.7.0",
+    "eslint": "^9.11.1",
+    "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.3.3",
     "ts-loader": "^9.5.1",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.7.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "jest": "^29.7.0",
-    "jsdom": "^25.0.0"
   }
 }

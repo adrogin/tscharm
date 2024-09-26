@@ -1,16 +1,24 @@
-import { ChartMark } from "./chart_mark"
+import { ChartMark } from "./chart_mark";
 
-export enum AxisDirection
-{
+export enum AxisDirection {
     LeftRight,
     TopDown,
     RightLeft,
-    BottomUp
+    BottomUp,
 }
 
-export interface AxisMarker
-{
-    initialize(labels: string[], positions?: { position: number, size: number }[]): void
-    setMarks(parentElement: HTMLElement, direction: AxisDirection): void
-    marks: ChartMark[]
+export interface AxisMarker {
+    initialize(
+        labels: string[],
+        positions?: { position: number; size: number }[],
+    ): void;
+
+    setMarks(
+        parentElement: HTMLElement,
+        direction: AxisDirection,
+        width: number,
+        height: number,
+    ): void;
+    
+    marks: ChartMark[];
 }

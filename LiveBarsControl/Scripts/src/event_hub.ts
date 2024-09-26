@@ -1,5 +1,4 @@
-export interface EventHub
-{
+export interface EventHub {
     bind(eventName: string, handler): number;
     unbind(eventName: string, handlerId: number): void;
     raiseEvent(eventName: string, ...eventArgs): void;

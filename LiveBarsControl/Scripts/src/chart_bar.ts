@@ -1,104 +1,102 @@
 import { HtmlFactory } from "./html_factory";
 import { EventHub } from "./event_hub";
 
-interface barHandleMouseEvent
-{
-    (arg1: string|ChartBar, arg2?: number, arg3?: number): void;
+interface barHandleMouseEvent {
+    (arg1: string | ChartBar, arg2?: number, arg3?: number): void;
 }
 
-export class ChartBar
-{
-	private _htmlElement: HTMLElement;
-	private _leftHandle: HTMLElement;
-	private _rightHandle: HTMLElement;
-	private _drawingArea: HTMLElement;
-	get drawingArea(): HTMLElement {
-		return this._drawingArea;
-	}
-	set drawingArea(newDrawingArea: HTMLElement) {
-		this._drawingArea = newDrawingArea;
-	}
+export class ChartBar {
+    private _htmlElement: HTMLElement;
+    private _leftHandle: HTMLElement;
+    private _rightHandle: HTMLElement;
+    private _drawingArea: HTMLElement;
+    get drawingArea(): HTMLElement {
+        return this._drawingArea;
+    }
+    set drawingArea(newDrawingArea: HTMLElement) {
+        this._drawingArea = newDrawingArea;
+    }
 
-	private _id: string;
-	get id(): string {
-		return this._id;
-	}
-	set id(newId: string) {
-		this._id = newId;
-	}
+    private _id: string;
+    get id(): string {
+        return this._id;
+    }
+    set id(newId: string) {
+        this._id = newId;
+    }
 
-	private _lineNo: number;
-	get lineNo(): number {
-		return this._lineNo;
-	}
-	set lineNo(newLineNo: number) {
-		this._lineNo = newLineNo;
-	}
+    private _lineNo: number;
+    get lineNo(): number {
+        return this._lineNo;
+    }
+    set lineNo(newLineNo: number) {
+        this._lineNo = newLineNo;
+    }
 
-	private _barNo: number;
-	get barNo(): number {
-		return this._barNo;
-	}
-	set barNo(newBarNo: number) {
-		this._barNo = newBarNo;
-	}
+    private _barNo: number;
+    get barNo(): number {
+        return this._barNo;
+    }
+    set barNo(newBarNo: number) {
+        this._barNo = newBarNo;
+    }
 
-	private _position: number;  // Position in relative units
-	get position(): number {
-		return this._position;
-	}
-	set position(newPosition: number) {
-		this._position = newPosition;
-	}
+    private _position: number; // Position in relative units
+    get position(): number {
+        return this._position;
+    }
+    set position(newPosition: number) {
+        this._position = newPosition;
+    }
 
-	private _width: number;
-	get width(): number {
-		return this._width;
-	}
-	set width(newWidth: number) {
-		this._width = newWidth;
-	}
+    private _width: number;
+    get width(): number {
+        return this._width;
+    }
+    set width(newWidth: number) {
+        this._width = newWidth;
+    }
 
-	private _minValue: number = 0;
-	get minValue(): number {
-		return this._minValue;
-	}
-	set minValue(newMinValue: number) {
-		this._minValue = newMinValue;
-	}
+    private _minValue: number = 0;
+    get minValue(): number {
+        return this._minValue;
+    }
+    set minValue(newMinValue: number) {
+        this._minValue = newMinValue;
+    }
 
-	public getScaledPosition(): number {
-		return (this.position - this.minValue) * this.unitScale;
-	}
+    public getScaledPosition(): number {
+        return (this.position - this.minValue) * this.unitScale;
+    }
 
-	public getScaledWidth(): number {
-		return this.width * this.unitScale;
-	}
+    public getScaledWidth(): number {
+        return this.width * this.unitScale;
+    }
 
-	private _className: string = 'chartBar-normal';
-	get className(): string {
-		return this._className;
-	}
-	set className(newClassName: string) {
-		this._className = newClassName;
-	}
+    private _className: string = "chartBar-normal";
+    get className(): string {
+        return this._className;
+    }
+    set className(newClassName: string) {
+        this._className = newClassName;
+    }
 
-	private _handleClassName = 'barHandle';
-	get handleClassName(): string {
-		return this._handleClassName;
-	}
-	set handleClassName(newHandleClassName: string) {
-		this._handleClassName = newHandleClassName;
-	}
+    private _handleClassName = "barHandle";
+    get handleClassName(): string {
+        return this._handleClassName;
+    }
+    set handleClassName(newHandleClassName: string) {
+        this._handleClassName = newHandleClassName;
+    }
 
-	private _eventHub: EventHub;
+    private _eventHub: EventHub;
 
-	public setEventHub(hub: EventHub): ChartBar {
-		this._eventHub = hub;
-		return this;
-	}
+    public setEventHub(hub: EventHub): ChartBar {
+        this._eventHub = hub;
+        return this;
+    }
 
-	private _unitScale: number = 1;
+    private _unitScale: number = 1;
     get unitScale(): number {
         return this._unitScale;
     }
@@ -106,192 +104,334 @@ export class ChartBar
         this._unitScale = newUnitScale;
     }
 
-	// Default function allows unbounded resizing and can be replaced by an alternative implementation.
-	// ChartBars class injects a function that detects neighbours' boundaries and limits resizing respectively.
-	public getMaxResizeAllowed = (leftBoundary: number, rightBoundary: number) => { return { leftBoundary, rightBoundary } }
+    // Default function allows unbounded resizing and can be replaced by an alternative implementation.
+    // ChartBars class injects a function that detects neighbours' boundaries and limits resizing respectively.
+    public getMaxResizeAllowed = (
+        leftBoundary: number,
+        rightBoundary: number,
+    ) => {
+        return { leftBoundary, rightBoundary };
+    };
 
-	constructor(position: number, width: number, className?: string) {
-		this._position = position;
-		this._width = width;
+    constructor(position: number, width: number, className?: string) {
+        this._position = position;
+        this._width = width;
 
-		if (className != null && className != "") {
-			this._className = className;
-		}
-	}
-
-    public draw(parentElement: HTMLElement): void
-    {
-		if (this._htmlElement == null) {
-			this._htmlElement = this.createHtmlElement(parentElement)
-		}
+        if (className != null && className != "") {
+            this._className = className;
+        }
     }
 
-	private update(): void
-	{
-		new HtmlFactory().setWidth(this.getScaledWidth()).setXPosition(this.getScaledPosition()).updateElement(this._htmlElement);
-	}
-
-	private createBarHandles(barElement: HTMLElement)
-	{
-		function onResizeHandlerLeft(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startPosition: number, startWidth: number) {
-			const currPosition = chartBar.position;
-			let newPosition = startPosition + (event.clientX - mouseDownPositionX) / chartBar.unitScale;
-			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-
-			if (newPosition < maxResize.leftBoundary)
-				newPosition = maxResize.leftBoundary;
-
-			let newWidth = startWidth + startPosition - newPosition;
-			if (newWidth <= 0) {
-				newWidth = 1;
-				newPosition = startWidth + startPosition - newWidth;
-			}
-
-			chartBar.position = newPosition;
-			chartBar.width = newWidth;
-			chartBar.update();
-
-			if (chartBar.position != currPosition)
-				chartBar.raiseResizeEvent('onResizeLeft', chartBar, chartBar.position);
-		}
-
-		function onResizeHandlerRight(event: MouseEvent, chartBar: ChartBar, mouseDownPositionX: number, startWidth: number) {
-			const currWidth = chartBar.width;
-			let newWidth = startWidth + (event.clientX - mouseDownPositionX) / chartBar.unitScale;
-			if (newWidth <= 0)
-				newWidth = 1;
-
-			const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-			chartBar.width = chartBar.position + newWidth > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.position : newWidth;
-			chartBar.update();
-
-			if (chartBar.width != currWidth)
-				chartBar.raiseResizeEvent('onResizeRight', chartBar, chartBar.width);
-		}
-
-		function setMouseDownHandlerLeft(chartBar: ChartBar, eventName: string) {
-			return function (mouseDownEvent: MouseEvent) {
-				mouseDownEvent.stopPropagation();
-				let startPosition: number = chartBar.position;
-				let startWidth: number = chartBar.width;
-
-				function handleResize(mouseMoveEvent: MouseEvent) {
-					onResizeHandlerLeft(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startPosition, startWidth)
-				};
-				function handleMouseUp() {
-					chartBar.drawingArea.removeEventListener('mousemove', handleResize);
-					chartBar.raiseResizeEvent('onResizeLeftDone', chartBar, chartBar.position);
-					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
-				}
-
-				chartBar.drawingArea.addEventListener('mousemove', handleResize);
-				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
-				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX / chartBar.unitScale, mouseDownEvent.clientY);
-			}
-		}
-
-		function setMouseDownHandlerRight(chartBar: ChartBar, eventName: string) {
-			return function (mouseDownEvent: MouseEvent) {
-				mouseDownEvent.stopPropagation();
-				let startWidth: number = chartBar.width;
-
-				function handleResize(mouseMoveEvent: MouseEvent) {
-					onResizeHandlerRight(mouseMoveEvent, chartBar, mouseDownEvent.clientX, startWidth)
-				};
-				function handleMouseUp() {
-					chartBar.drawingArea.removeEventListener('mousemove', handleResize)
-					chartBar.raiseResizeEvent('onResizeRightDone', chartBar, chartBar.width);
-					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
-				}
-
-				chartBar.drawingArea.addEventListener('mousemove', handleResize);
-				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
-				chartBar.raiseMouseEvent(eventName, chartBar, mouseDownEvent.clientX, mouseDownEvent.clientY);
-			}
-		}
-
-		let htmlFactory = new HtmlFactory();
-		this._leftHandle = htmlFactory.setId('barHandle_' + this.id + '_left').setClassName(this.handleClassName).setAlign('left').createElement(barElement);
-		this._leftHandle.addEventListener('mousedown', setMouseDownHandlerLeft(this, 'leftHandleMouseDown'));
-
-		this._rightHandle = htmlFactory.setId('barHandle_' + this.id + '_right').setClassName(this.handleClassName).setAlign('right').createElement(barElement);
-		this._rightHandle.addEventListener('mousedown', setMouseDownHandlerRight(this, 'rightHandleMouseDown'));
-	}
-
-	public bind(eventName: string, handler: barHandleMouseEvent): number
-    {
-		return this._eventHub.bind(eventName, handler);
-	}
-
-    public unbind(eventName: string, handlerId: number)
-    {
-		this._eventHub.unbind(eventName, handlerId);
+    public draw(parentElement: HTMLElement): void {
+        if (this._htmlElement == null) {
+            this._htmlElement = this.createHtmlElement(parentElement);
+        }
     }
 
-    private raiseMouseEvent(eventName: string, chartBar: ChartBar, clientX: number, clientY: number)
-    {
-		this._eventHub.raiseEvent(eventName, chartBar, clientX, clientY);
+    private update(): void {
+        new HtmlFactory()
+            .setWidth(this.getScaledWidth())
+            .setXPosition(this.getScaledPosition())
+            .updateElement(this._htmlElement);
     }
 
-	private raiseResizeEvent(eventName: string, chartBar: ChartBar, newValue: number)
-    {
-		this._eventHub.raiseEvent(eventName, chartBar.lineNo, chartBar.barNo, newValue);
+    private createBarHandles(barElement: HTMLElement) {
+        function onResizeHandlerLeft(
+            event: MouseEvent,
+            chartBar: ChartBar,
+            mouseDownPositionX: number,
+            startPosition: number,
+            startWidth: number,
+        ) {
+            const currPosition = chartBar.position;
+            let newPosition =
+                startPosition +
+                (event.clientX - mouseDownPositionX) / chartBar.unitScale;
+            const maxResize = chartBar.getMaxResizeAllowed(
+                chartBar.position,
+                chartBar.width,
+            );
+
+            if (newPosition < maxResize.leftBoundary)
+                newPosition = maxResize.leftBoundary;
+
+            let newWidth = startWidth + startPosition - newPosition;
+            if (newWidth <= 0) {
+                newWidth = 1;
+                newPosition = startWidth + startPosition - newWidth;
+            }
+
+            chartBar.position = newPosition;
+            chartBar.width = newWidth;
+            chartBar.update();
+
+            if (chartBar.position != currPosition)
+                chartBar.raiseResizeEvent(
+                    "onResizeLeft",
+                    chartBar,
+                    chartBar.position,
+                );
+        }
+
+        function onResizeHandlerRight(
+            event: MouseEvent,
+            chartBar: ChartBar,
+            mouseDownPositionX: number,
+            startWidth: number,
+        ) {
+            const currWidth = chartBar.width;
+            let newWidth =
+                startWidth +
+                (event.clientX - mouseDownPositionX) / chartBar.unitScale;
+            if (newWidth <= 0) newWidth = 1;
+
+            const maxResize = chartBar.getMaxResizeAllowed(
+                chartBar.position,
+                chartBar.width,
+            );
+            chartBar.width =
+                chartBar.position + newWidth > maxResize.rightBoundary
+                    ? maxResize.rightBoundary - chartBar.position
+                    : newWidth;
+            chartBar.update();
+
+            if (chartBar.width != currWidth)
+                chartBar.raiseResizeEvent(
+                    "onResizeRight",
+                    chartBar,
+                    chartBar.width,
+                );
+        }
+
+        function setMouseDownHandlerLeft(
+            chartBar: ChartBar,
+            eventName: string,
+        ) {
+            return function (mouseDownEvent: MouseEvent) {
+                mouseDownEvent.stopPropagation();
+                const startPosition: number = chartBar.position;
+                const startWidth: number = chartBar.width;
+
+                function handleResize(mouseMoveEvent: MouseEvent) {
+                    onResizeHandlerLeft(
+                        mouseMoveEvent,
+                        chartBar,
+                        mouseDownEvent.clientX,
+                        startPosition,
+                        startWidth,
+                    );
+                }
+                function handleMouseUp() {
+                    chartBar.drawingArea.removeEventListener(
+                        "mousemove",
+                        handleResize,
+                    );
+                    chartBar.raiseResizeEvent(
+                        "onResizeLeftDone",
+                        chartBar,
+                        chartBar.position,
+                    );
+                    chartBar.drawingArea.removeEventListener(
+                        "mouseup",
+                        handleMouseUp,
+                    );
+                }
+
+                chartBar.drawingArea.addEventListener(
+                    "mousemove",
+                    handleResize,
+                );
+                chartBar.drawingArea.addEventListener("mouseup", handleMouseUp);
+                chartBar.raiseMouseEvent(
+                    eventName,
+                    chartBar,
+                    mouseDownEvent.clientX / chartBar.unitScale,
+                    mouseDownEvent.clientY,
+                );
+            };
+        }
+
+        function setMouseDownHandlerRight(
+            chartBar: ChartBar,
+            eventName: string,
+        ) {
+            return function (mouseDownEvent: MouseEvent) {
+                mouseDownEvent.stopPropagation();
+                const startWidth: number = chartBar.width;
+
+                function handleResize(mouseMoveEvent: MouseEvent) {
+                    onResizeHandlerRight(
+                        mouseMoveEvent,
+                        chartBar,
+                        mouseDownEvent.clientX,
+                        startWidth,
+                    );
+                }
+                function handleMouseUp() {
+                    chartBar.drawingArea.removeEventListener(
+                        "mousemove",
+                        handleResize,
+                    );
+                    chartBar.raiseResizeEvent(
+                        "onResizeRightDone",
+                        chartBar,
+                        chartBar.width,
+                    );
+                    chartBar.drawingArea.removeEventListener(
+                        "mouseup",
+                        handleMouseUp,
+                    );
+                }
+
+                chartBar.drawingArea.addEventListener(
+                    "mousemove",
+                    handleResize,
+                );
+                chartBar.drawingArea.addEventListener("mouseup", handleMouseUp);
+                chartBar.raiseMouseEvent(
+                    eventName,
+                    chartBar,
+                    mouseDownEvent.clientX,
+                    mouseDownEvent.clientY,
+                );
+            };
+        }
+
+        const htmlFactory = new HtmlFactory();
+        this._leftHandle = htmlFactory
+            .setId("barHandle_" + this.id + "_left")
+            .setClassName(this.handleClassName)
+            .setAlign("left")
+            .createElement(barElement);
+        this._leftHandle.addEventListener(
+            "mousedown",
+            setMouseDownHandlerLeft(this, "leftHandleMouseDown"),
+        );
+
+        this._rightHandle = htmlFactory
+            .setId("barHandle_" + this.id + "_right")
+            .setClassName(this.handleClassName)
+            .setAlign("right")
+            .createElement(barElement);
+        this._rightHandle.addEventListener(
+            "mousedown",
+            setMouseDownHandlerRight(this, "rightHandleMouseDown"),
+        );
     }
 
-    private createHtmlElement(parentElement: HTMLElement): HTMLElement
-    {
-		let barElement = new HtmlFactory().setId('chartBar_' + this._id).setClassName(this.className)
-			.setWidth(this.getScaledWidth()).setXPosition(this.getScaledPosition()).createElement(parentElement);
+    public bind(eventName: string, handler: barHandleMouseEvent): number {
+        return this._eventHub.bind(eventName, handler);
+    }
 
-		function setMouseDownEventhandler(chartBar: ChartBar) {
-			return function (mouseDownEvent: MouseEvent) {
-				let startPosition: number = chartBar.position;
+    public unbind(eventName: string, handlerId: number) {
+        this._eventHub.unbind(eventName, handlerId);
+    }
 
-				function handleDrag(mouseMoveEvent: MouseEvent) {
-					const prevBarPosition = chartBar.position;
-					const maxResize = chartBar.getMaxResizeAllowed(chartBar.position, chartBar.width);
-					const newPosition = startPosition + (mouseMoveEvent.clientX - mouseDownEvent.clientX) / chartBar.unitScale;
-					chartBar.position = 
-						newPosition < maxResize.leftBoundary ? maxResize.leftBoundary : 
-						newPosition + chartBar.width > maxResize.rightBoundary ? maxResize.rightBoundary - chartBar.width :
-							newPosition;
-					chartBar.update();
+    private raiseMouseEvent(
+        eventName: string,
+        chartBar: ChartBar,
+        clientX: number,
+        clientY: number,
+    ) {
+        this._eventHub.raiseEvent(eventName, chartBar, clientX, clientY);
+    }
 
-					if (chartBar.position != prevBarPosition)
-						chartBar.raiseResizeEvent('onDrag', chartBar, chartBar.position);
-				};
+    private raiseResizeEvent(
+        eventName: string,
+        chartBar: ChartBar,
+        newValue: number,
+    ) {
+        this._eventHub.raiseEvent(
+            eventName,
+            chartBar.lineNo,
+            chartBar.barNo,
+            newValue,
+        );
+    }
 
-				function handleMouseUp(mouseUpEvent: MouseEvent) {
-					chartBar.drawingArea.removeEventListener('mousemove', handleDrag);
-					chartBar.drawingArea.removeEventListener('mouseup', handleMouseUp);
-					chartBar.raiseResizeEvent('onDragDone', chartBar, chartBar.position);
-				}
+    private createHtmlElement(parentElement: HTMLElement): HTMLElement {
+        const barElement = new HtmlFactory()
+            .setId("chartBar_" + this._id)
+            .setClassName(this.className)
+            .setWidth(this.getScaledWidth())
+            .setXPosition(this.getScaledPosition())
+            .createElement(parentElement);
 
-				chartBar.drawingArea.addEventListener('mousemove', handleDrag);
-				chartBar.drawingArea.addEventListener('mouseup', handleMouseUp);
-			}
-		}
+        function setMouseDownEventhandler(chartBar: ChartBar) {
+            return function (mouseDownEvent: MouseEvent) {
+                const startPosition: number = chartBar.position;
 
-		barElement.addEventListener('mousedown', setMouseDownEventhandler(this));
-		this.createBarHandles(barElement);
-		
-		return barElement;
+                function handleDrag(mouseMoveEvent: MouseEvent) {
+                    const prevBarPosition = chartBar.position;
+                    const maxResize = chartBar.getMaxResizeAllowed(
+                        chartBar.position,
+                        chartBar.width,
+                    );
+                    const newPosition =
+                        startPosition +
+                        (mouseMoveEvent.clientX - mouseDownEvent.clientX) /
+                            chartBar.unitScale;
+                    chartBar.position =
+                        newPosition < maxResize.leftBoundary
+                            ? maxResize.leftBoundary
+                            : newPosition + chartBar.width >
+                                maxResize.rightBoundary
+                              ? maxResize.rightBoundary - chartBar.width
+                              : newPosition;
+                    chartBar.update();
+
+                    if (chartBar.position != prevBarPosition)
+                        chartBar.raiseResizeEvent(
+                            "onDrag",
+                            chartBar,
+                            chartBar.position,
+                        );
+                }
+
+                function handleMouseUp() {
+                    chartBar.drawingArea.removeEventListener(
+                        "mousemove",
+                        handleDrag,
+                    );
+                    chartBar.drawingArea.removeEventListener(
+                        "mouseup",
+                        handleMouseUp,
+                    );
+                    chartBar.raiseResizeEvent(
+                        "onDragDone",
+                        chartBar,
+                        chartBar.position,
+                    );
+                }
+
+                chartBar.drawingArea.addEventListener("mousemove", handleDrag);
+                chartBar.drawingArea.addEventListener("mouseup", handleMouseUp);
+            };
+        }
+
+        barElement.addEventListener(
+            "mousedown",
+            setMouseDownEventhandler(this),
+        );
+        this.createBarHandles(barElement);
+
+        return barElement;
     }
 }
 
 export function registerEvents(eventHub: EventHub) {
-	const supportedEvents = [
-		'leftHandleMouseDown',
-		'leftHandleMouseUp',
-		'rightHandleMouseDown',
-		'rightHandleMouseUp',
-		'onResizeLeft',
-		'onResizeRight',
-		'onResizeLeftDone',
-		'onResizeRightDone',
-		'onDrag',
-		'onDragDone'
-	];
+    const supportedEvents = [
+        "leftHandleMouseDown",
+        "leftHandleMouseUp",
+        "rightHandleMouseDown",
+        "rightHandleMouseUp",
+        "onResizeLeft",
+        "onResizeRight",
+        "onResizeLeftDone",
+        "onResizeRightDone",
+        "onDrag",
+        "onDragDone",
+    ];
 
-	eventHub.registerEvents('chartBar', supportedEvents);	
+    eventHub.registerEvents("chartBar", supportedEvents);
 }
