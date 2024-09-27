@@ -53,6 +53,7 @@ export class ChartXAxis {
         this._htmlElement = new HtmlFactory()
             .setClassName("chartAxisX")
             .setWidth(this.width)
+            .setHeight(this.height)
             .setXPosition(this.position)
             .createElement(parentElement);
         this._axisMarker.setMarks(

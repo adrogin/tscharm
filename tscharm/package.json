@@ -1,17 +1,18 @@
 {
   "name": "tscharm",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "Timeline chart",
+  "main": "chart.ts",
   "scripts": {
     "test": "npx jest",
-    "build": "webpack",
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --mode=development",
     "prettier": "prettier **/*.ts --write"
   },
   "prettier": {
     "tabWidth": 4
   },
-  "author": "ADR",
+  "author": "Alexander Drogin",
   "license": "MIT",
   "type": "module",
   "devDependencies": {

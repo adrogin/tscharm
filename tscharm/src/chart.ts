@@ -96,6 +96,14 @@ export class Chart {
         this.setAxesSizeAndPosition();
     }
 
+    private _topBarHeight: number = 33;
+    get topBarHeight(): number {
+        return this._topBarHeight;
+    }
+    set topBarHeight(newTopBarHeight: number) {
+        this._topBarHeight = newTopBarHeight;
+    }
+
     private _xAxis: ChartXAxis;
     get xAxis(): ChartXAxis {
         return this._xAxis;
@@ -240,7 +248,7 @@ export class Chart {
     }
 
     private getTopPartHeight(): number {
-        return this.showAxes ? this.xAxis.height : 0;
+        return this.showAxes ? this.topBarHeight : 0;
     }
 
     private getMainPartHeight(): number {

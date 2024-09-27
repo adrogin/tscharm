@@ -64,7 +64,7 @@ describe("Basic object instantiation tests", () => {
 
     test("Instantiate chart with the top and left sidebar areas", () => {
         const chart = new Chart(200, 100);
-        chart.xAxis.height = 15;
+        chart.topBarHeight = 15;
         chart.leftSideBarWidth = 30;
         chart.showAxes = true;
 

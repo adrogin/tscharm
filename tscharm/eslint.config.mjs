@@ -4,9 +4,8 @@ export default tseslint.config(
     ...tseslint.configs.recommended,
     {
         'ignores': [
-            'Scripts/dist',
+            'dist',
             '*config.*js',
-            'Scripts/src/index.ts.js'
         ]
     }
 );

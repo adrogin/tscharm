@@ -1,7 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  entry: './Scripts/src/index.ts',
+  entry: {
+    chart: './src/chart.ts',
+    slider: './src/slider.ts'
+  },
   module: {
     rules: [
       {
@@ -19,8 +22,8 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'Scripts/dist'),
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist'),
     library: {
       type: 'window',
     }

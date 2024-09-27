@@ -10,6 +10,9 @@ export class ChartLines {
     }
 
     private _lastLineId: number = -1;
+    get lastLineId(): number {
+        return this._lastLineId;
+    }
 
     private _width: number;
     get width(): number {
