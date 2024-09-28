@@ -1,11 +1,11 @@
 {
+    "files": ["src/tscharm.ts"],
     "compilerOptions": {
-      "module": "ES2022",
-      "esModuleInterop": true,
-      "target": "es6",
-      "moduleResolution": "node",
+      "module": "ES6",
+      "target": "ES6",
+      "moduleResolution": "Node",
       "sourceMap": true,
-      "outDir": "dist"
+      "outDir": "js-compiled"
     },
-    "lib": ["es2015"]
+    "lib": ["ES6"]
 }

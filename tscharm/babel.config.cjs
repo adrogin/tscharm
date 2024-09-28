@@ -1,14 +1,14 @@
 module.exports = {
     presets: [
-      ['@babel/env', {loose: true, useBuiltIns: 'entry', corejs: 3}],
-      '@babel/typescript',
+        ['@babel/env'],
+        ["@babel/preset-typescript"]
     ],
     env: {
-      test: {
-        presets: [
-          ['@babel/env', {targets: {node: 'current'}}],
-          '@babel/typescript',
-        ],
-      },
+        test: {
+            presets: [
+                ['@babel/env', { targets: { node: 'current' } }],
+                '@babel/typescript'
+            ]
+        },
     },
-  };
+};
