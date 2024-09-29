@@ -167,7 +167,7 @@ export class ChartBar {
 
             if (chartBar.position != currPosition)
                 chartBar.raiseResizeEvent(
-                    "onResizeLeft",
+                    "resizeLeft",
                     chartBar,
                     chartBar.position,
                 );
@@ -197,7 +197,7 @@ export class ChartBar {
 
             if (chartBar.width != currWidth)
                 chartBar.raiseResizeEvent(
-                    "onResizeRight",
+                    "resizeRight",
                     chartBar,
                     chartBar.width,
                 );
@@ -227,7 +227,7 @@ export class ChartBar {
                         handleResize,
                     );
                     chartBar.raiseResizeEvent(
-                        "onResizeLeftDone",
+                        "resizeLeftDone",
                         chartBar,
                         chartBar.position,
                     );
@@ -273,7 +273,7 @@ export class ChartBar {
                         handleResize,
                     );
                     chartBar.raiseResizeEvent(
-                        "onResizeRightDone",
+                        "resizeRightDone",
                         chartBar,
                         chartBar.width,
                     );
@@ -382,7 +382,7 @@ export class ChartBar {
 
                     if (chartBar.position != prevBarPosition)
                         chartBar.raiseResizeEvent(
-                            "onDrag",
+                            "drag",
                             chartBar,
                             chartBar.position,
                         );
@@ -398,7 +398,7 @@ export class ChartBar {
                         handleMouseUp,
                     );
                     chartBar.raiseResizeEvent(
-                        "onDragDone",
+                        "dragDone",
                         chartBar,
                         chartBar.position,
                     );
@@ -425,12 +425,12 @@ export function registerEvents(eventHub: EventHub) {
         "leftHandleMouseUp",
         "rightHandleMouseDown",
         "rightHandleMouseUp",
-        "onResizeLeft",
-        "onResizeRight",
-        "onResizeLeftDone",
-        "onResizeRightDone",
-        "onDrag",
-        "onDragDone",
+        "resizeLeft",
+        "resizeRight",
+        "resizeLeftDone",
+        "resizeRightDone",
+        "drag",
+        "dragDone",
     ];
 
     eventHub.registerEvents("chartBar", supportedEvents);

@@ -11,12 +11,12 @@ export class Slider {
         this._chart = chart;
 
         chart.bindEventHandler("onChartDraw", initializeSlider(this));
-        chart.bindEventHandler("onResizeLeft", resizeLeftHandler(this));
-        chart.bindEventHandler("onResizeRight", resizeRightHandler(this));
-        chart.bindEventHandler("onDrag", dragHandler(this));
-        chart.bindEventHandler("onResizeLeftDone", hideSlider(this));
-        chart.bindEventHandler("onResizeRightDone", hideSlider(this));
-        chart.bindEventHandler("onDragDone", hideSlider(this));
+        chart.bindEventHandler("resizeLeft", resizeLeftHandler(this));
+        chart.bindEventHandler("resizeRight", resizeRightHandler(this));
+        chart.bindEventHandler("drag", dragHandler(this));
+        chart.bindEventHandler("resizeLeftDone", hideSlider(this));
+        chart.bindEventHandler("resizeRightDone", hideSlider(this));
+        chart.bindEventHandler("dragDone", hideSlider(this));
 
         function initializeSlider(slider: Slider) {
             return function () {

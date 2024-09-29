@@ -348,8 +348,8 @@ describe("Resizing bars", () => {
         const chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindEventHandler("onResizeLeftDone", onResizeDoneCallback);
-        chart.bindEventHandler("onResizeRightDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeLeftDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeRightDone", onResizeDoneCallback);
 
         dragAndDrop("barHandle_0_0_left", 2, 5, 18, 50);
 
@@ -363,8 +363,8 @@ describe("Resizing bars", () => {
         const chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindEventHandler("onResizeLeftDone", onResizeDoneCallback);
-        chart.bindEventHandler("onResizeRightDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeLeftDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeRightDone", onResizeDoneCallback);
 
         dragAndDrop("barHandle_0_0_right", 28, 5, 21, 50);
 
@@ -378,7 +378,7 @@ describe("Resizing bars", () => {
         const chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindEventHandler("onDragDone", onDragDoneCallback);
+        chart.bindEventHandler("dragDone", onDragDoneCallback);
 
         dragAndDrop("chartBar_0_0", 15, 5, 52, 30);
 
@@ -521,14 +521,14 @@ describe("Resizing limits", () => {
         expect(line.bars.get(1).width).toBe(125);
     });
 
-    test("OnResizeLeft negative limit", () => {
+    test("resizeLeft negative limit", () => {
         const onResizeDoneCallback = jest.fn(() => {});
 
         const chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(0, 30);
         chart.draw(chartContainer);
-        chart.bindEventHandler("onResizeLeftDone", onResizeDoneCallback);
-        chart.bindEventHandler("onResizeRightDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeLeftDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeRightDone", onResizeDoneCallback);
 
         dragAndDrop("barHandle_0_0_left", 2, 5, 45, 50);
 
@@ -536,14 +536,14 @@ describe("Resizing limits", () => {
         expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 29);
     });
 
-    test("Fire OnResizeRight negative limit", () => {
+    test("resizeRight negative limit", () => {
         const onResizeDoneCallback = jest.fn(() => {});
 
         const chart: Chart = new Chart(100, 100);
         chart.lines.addNew().bars.add(20, 50);
         chart.draw(chartContainer);
-        chart.bindEventHandler("onResizeLeftDone", onResizeDoneCallback);
-        chart.bindEventHandler("onResizeRightDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeLeftDone", onResizeDoneCallback);
+        chart.bindEventHandler("resizeRightDone", onResizeDoneCallback);
 
         dragAndDrop("barHandle_0_0_right", 68, 5, 11, 50);
 
@@ -551,7 +551,7 @@ describe("Resizing limits", () => {
         expect(onResizeDoneCallback).toHaveBeenLastCalledWith(0, 0, 1);
     });
 
-    test("OnDragDone sends the boundary value when the resizing limit is hit", () => {
+    test("DragDone sends the boundary value when the resizing limit is hit", () => {
         const onDragDoneCallback = jest.fn(() => {});
 
         const chart: Chart = new Chart(100, 100);
@@ -559,7 +559,7 @@ describe("Resizing limits", () => {
         chartLine.bars.add(20, 30);
         chartLine.bars.add(60, 20);
         chart.draw(chartContainer);
-        chart.bindEventHandler("onDragDone", onDragDoneCallback);
+        chart.bindEventHandler("dragDone", onDragDoneCallback);
 
         dragAndDrop("chartBar_0_0", 35, 5, 80, 5);
 
@@ -630,11 +630,11 @@ describe("Chart axes and marking", () => {
 
         const expectedMarkWidth = chart.getDrawAreaWidth() / 24;
         for (let i = 0; i < chart.xAxis.axisMarker.marks.length; i++) {
-            expect(chart.xAxis.axisMarker.marks.at(i).position).toBeCloseTo(
+            expect(chart.xAxis.axisMarker.marks[i].position).toBeCloseTo(
                 expectedMarkWidth * i,
                 3,
             );
-            expect(chart.xAxis.axisMarker.marks.at(i).size).toBeCloseTo(
+            expect(chart.xAxis.axisMarker.marks[i].size).toBeCloseTo(
                 expectedMarkWidth,
                 3,
             );
