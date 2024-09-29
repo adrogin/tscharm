@@ -1,4 +1,5 @@
-import { Chart, ChartValueType } from "./chart";
+import { ChartValueType } from "./chart_value_type";
+import { Chart } from "./chart";
 import { HtmlFactory } from "./html_factory";
 
 export class Slider {

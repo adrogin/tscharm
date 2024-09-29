@@ -1,8 +1,8 @@
 {
   "name": "tscharm",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Timeline chart",
-  "main": "chart.ts",
+  "main": "dist/tscharm.js",
   "scripts": {
     "test": "npx jest",
     "lint": "npx eslint",

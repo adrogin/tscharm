@@ -1,0 +1,4 @@
+package-lock.json
+node_modules/
+js-compiled/
+test/

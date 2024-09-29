@@ -1,3 +1,4 @@
+import { ChartValueType } from "./chart_value_type";
 import { ChartXAxis, ChartYAxis } from "./chart_axis";
 import {
     ChartLines,
@@ -7,11 +8,6 @@ import { ChartRuler } from "./chart_ruler";
 import { EventHub } from "./event_hub";
 import { EventHubImpl } from "./event_hub_impl";
 import { HtmlFactory } from "./html_factory";
-
-export enum ChartValueType {
-    Number,
-    DateTime,
-}
 
 export class Chart {
     constructor(width?: number, height?: number) {
