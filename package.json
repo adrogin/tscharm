@@ -1,6 +1,6 @@
 {
   "name": "tscharm",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Timeline chart",
   "main": "dist/tscharm.js",
   "scripts": {
