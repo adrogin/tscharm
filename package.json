@@ -2,6 +2,12 @@
   "name": "tscharm",
   "version": "0.1.0",
   "description": "Timeline chart",
+  "repository": "https://github.com/adrogin/tscharm",
+  "keywords": [
+    "typescript",
+    "chart",
+    "timeline"
+  ],
   "main": "dist/tscharm.js",
   "scripts": {
     "test": "npx jest",
