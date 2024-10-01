@@ -5,6 +5,19 @@ interface barHandleMouseEvent {
     (arg1: string | ChartBar, arg2?: number, arg3?: number): void;
 }
 
+export type ResizingLimits = {
+    leftBoundary: number;
+    rightBoundary: number;
+};
+
+interface ResizingLimitsHandler {
+    (position: number, width: number): ResizingLimits;
+}
+
+export class ResizingController {
+    getMaxResizeAllowed: ResizingLimitsHandler;
+}
+
 export class ChartBar {
     private _htmlElement: HTMLElement;
     private _leftHandle: HTMLElement;
@@ -104,14 +117,13 @@ export class ChartBar {
         this._unitScale = newUnitScale;
     }
 
-    // Default function allows unbounded resizing and can be replaced by an alternative implementation.
-    // ChartBars class injects a function that detects neighbours' boundaries and limits resizing respectively.
-    public getMaxResizeAllowed = (
-        leftBoundary: number,
-        rightBoundary: number,
-    ) => {
-        return { leftBoundary, rightBoundary };
-    };
+    private _resizingController: ResizingController;
+    get resizingController(): ResizingController {
+        return this._resizingController;
+    }
+    set resizingController(newResizingController: ResizingController) {
+        this._resizingController = newResizingController;
+    }
 
     constructor(position: number, width: number, className?: string) {
         this._position = position;
@@ -147,7 +159,7 @@ export class ChartBar {
             let newPosition =
                 startPosition +
                 (event.clientX - mouseDownPositionX) / chartBar.unitScale;
-            const maxResize = chartBar.getMaxResizeAllowed(
+            const maxResize = chartBar._resizingController.getMaxResizeAllowed(
                 chartBar.position,
                 chartBar.width,
             );
@@ -185,7 +197,7 @@ export class ChartBar {
                 (event.clientX - mouseDownPositionX) / chartBar.unitScale;
             if (newWidth <= 0) newWidth = 1;
 
-            const maxResize = chartBar.getMaxResizeAllowed(
+            const maxResize = chartBar._resizingController.getMaxResizeAllowed(
                 chartBar.position,
                 chartBar.width,
             );
@@ -363,10 +375,11 @@ export class ChartBar {
 
                 function handleDrag(mouseMoveEvent: MouseEvent) {
                     const prevBarPosition = chartBar.position;
-                    const maxResize = chartBar.getMaxResizeAllowed(
-                        chartBar.position,
-                        chartBar.width,
-                    );
+                    const maxResize =
+                        chartBar._resizingController.getMaxResizeAllowed(
+                            chartBar.position,
+                            chartBar.width,
+                        );
                     const newPosition =
                         startPosition +
                         (mouseMoveEvent.clientX - mouseDownEvent.clientX) /

@@ -99,7 +99,7 @@ export class ChartLines {
     public add(line: ChartLine): void {
         line.setEventHub(this._eventHub);
         line.drawingArea = this.htmlElement;
-        this._lines.at(this._lines.push(line) - 1).htmlId = (++this
+        this._lines[this._lines.push(line) - 1].htmlId = (++this
             ._lastLineId).toString();
         line.id = this._lastLineId;
         line.bars.unitScale = this.unitScale;

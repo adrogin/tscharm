@@ -1,7 +1,12 @@
-import { ChartBar, registerEvents as registerBarEvents } from "./chart_bar";
+import {
+    ChartBar,
+    ResizingLimits,
+    ResizingController,
+    registerEvents as registerBarEvents,
+} from "./chart_bar";
 import { EventHub } from "./event_hub";
 
-interface eventHandler {
+interface EventHandler {
     (chartbar: ChartBar): void;
 }
 
@@ -59,6 +64,14 @@ export class ChartBars {
         });
     }
 
+    private _allowOverlap: boolean = false;
+    get allowOverlap(): boolean {
+        return this._allowOverlap;
+    }
+    set allowOverlap(newAllowOverlap: boolean) {
+        this._allowOverlap = newAllowOverlap;
+    }
+
     private _minValue: number = 0;
     get minValue(): number {
         return this._minValue;
@@ -70,11 +83,10 @@ export class ChartBars {
         });
     }
 
+    private _resizingController: ResizingController;
+
     private maxResizeAllowed(barsCollection: ChartBar[]) {
-        return function (
-            position: number,
-            width: number,
-        ): { leftBoundary: number; rightBoundary: number } {
+        return function (position: number, width: number): ResizingLimits {
             return {
                 leftBoundary: Math.max(
                     ...barsCollection
@@ -90,9 +102,52 @@ export class ChartBars {
         };
     }
 
+    private unlimitedResizeAllowed() {
+        return function (leftBoundary: number, rightBoundary: number) {
+            return { leftBoundary, rightBoundary };
+        };
+    }
+
+    private findOverlaps(): number[][] {
+        const sortedBars = this._bars
+            .map((bar: ChartBar, index: number) => ({
+                index: index,
+                position: bar.position,
+                width: bar.width,
+            }))
+            .sort((bar1, bar2) => {
+                return bar1.position - bar2.position;
+            });
+
+        const overlapStacks = [];
+        let currIndex = 0;
+        while (currIndex < sortedBars.length) {
+            let nextIndex = currIndex + 1;
+            const stack = [];
+            stack.push(currIndex);
+            while (
+                nextIndex < sortedBars.length &&
+                sortedBars[currIndex].position + sortedBars[currIndex].width >
+                    sortedBars[nextIndex].position
+            ) {
+                stack.push(nextIndex++);
+            }
+
+            if (stack.length > 1) overlapStacks.push(stack);
+
+            currIndex = nextIndex;
+        }
+
+        return overlapStacks;
+    }
+
     constructor(parentLineId: string, drawingArea: HTMLElement) {
         this._parentLineHtmlId = parentLineId;
         this._drawingArea = drawingArea;
+        this._resizingController = new ResizingController();
+        this._resizingController.getMaxResizeAllowed = this.allowOverlap
+            ? this.unlimitedResizeAllowed()
+            : this.maxResizeAllowed(this._bars);
     }
 
     public count(): number {
@@ -110,8 +165,8 @@ export class ChartBars {
             className,
         ).setEventHub(this._eventHub);
         bar.drawingArea = this.drawingArea;
-        bar.getMaxResizeAllowed = this.maxResizeAllowed(this._bars);
-        this._bars.at(this._bars.push(bar) - 1).id =
+        bar.resizingController = this._resizingController;
+        this._bars[this._bars.push(bar) - 1].id =
             this._parentLineHtmlId + "_" + (++this._lastBarId).toString();
         bar.lineNo = this.parentLineNo;
         bar.barNo = this._lastBarId;
@@ -149,7 +204,7 @@ export class ChartBars {
         });
     }
 
-    public bind(eventName: string, handler: eventHandler): number {
+    public bind(eventName: string, handler: EventHandler): number {
         if (this._eventHub != null)
             return this._eventHub.bind(eventName, handler);
     }

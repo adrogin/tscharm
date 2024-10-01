@@ -19,6 +19,6 @@ export interface AxisMarker {
         width: number,
         height: number,
     ): void;
-    
+
     marks: ChartMark[];
 }
