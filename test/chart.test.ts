@@ -1,51 +1,6 @@
 import { Chart } from "../src/chart";
 import { ChartLine } from "../src/chart_line";
-
-function createChartContainer(): HTMLElement {
-    const chartContainer = document.createElement("div");
-    document.body.appendChild(chartContainer);
-    return chartContainer;
-}
-
-function removeChart() {
-    const chartElement = document.getElementById("chart");
-    if (chartElement != null) {
-        chartElement.remove();
-    }
-}
-
-function dragAndDrop(
-    dragElementId: string,
-    mouseDownX: number,
-    mouseDownY: number,
-    mouseUpX: number,
-    mouseUpY: number,
-) {
-    document.getElementById(dragElementId).dispatchEvent(
-        new MouseEvent("mousedown", {
-            bubbles: true,
-            clientX: mouseDownX,
-            clientY: mouseDownY,
-        }),
-    );
-
-    const chartDrawingArea = document.getElementById("chartLines");
-    chartDrawingArea.dispatchEvent(
-        new MouseEvent("mousemove", {
-            bubbles: true,
-            clientX: mouseUpX,
-            clientY: mouseUpY,
-        }),
-    );
-
-    chartDrawingArea.dispatchEvent(
-        new MouseEvent("mouseup", {
-            bubbles: true,
-            clientX: mouseUpX,
-            clientY: mouseUpY,
-        }),
-    );
-}
+import { dragAndDrop, createChartContainer, removeChart } from "./test_utils";
 
 describe("Basic object instantiation tests", () => {
     test("Instantiate chart and get draw area width", () => {
@@ -225,7 +180,7 @@ describe("Creating HTML elements", () => {
         expect(document.getElementById(elementId)).toBeInstanceOf(
             HTMLDivElement,
         );
-        expect(document.getElementById(elementId).parentElement).toBe(
+        expect(document.getElementById(elementId)?.parentElement).toBe(
             parentElement,
         );
     }

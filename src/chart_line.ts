@@ -55,6 +55,23 @@ export class ChartLine {
         this._position = newPosition;
     }
 
+    private _height: number;
+    get height(): number {
+        return this._height;
+    }
+    set height(newHeight: number) {
+        this._height = newHeight;
+        this.isFixedHeight = true;
+    }
+
+    private _isFixedHeight: boolean;
+    get isFixedHeight(): boolean {
+        return this._isFixedHeight;
+    }
+    set isFixedHeight(newIsFixedHeihgt: boolean) {
+        this._isFixedHeight = newIsFixedHeihgt;
+    }
+
     private _label: string;
     get label(): string {
         return this._label;

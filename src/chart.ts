@@ -35,6 +35,27 @@ export class Chart {
                 };
             })(this),
         );
+
+        function resizeOnOverlapHandler(chart: Chart) {
+            return function (lineNo: number) {
+                const overlapStacks = chart.lines
+                    .get(lineNo)
+                    .bars.findOverlaps();
+
+                let maxStackSize: number = 1;
+                overlapStacks.forEach((stack) => {
+                    if (stack.length > maxStackSize)
+                        maxStackSize = stack.length;
+                });
+
+                chart.lines.get(lineNo).height =
+                    maxStackSize * chart.lines.minLineHeight;
+            };
+        }
+
+        this._eventHub.bind("resizeLeftDone", resizeOnOverlapHandler(this));
+        this._eventHub.bind("resizeRightDone", resizeOnOverlapHandler(this));
+        this._eventHub.bind("dragDone", resizeOnOverlapHandler(this));
     }
 
     private _htmlElement: HTMLElement;

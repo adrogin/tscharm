@@ -70,6 +70,10 @@ export class ChartBars {
     }
     set allowOverlap(newAllowOverlap: boolean) {
         this._allowOverlap = newAllowOverlap;
+
+        this._resizingController.getMaxResizeAllowed = this.allowOverlap
+            ? this.unlimitedResizeAllowed()
+            : this.maxResizeAllowed(this._bars);
     }
 
     private _minValue: number = 0;
@@ -103,12 +107,15 @@ export class ChartBars {
     }
 
     private unlimitedResizeAllowed() {
-        return function (leftBoundary: number, rightBoundary: number) {
-            return { leftBoundary, rightBoundary };
+        return function () {
+            return {
+                leftBoundary: Number.NEGATIVE_INFINITY,
+                rightBoundary: Number.POSITIVE_INFINITY,
+            };
         };
     }
 
-    private findOverlaps(): number[][] {
+    public findOverlaps(): number[][] {
         const sortedBars = this._bars
             .map((bar: ChartBar, index: number) => ({
                 index: index,
@@ -133,9 +140,11 @@ export class ChartBars {
                 stack.push(nextIndex++);
             }
 
-            if (stack.length > 1) overlapStacks.push(stack);
+            if (stack.length > 1) {
+                overlapStacks.push(stack);
+            }
 
-            currIndex = nextIndex;
+            currIndex += stack.length > 1 ? stack.length - 1 : 1;
         }
 
         return overlapStacks;

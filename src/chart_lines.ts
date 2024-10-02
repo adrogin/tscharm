@@ -31,6 +31,14 @@ export class ChartLines {
         this._eventHub.raiseEvent("linesAreaHeightChanged", this.height);
     }
 
+    private _allowOverlap: boolean = false;
+    get allowOverlap(): boolean {
+        return this._allowOverlap;
+    }
+    set allowOverlap(newAllowOverlap: boolean) {
+        this._allowOverlap = newAllowOverlap;
+    }
+
     private _unitScale: number = 1;
     get unitScale(): number {
         return this._unitScale;
@@ -104,6 +112,7 @@ export class ChartLines {
         line.id = this._lastLineId;
         line.bars.unitScale = this.unitScale;
         line.bars.minValue = this.minValue;
+        line.bars.allowOverlap = this.allowOverlap;
         this._lineHeight = this.recalculateLineHeight();
         this.recalculateLinePositions();
         this.scaleHeightToFit();
@@ -176,13 +185,17 @@ export class ChartLines {
     }
 
     private recalculateLineHeight(): number {
-        if (this._lines.length == 0) {
+        const floatingHeigthLinesCount: number = this._lines.filter(
+            (line) => !line.isFixedHeight,
+        ).length;
+
+        if (floatingHeigthLinesCount == 0) {
             return 0;
         }
 
         const height = Math.floor(
-            (this.height - this.vSpacing * (this._lines.length - 1)) /
-                this._lines.length,
+            (this.height - this.vSpacing * (floatingHeigthLinesCount - 1)) /
+                floatingHeigthLinesCount,
         );
 
         if (height > this.maxLineHeight) return this.maxLineHeight;
