@@ -61,7 +61,7 @@ export class ChartLine {
     }
     set height(newHeight: number) {
         this._height = newHeight;
-        this.isFixedHeight = true;
+        this.isFixedHeight = newHeight !== null;
     }
 
     private _isFixedHeight: boolean;
@@ -109,12 +109,68 @@ export class ChartLine {
         }
     }
 
+    public repositionBars(overlappingSets?: number[][]) {
+        if (overlappingSets == null) {
+            overlappingSets = this.bars.findOverlaps();
+        }
+
+        const maxSetSize =
+            overlappingSets.reduce((size: number, set: number[]) => {
+                return set.length > size ? set.length : size;
+            }, 0) ?? 1;
+        const barHeight = this.height / maxSetSize;
+
+        const positionedBars = new Set<number>();
+        let positioningRows: number[][] = new Array();
+        for (let i: number = 0; i < maxSetSize; i++) {
+            positioningRows.push([]);
+        }
+
+        overlappingSets.forEach((barSet) => {
+            let rowIndex = 0;
+
+            barSet.forEach((barIndex) => {
+                if (!positionedBars.has(barIndex)) {
+                    while (positioningRows[rowIndex].some(barIndex => barSet.includes(barIndex))) {
+                        rowIndex++;
+                    }
+                    positioningRows[rowIndex++].push(barIndex);
+                    positionedBars.add(barIndex);
+                }
+            });
+        });
+
+        for (let rowIndex: number = 0; rowIndex < positioningRows.length; rowIndex++) {
+            positioningRows[rowIndex].forEach(barIndex => {
+                let bar: ChartBar = this.bars.get(barIndex);
+                bar.height = barHeight;
+                bar.vertOffset = rowIndex * barHeight;
+            });
+        }
+
+        for (let i = 0; i < this.bars.count(); i++) {
+            if (!positionedBars.has(i)) {
+                this.bars.get(i).height = null;
+                this.bars.get(i).vertOffset = 0;
+            }
+        }
+    }
+
     public draw(parentElement: HTMLElement, size: number): void {
         if (this._htmlElement == null) {
             this._htmlElement = this.createHtmlElement(parentElement, size);
         }
 
         this.bars.draw(this._htmlElement);
+    }
+
+    public update(): void {
+        new HtmlFactory()
+            .setHeight(this.height)
+            .setYPosition(this.position)
+            .updateElement(this.htmlElement);
+
+        this.bars.update();
     }
 
     private createHtmlElement(

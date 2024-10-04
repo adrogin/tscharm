@@ -51,6 +51,70 @@ describe("Resizing chart bars with overlapping", () => {
 
         expect(chart.lines.get(0).bars.get(0).position).toBe(43);
     });
+
+    test('Line height increases to fit overlapping bars', () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 20;
+
+        const line = chart.lines.addNew();
+        line.bars.add(10, 30);
+        line.bars.add(50, 30);
+        chart.draw(chartContainer);
+
+        dragAndDrop("chartBar_0_1", 70, 0, 40, 0);
+        expect(line.isFixedHeight).toBe(true);
+        expect(line.height).toBe(chart.lines.minLineHeight * 2);
+
+        expect(line.bars.get(0).height).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(1).height).toBe(chart.lines.minLineHeight);
+
+        expect(line.bars.get(0).vertOffset).toBe(0);
+        expect(line.bars.get(1).vertOffset).toBe(chart.lines.minLineHeight);
+    });
+
+    test('Line and bar height restored after reverting sequence to a single line', () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 20;
+
+        const line = chart.lines.addNew();
+        line.bars.add(10, 30);
+        line.bars.add(50, 30);
+        chart.draw(chartContainer);
+
+        dragAndDrop("chartBar_0_1", 70, 0, 40, 0);
+        dragAndDrop("barHandle_0_1_left", 22, 0, 44, 0);
+
+        expect(line.bars.get(1).vertOffset).toBe(0);
+        expect(line.bars.get(1).height).toBe(null);
+
+        expect(line.isFixedHeight).toBe(false);
+    });
+
+    test('Bar height when stacking unordered bars', () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 20;
+
+        const line = chart.lines.addNew();
+        line.bars.add(50, 30);
+        line.bars.add(85, 10);
+        line.bars.add(10, 30);
+        chart.draw(chartContainer);
+
+        dragAndDrop("chartBar_0_2", 20, 0, 50, 0);
+
+        expect(line.bars.get(0).height).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(1).height).toBe(null);  // null height means that the bar aligns to the line height
+        expect(line.bars.get(2).height).toBe(chart.lines.minLineHeight);
+    });
 });
 
 describe("Find overlapping bars", () => {
@@ -174,5 +238,51 @@ describe("Find overlapping bars", () => {
         expect(stack[1].length).toBe(2);
         expect(stack[1]).toContain(4);
         expect(stack[1]).toContain(5);
+    });
+
+    test('Positioning 3 partially stacked bars', () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+        chart.lines.minLineHeight = 15;
+        chart.lines.maxLineHeight = 30;
+
+        // 3 bars a re placed such that bar 2 overlaps with 1 and 3
+        const line = chart.lines.addNew();
+        line.bars.add(10, 30);   //  xxxxxx
+        line.bars.add(30, 30);   //      xxxxxx
+        line.bars.add(50, 20);   //          xxxx
+
+        line.height = chart.lines.maxLineHeight;
+        line.repositionBars();
+
+        expect(line.bars.get(0).vertOffset).toBe(0);
+        expect(line.bars.get(1).vertOffset).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(2).vertOffset).toBe(0);
+    });
+
+    test('Four bars in a "brick lalyers" positioning', () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+        chart.lines.minLineHeight = 15;
+        chart.lines.maxLineHeight = 30;
+
+        // 3 bars a re placed such that bar 2 overlaps with 1 and 3
+        const line = chart.lines.addNew();
+        line.bars.add(0, 30);
+        line.bars.add(20, 30);
+        line.bars.add(40, 30);
+        line.bars.add(60, 30);
+
+        line.height = chart.lines.maxLineHeight;
+        line.repositionBars();
+
+        // Expected bar positions:
+        //   xxxxxx  xxxxxx
+        //       xxxxxx  xxxxxx
+
+        expect(line.bars.get(0).vertOffset).toBe(0);
+        expect(line.bars.get(1).vertOffset).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(2).vertOffset).toBe(0);
+        expect(line.bars.get(3).vertOffset).toBe(chart.lines.minLineHeight);
     });
 });

@@ -12,6 +12,11 @@ export class HtmlFactory {
         return this;
     }
 
+    setFillParentHeight() {
+        this._attributes.set("height", "100%");
+        return this;
+    }
+
     setAutoWidth() {
         this._attributes.set("autoWidth", "true");
         return this;

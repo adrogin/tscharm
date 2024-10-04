@@ -184,7 +184,7 @@ export class ChartLines {
         return maxWidth;
     }
 
-    private recalculateLineHeight(): number {
+    public recalculateLineHeight(): number {
         const floatingHeigthLinesCount: number = this._lines.filter(
             (line) => !line.isFixedHeight,
         ).length;

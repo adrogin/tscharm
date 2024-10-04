@@ -38,18 +38,22 @@ export class Chart {
 
         function resizeOnOverlapHandler(chart: Chart) {
             return function (lineNo: number) {
-                const overlapStacks = chart.lines
+                const overlapSets = chart.lines
                     .get(lineNo)
                     .bars.findOverlaps();
 
-                let maxStackSize: number = 1;
-                overlapStacks.forEach((stack) => {
-                    if (stack.length > maxStackSize)
-                        maxStackSize = stack.length;
+                let maxSetSize: number = 0;
+                overlapSets.forEach((set) => {
+                    if (set.length > maxSetSize)
+                        maxSetSize = set.length;
                 });
 
-                chart.lines.get(lineNo).height =
-                    maxStackSize * chart.lines.minLineHeight;
+                const line = chart.lines.get(lineNo);
+                line.height = maxSetSize === 0 ? null : maxSetSize * chart.lines.minLineHeight;
+
+                chart.lines.recalculateLineHeight();
+                line.repositionBars(overlapSets);
+                line.bars.update();
             };
         }
 

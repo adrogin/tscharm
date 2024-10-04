@@ -131,13 +131,13 @@ export class ChartBars {
         while (currIndex < sortedBars.length) {
             let nextIndex = currIndex + 1;
             const stack = [];
-            stack.push(currIndex);
+            stack.push(sortedBars[currIndex].index);
             while (
                 nextIndex < sortedBars.length &&
                 sortedBars[currIndex].position + sortedBars[currIndex].width >
                     sortedBars[nextIndex].position
             ) {
-                stack.push(nextIndex++);
+                stack.push(sortedBars[nextIndex++].index);
             }
 
             if (stack.length > 1) {
@@ -211,6 +211,10 @@ export class ChartBars {
         this._bars.forEach((bar) => {
             bar.draw(parentElement);
         });
+    }
+
+    public update(): void {
+        this._bars.forEach(bar => bar.update());
     }
 
     public bind(eventName: string, handler: EventHandler): number {

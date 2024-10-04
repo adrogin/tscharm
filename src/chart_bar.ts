@@ -62,12 +62,28 @@ export class ChartBar {
         this._position = newPosition;
     }
 
+    private _vertOffset: number; // Vertical offset relative to the top of the line
+    get vertOffset(): number {
+        return this._vertOffset;
+    }
+    set vertOffset(newVertOffset) {
+        this._vertOffset = newVertOffset;
+    }
+
     private _width: number;
     get width(): number {
         return this._width;
     }
     set width(newWidth: number) {
         this._width = newWidth;
+    }
+
+    private _height: number;
+    get height(): number {
+        return this._height;
+    }
+    set height(newHeight: number) {
+        this._height = newHeight;
     }
 
     private _minValue: number = 0;
@@ -140,11 +156,22 @@ export class ChartBar {
         }
     }
 
-    private update(): void {
-        new HtmlFactory()
+    public update(): void {
+        const htmlFactory = new HtmlFactory();
+        htmlFactory
             .setWidth(this.getScaledWidth())
-            .setXPosition(this.getScaledPosition())
-            .updateElement(this._htmlElement);
+            .setXPosition(this.getScaledPosition());
+
+        if (this.height != null) {
+            htmlFactory
+            .setYPosition(this.vertOffset)
+            .setHeight(this.height);
+        }
+        else {
+            htmlFactory.setFillParentHeight();
+        }
+
+        htmlFactory.updateElement(this._htmlElement);
     }
 
     private createBarHandles(barElement: HTMLElement) {
@@ -367,6 +394,7 @@ export class ChartBar {
             .setClassName(this.className)
             .setWidth(this.getScaledWidth())
             .setXPosition(this.getScaledPosition())
+            .setFillParentHeight()
             .createElement(parentElement);
 
         function setMouseDownEventhandler(chartBar: ChartBar) {

@@ -24,7 +24,6 @@ div.chartLine {
 div.chartBar-normal {
     margin: 0;
     top: 0px;
-    height: 100%;
     background-color: deepskyblue;
     border-style: solid;
     border-color: black;
@@ -37,7 +36,6 @@ div.chartBar-normal {
 div.chartBar-alert {
     margin: 0;
     top: 0px;
-    height: 100%;
     background-color: coral;
     border-style: solid;
     border-color: orangered;
@@ -50,7 +48,6 @@ div.chartBar-alert {
 div.chartBar-tentative {
     margin: 0;
     top: 0px;
-    height: 100%;
     background-color: deepskyblue;
     background-image: repeating-linear-gradient(
       -25deg,
