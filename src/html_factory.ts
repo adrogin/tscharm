@@ -28,7 +28,7 @@ export class HtmlFactory {
     }
 
     setHeight(newHeight: number) {
-        this._attributes.set("height", newHeight.toString());
+        this._attributes.set("height", newHeight.toString() + "px");
         return this;
     }
 
@@ -65,17 +65,17 @@ export class HtmlFactory {
     }
 
     setWidth(newWidth: number) {
-        this._attributes.set("width", newWidth.toString());
+        this._attributes.set("width", newWidth.toString() + "px");
         return this;
     }
 
     setXPosition(newXPosition: number) {
-        this._attributes.set("xPosition", newXPosition.toString());
+        this._attributes.set("xPosition", newXPosition.toString() + "px");
         return this;
     }
 
     setYPosition(newYPosition: number) {
-        this._attributes.set("yPosition", newYPosition.toString());
+        this._attributes.set("yPosition", newYPosition.toString() + "px");
         return this;
     }
 
@@ -119,28 +119,28 @@ export class HtmlFactory {
         addAttributeIfNotEmpty(
             "width",
             this._attributes.get("width")
-                ? this._attributes.get("width") + "px"
+                ? this._attributes.get("width")
                 : null,
             attributes,
         );
         addAttributeIfNotEmpty(
             "height",
             this._attributes.get("height")
-                ? this._attributes.get("height") + "px"
+                ? this._attributes.get("height")
                 : null,
             attributes,
         );
         addAttributeIfNotEmpty(
             "left",
             this._attributes.get("xPosition")
-                ? this._attributes.get("xPosition") + "px"
+                ? this._attributes.get("xPosition")
                 : null,
             attributes,
         );
         addAttributeIfNotEmpty(
             "top",
             this._attributes.get("yPosition")
-                ? this._attributes.get("yPosition") + "px"
+                ? this._attributes.get("yPosition")
                 : null,
             attributes,
         );
