@@ -37,5 +37,13 @@ export class ChartMark {
         this._text = newText;
     }
 
+    private _htmlElement: HTMLElement;
+    get htmlElement(): HTMLElement {
+        return this._htmlElement;
+    }
+    set htmlElement(newHtmlElement: HTMLElement) {
+        this._htmlElement = newHtmlElement;
+    }
+
     public draw(): void {}
 }

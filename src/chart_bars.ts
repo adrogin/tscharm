@@ -214,7 +214,7 @@ export class ChartBars {
     }
 
     public update(): void {
-        this._bars.forEach(bar => bar.update());
+        this._bars.forEach((bar) => bar.update());
     }
 
     public bind(eventName: string, handler: EventHandler): number {

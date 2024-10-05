@@ -52,7 +52,7 @@ describe("Resizing chart bars with overlapping", () => {
         expect(chart.lines.get(0).bars.get(0).position).toBe(43);
     });
 
-    test('Line height increases to fit overlapping bars', () => {
+    test("Line height increases to fit overlapping bars", () => {
         const chart = new Chart(100, 100);
         chart.lines.allowOverlap = true;
 
@@ -75,7 +75,7 @@ describe("Resizing chart bars with overlapping", () => {
         expect(line.bars.get(1).vertOffset).toBe(chart.lines.minLineHeight);
     });
 
-    test('Line and bar height restored after reverting sequence to a single line', () => {
+    test("Line and bar height restored after reverting sequence to a single line", () => {
         const chart = new Chart(100, 100);
         chart.lines.allowOverlap = true;
 
@@ -96,7 +96,106 @@ describe("Resizing chart bars with overlapping", () => {
         expect(line.isFixedHeight).toBe(false);
     });
 
-    test('Bar height when stacking unordered bars', () => {
+    test("Positions of lower lines shift to accomodate the resized line", () => {
+        const chart: Chart = new Chart(100, 100);
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 10;
+        chart.lines.vSpacing = 2;
+        chart.lines.allowOverlap = true;
+
+        const line = chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.addNew();
+
+        line.bars.add(0, 30);
+        line.bars.add(40, 20);
+        line.bars.add(80, 15);
+        chart.draw(chartContainer);
+
+        // Two drag actions will stack all bars on top of each other
+        dragAndDrop("barHandle_0_0_right", 32, 0, 100, 0);
+        dragAndDrop("barHandle_0_1_right", 62, 0, 100, 0);
+
+        expect(line.height).toBe(chart.lines.minLineHeight * 3);
+        expect(chart.lines.get(1).position).toBe(
+            chart.lines.minLineHeight * 3 + chart.lines.vSpacing,
+        );
+        expect(chart.lines.get(2).position).toBe(
+            chart.lines.minLineHeight * 4 + chart.lines.vSpacing * 2,
+        );
+
+        expect(chart.lines.height).toBe(
+            chart.lines.minLineHeight * 5 + chart.lines.vSpacing * 2,
+        );
+    });
+
+    test("Positions and sizes of axis markers adjusted when a line has been resized", () => {
+        const chart: Chart = new Chart(100, 100);
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 10;
+        chart.lines.vSpacing = 2;
+        chart.lines.allowOverlap = true;
+
+        const line = chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.addNew();
+
+        line.bars.add(0, 30);
+        line.bars.add(40, 20);
+        line.bars.add(80, 15);
+
+        chart.yAxis.initializeMarker(
+            ["0", "1", "2"],
+            chart.lines.getPositions(),
+        );
+
+        chart.draw(chartContainer);
+
+        dragAndDrop("barHandle_0_0_right", 32, 0, 100, 0);
+        dragAndDrop("barHandle_0_1_right", 62, 0, 100, 0);
+
+        expect(chart.yAxis.axisMarker.marks[0].position).toBe(0);
+        expect(chart.yAxis.axisMarker.marks[1].position).toBe(
+            chart.lines.minLineHeight * 3 + chart.lines.vSpacing,
+        );
+        expect(chart.yAxis.axisMarker.marks[2].position).toBe(
+            chart.lines.minLineHeight * 4 + chart.lines.vSpacing * 2,
+        );
+
+        expect(chart.yAxis.axisMarker.marks[0].size).toBe(
+            chart.lines.minLineHeight * 3 + chart.lines.vSpacing,
+        );
+        expect(chart.yAxis.axisMarker.marks[1].size).toBe(
+            chart.lines.minLineHeight + chart.lines.vSpacing,
+        );
+        expect(chart.yAxis.axisMarker.marks[2].size).toBe(
+            chart.lines.minLineHeight + chart.lines.vSpacing,
+        );
+    });
+
+    test("Stacked bars and line are when chart.draw() is invoked", () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 15;
+
+        const line = chart.lines.addNew();
+        line.bars.add(10, 50);
+        line.bars.add(50, 30);
+        chart.draw(chartContainer);
+
+        expect(line.isFixedHeight).toBe(true);
+        expect(line.height).toBe(chart.lines.minLineHeight * 2);
+
+        expect(line.bars.get(0).height).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(1).height).toBe(chart.lines.minLineHeight);
+
+        expect(line.bars.get(0).vertOffset).toBe(0);
+        expect(line.bars.get(1).vertOffset).toBe(chart.lines.minLineHeight);
+    });
+
+    test("Bar height when stacking unordered bars", () => {
         const chart = new Chart(100, 100);
         chart.lines.allowOverlap = true;
 
@@ -112,7 +211,7 @@ describe("Resizing chart bars with overlapping", () => {
         dragAndDrop("chartBar_0_2", 20, 0, 50, 0);
 
         expect(line.bars.get(0).height).toBe(chart.lines.minLineHeight);
-        expect(line.bars.get(1).height).toBe(null);  // null height means that the bar aligns to the line height
+        expect(line.bars.get(1).height).toBe(null); // null height means that the bar aligns to the line height
         expect(line.bars.get(2).height).toBe(chart.lines.minLineHeight);
     });
 });
@@ -240,7 +339,7 @@ describe("Find overlapping bars", () => {
         expect(stack[1]).toContain(5);
     });
 
-    test('Positioning 3 partially stacked bars', () => {
+    test("Positioning 3 partially stacked bars", () => {
         const chart = new Chart(100, 100);
         chart.lines.allowOverlap = true;
         chart.lines.minLineHeight = 15;
@@ -248,9 +347,9 @@ describe("Find overlapping bars", () => {
 
         // 3 bars a re placed such that bar 2 overlaps with 1 and 3
         const line = chart.lines.addNew();
-        line.bars.add(10, 30);   //  xxxxxx
-        line.bars.add(30, 30);   //      xxxxxx
-        line.bars.add(50, 20);   //          xxxx
+        line.bars.add(10, 30); //  xxxxxx
+        line.bars.add(30, 30); //      xxxxxx
+        line.bars.add(50, 20); //          xxxx
 
         line.height = chart.lines.maxLineHeight;
         line.repositionBars();

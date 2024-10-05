@@ -89,6 +89,12 @@ export class ChartLines {
     get lineHeight(): number {
         return this._lineHeight;
     }
+    set lineHeight(newLineHeight: number) {
+        this._lineHeight = newLineHeight;
+        this._lines.map((line) => {
+            if (!line.isFixedHeight) line.height = this.lineHeight;
+        });
+    }
 
     private _positionX: number;
     get positionX(): number {
@@ -113,7 +119,10 @@ export class ChartLines {
         line.bars.unitScale = this.unitScale;
         line.bars.minValue = this.minValue;
         line.bars.allowOverlap = this.allowOverlap;
-        this._lineHeight = this.recalculateLineHeight();
+        this.updateLineHeight();
+        this._lines.map((line) => {
+            if (!line.isFixedHeight) line.height = this.lineHeight;
+        });
         this.recalculateLinePositions();
         this.scaleHeightToFit();
     }
@@ -126,7 +135,7 @@ export class ChartLines {
 
     public remove(index: number): void {
         this._lines.splice(index, 1);
-        this._lineHeight = this.recalculateLineHeight();
+        this.updateLineHeight();
         this.recalculateLinePositions();
     }
 
@@ -157,7 +166,7 @@ export class ChartLines {
     public getPositions(): { position: number; size: number }[] {
         return this._lines.map((line) => ({
             position: line.position,
-            size: this.lineHeight + this.vSpacing,
+            size: line.height + this.vSpacing,
         }));
     }
 
@@ -168,7 +177,27 @@ export class ChartLines {
 
         this._lines.forEach((line) => {
             line.drawingArea = this.htmlElement;
-            line.draw(this._htmlElement, this.lineHeight);
+            line.draw(this._htmlElement);
+        });
+    }
+
+    public update(): void {
+        let linesHeight = 0;
+        this._lines.forEach((line) => {
+            linesHeight += line.height + this.vSpacing;
+        });
+
+        this.recalculateLinePositions();
+        this.height = linesHeight - this.vSpacing; // Spacing is added between lines, but not after the last one
+
+        new HtmlFactory()
+            .setWidth(this.width)
+            .setHeight(this.height)
+            .setXPosition(this.positionX)
+            .updateElement(this.htmlElement);
+
+        this._lines.forEach((line) => {
+            line.update();
         });
     }
 
@@ -184,32 +213,55 @@ export class ChartLines {
         return maxWidth;
     }
 
-    public recalculateLineHeight(): number {
+    public adjustAllLinesForOverlaps(): void {
+        for (let lineIndex: number = 0; lineIndex < this.count(); lineIndex++) {
+            this.adjustLineForOverlaps(lineIndex);
+        }
+        this.update();
+    }
+
+    public adjustLineForOverlaps(lineNo: number): void {
+        const overlapSets = this._lines[lineNo].bars.findOverlaps();
+
+        let maxSetSize: number = 0;
+        overlapSets.forEach((set) => {
+            if (set.length > maxSetSize) maxSetSize = set.length;
+        });
+
+        const line = this._lines[lineNo];
+        line.isFixedHeight = maxSetSize !== 0;
+        line.height = maxSetSize === 0 ? null : maxSetSize * this.minLineHeight;
+
+        this.updateLineHeight();
+        line.repositionBars(overlapSets);
+    }
+
+    public updateLineHeight(): void {
         const floatingHeigthLinesCount: number = this._lines.filter(
             (line) => !line.isFixedHeight,
         ).length;
 
         if (floatingHeigthLinesCount == 0) {
-            return 0;
+            return;
         }
 
-        const height = Math.floor(
+        let height = Math.floor(
             (this.height - this.vSpacing * (floatingHeigthLinesCount - 1)) /
                 floatingHeigthLinesCount,
         );
 
-        if (height > this.maxLineHeight) return this.maxLineHeight;
+        if (height > this.maxLineHeight) height = this.maxLineHeight;
+        if (height < this.minLineHeight) height = this.minLineHeight;
 
-        if (height < this.minLineHeight) return this.minLineHeight;
-
-        return height;
+        this.lineHeight = height;
     }
 
     private recalculateLinePositions(): void {
-        for (let index = 0; index < this._lines.length; index++) {
-            this._lines[index].position =
-                (this.lineHeight + this.vSpacing) * index;
-        }
+        let nextLinePosition: number = 0;
+        this._lines.forEach((line) => {
+            line.position = nextLinePosition;
+            nextLinePosition += line.height + this.vSpacing;
+        });
     }
 
     private scaleHeightToFit(): void {

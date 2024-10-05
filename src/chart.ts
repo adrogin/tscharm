@@ -28,32 +28,15 @@ export class Chart {
                         chart.mainElement &&
                         chart.mainElement.clientHeight !== newHeight
                     )
-                        chart.resizeMainHtmlElement(
-                            chart.mainElement,
-                            newHeight,
-                        );
+                        chart.updateYAxis();
                 };
             })(this),
         );
 
         function resizeOnOverlapHandler(chart: Chart) {
             return function (lineNo: number) {
-                const overlapSets = chart.lines
-                    .get(lineNo)
-                    .bars.findOverlaps();
-
-                let maxSetSize: number = 0;
-                overlapSets.forEach((set) => {
-                    if (set.length > maxSetSize)
-                        maxSetSize = set.length;
-                });
-
-                const line = chart.lines.get(lineNo);
-                line.height = maxSetSize === 0 ? null : maxSetSize * chart.lines.minLineHeight;
-
-                chart.lines.recalculateLineHeight();
-                line.repositionBars(overlapSets);
-                line.bars.update();
+                chart.lines.adjustLineForOverlaps(lineNo);
+                chart.lines.update();
             };
         }
 
@@ -79,7 +62,7 @@ export class Chart {
 
     private _leftSideBarElement: HTMLElement;
     get leftSideBarElement(): HTMLElement {
-        return this.leftSideBarElement;
+        return this._leftSideBarElement;
     }
 
     private _originPointElement: HTMLElement;
@@ -246,6 +229,7 @@ export class Chart {
             this.yAxis.draw(this._leftSideBarElement);
         }
         this.lines.draw(this._mainElement);
+        this.lines.adjustAllLinesForOverlaps();
 
         this._eventHub.raiseEvent("onChartDraw");
     }
@@ -307,16 +291,16 @@ export class Chart {
             .createElement(parentElement);
     }
 
-    private resizeMainHtmlElement(
-        mainElement: HTMLElement,
-        newHeight: number,
-    ): void {
-        new HtmlFactory()
-            .setId("chartPartMain")
-            .setClassName("chartPartMain")
-            .setWidth(this.width)
-            .setHeight(newHeight)
-            .updateElement(mainElement);
+    private updateYAxis(): void {
+        if (!this.showAxes) return;
+
+        this.updateLeftSideBarElement();
+        this.yAxis.height = this.lines.height;
+        this.yAxis.update();
+        this.yAxis.axisMarker.update(
+            this.lines.getLabels(),
+            this.lines.getPositions(),
+        );
     }
 
     private createLeftSideBarElement(parentElement: HTMLElement): HTMLElement {
@@ -334,5 +318,13 @@ export class Chart {
             .setClassName("chartOriginPoint")
             .setWidth(this.leftSideBarWidth)
             .createElement(parentElement);
+    }
+
+    private updateLeftSideBarElement(): void {
+        if (this.leftSideBarElement != null)
+            new HtmlFactory()
+                .setWidth(this.leftSideBarWidth)
+                .setHeight(this.lines.height)
+                .updateElement(this.leftSideBarElement);
     }
 }

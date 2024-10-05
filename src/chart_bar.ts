@@ -163,11 +163,8 @@ export class ChartBar {
             .setXPosition(this.getScaledPosition());
 
         if (this.height != null) {
-            htmlFactory
-            .setYPosition(this.vertOffset)
-            .setHeight(this.height);
-        }
-        else {
+            htmlFactory.setYPosition(this.vertOffset).setHeight(this.height);
+        } else {
             htmlFactory.setFillParentHeight();
         }
 

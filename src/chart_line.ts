@@ -61,7 +61,6 @@ export class ChartLine {
     }
     set height(newHeight: number) {
         this._height = newHeight;
-        this.isFixedHeight = newHeight !== null;
     }
 
     private _isFixedHeight: boolean;
@@ -131,7 +130,11 @@ export class ChartLine {
 
             barSet.forEach((barIndex) => {
                 if (!positionedBars.has(barIndex)) {
-                    while (positioningRows[rowIndex].some(barIndex => barSet.includes(barIndex))) {
+                    while (
+                        positioningRows[rowIndex].some((barIndex) =>
+                            barSet.includes(barIndex),
+                        )
+                    ) {
                         rowIndex++;
                     }
                     positioningRows[rowIndex++].push(barIndex);
@@ -140,8 +143,12 @@ export class ChartLine {
             });
         });
 
-        for (let rowIndex: number = 0; rowIndex < positioningRows.length; rowIndex++) {
-            positioningRows[rowIndex].forEach(barIndex => {
+        for (
+            let rowIndex: number = 0;
+            rowIndex < positioningRows.length;
+            rowIndex++
+        ) {
+            positioningRows[rowIndex].forEach((barIndex) => {
                 let bar: ChartBar = this.bars.get(barIndex);
                 bar.height = barHeight;
                 bar.vertOffset = rowIndex * barHeight;
@@ -156,9 +163,9 @@ export class ChartLine {
         }
     }
 
-    public draw(parentElement: HTMLElement, size: number): void {
+    public draw(parentElement: HTMLElement): void {
         if (this._htmlElement == null) {
-            this._htmlElement = this.createHtmlElement(parentElement, size);
+            this._htmlElement = this.createHtmlElement(parentElement);
         }
 
         this.bars.draw(this._htmlElement);
@@ -173,14 +180,11 @@ export class ChartLine {
         this.bars.update();
     }
 
-    private createHtmlElement(
-        parentElement: HTMLElement,
-        size: number,
-    ): HTMLElement {
+    private createHtmlElement(parentElement: HTMLElement): HTMLElement {
         return new HtmlFactory()
             .setId("chartLine_" + this.htmlId.toString())
             .setClassName("chartLine")
-            .setHeight(size)
+            .setHeight(this.height)
             .setYPosition(this.position)
             .createElement(parentElement);
     }

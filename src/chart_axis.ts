@@ -44,7 +44,7 @@ export class ChartXAxis {
         labels: string[],
         positions?: { position: number; size: number }[],
     ) {
-        this._axisMarker.initialize(labels, positions);
+        this._axisMarker.initialize(AxisDirection.LeftRight, labels, positions);
     }
 
     public draw(parentElement: HTMLElement): void {
@@ -56,7 +56,7 @@ export class ChartXAxis {
             .setHeight(this.height)
             .setXPosition(this.position)
             .createElement(parentElement);
-        this._axisMarker.setMarks(
+        this._axisMarker.draw(
             this._htmlElement,
             AxisDirection.LeftRight,
             this.width,
@@ -104,7 +104,14 @@ export class ChartYAxis {
         labels: string[],
         positions?: { position: number; size: number }[],
     ) {
-        this._axisMarker.initialize(labels, positions);
+        this._axisMarker.initialize(AxisDirection.TopDown, labels, positions);
+    }
+
+    update(): void {
+        new HtmlFactory()
+            .setWidth(this.width)
+            .setHeight(this.height)
+            .updateElement(this._htmlElement);
     }
 
     draw(parentElement: HTMLElement): void {
@@ -114,7 +121,7 @@ export class ChartYAxis {
                 .setWidth(this.width)
                 .setHeight(this.height)
                 .createElement(parentElement);
-        this._axisMarker.setMarks(
+        this._axisMarker.draw(
             this._htmlElement,
             AxisDirection.TopDown,
             this.width,

@@ -9,11 +9,17 @@ export enum AxisDirection {
 
 export interface AxisMarker {
     initialize(
+        direction: AxisDirection,
         labels: string[],
         positions?: { position: number; size: number }[],
     ): void;
 
-    setMarks(
+    update(
+        labels: string[],
+        positions?: { position: number; size: number }[],
+    ): void;
+
+    draw(
         parentElement: HTMLElement,
         direction: AxisDirection,
         width: number,
