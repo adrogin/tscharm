@@ -120,7 +120,7 @@ export class ChartLine {
         const barHeight = this.height / maxSetSize;
 
         const positionedBars = new Set<number>();
-        let positioningRows: number[][] = new Array();
+        const positioningRows: number[][] = [];
         for (let i: number = 0; i < maxSetSize; i++) {
             positioningRows.push([]);
         }
@@ -149,7 +149,7 @@ export class ChartLine {
             rowIndex++
         ) {
             positioningRows[rowIndex].forEach((barIndex) => {
-                let bar: ChartBar = this.bars.get(barIndex);
+                const bar: ChartBar = this.bars.get(barIndex);
                 bar.height = barHeight;
                 bar.vertOffset = rowIndex * barHeight;
             });

@@ -5,6 +5,7 @@ export default tseslint.config(
     {
         'ignores': [
             'dist',
+            'js-compiled',
             '*config.*js',
         ]
     }
