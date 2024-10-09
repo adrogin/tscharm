@@ -1,6 +1,6 @@
-import { Chart } from "../src/chart";
-import { ChartLine } from "../src/chart_line";
-import { dragAndDrop, createChartContainer, removeChart } from "./test_utils";
+import { Chart } from "../src/Chart";
+import { ChartLine } from "../src/ChartLine";
+import { dragAndDrop, createChartContainer, removeChart } from "./TestUtils";
 
 describe("Basic object instantiation tests", () => {
     test("Instantiate chart and get draw area width", () => {
@@ -19,8 +19,8 @@ describe("Basic object instantiation tests", () => {
 
     test("Instantiate chart with the top and left sidebar areas", () => {
         const chart = new Chart(200, 100);
-        chart.topBarHeight = 15;
-        chart.leftSideBarWidth = 30;
+        chart.header.height = 15;
+        chart.leftSideBarElement.width = 30;
         chart.showAxes = true;
 
         expect(chart.getDrawAreaWidth()).toBe(170);
@@ -199,7 +199,7 @@ describe("Creating HTML elements", () => {
         chart.draw(chartContainer);
 
         verifyElement("chart", chartContainer);
-        verifyElement("chartLines", chart.mainElement);
+        verifyElement("chartLines", chart.mainElement.htmlElement);
     });
 
     test("Add 3 lines to the chart and draw", () => {
@@ -537,7 +537,7 @@ describe("Chart axes and marking", () => {
         const chart = new Chart(200, 100);
         chart.xAxis.height = 15;
         chart.yAxis.width = 15;
-        chart.leftSideBarWidth = 25;
+        chart.leftSideBarElement.width = 25;
         chart.showAxes = false;
 
         chart.draw(chartContainer);
@@ -573,7 +573,7 @@ describe("Chart axes and marking", () => {
     test("Marks in the top axis fill available space uniformly if positions are not explicitly specified", () => {
         const chart = new Chart(1000, 50);
         chart.showAxes = true;
-        chart.leftSideBarWidth = 100;
+        chart.leftSideBarElement.width = 100;
 
         const marks = new Array<string>();
         for (let i = 0; i < 24; i++) {
@@ -599,7 +599,7 @@ describe("Chart axes and marking", () => {
     test("Size of the X axis is adjusted on changing the left side bar width", () => {
         const chart = new Chart(100, 50);
         chart.showAxes = true;
-        chart.leftSideBarWidth = 30;
+        chart.leftSideBarElement.width = 30;
 
         expect(chart.xAxis.width).toBe(70);
     });
@@ -634,7 +634,7 @@ describe("Chart scaling", () => {
 
     test("Unit scale is adjusted when axes are hidden", () => {
         const chart = new Chart(100, 50);
-        chart.leftSideBarWidth = 20;
+        chart.leftSideBarElement.width = 20;
         chart.showAxes = true;
 
         chart.setScale(0, 20);

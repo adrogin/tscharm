@@ -1,8 +1,8 @@
-import { AxisDirection, AxisMarker } from "./axis_marker";
-import { ChartMark } from "./chart_mark";
-import { HtmlFactory } from "./html_factory";
+import { AxisDirection, IAxisMarker } from "./AxisMarker";
+import { ChartMark } from "./ChartMark";
+import { HtmlFactory } from "./HtmlFactory";
 
-export class ChartRuler implements AxisMarker {
+export class ChartRuler implements IAxisMarker {
     private _marks: ChartMark[] = [];
     get marks(): ChartMark[] {
         return this._marks;
@@ -46,12 +46,16 @@ export class ChartRuler implements AxisMarker {
                 mark.size = positions[i].size;
             }
 
-            if (this.isHorizontal()) {
-                htmlFactory.setXPosition(mark.position).setWidth(mark.size);
-            } else {
-                htmlFactory.setYPosition(mark.position).setHeight(mark.size);
+            if (mark.htmlElement) {
+                if (this.isHorizontal()) {
+                    htmlFactory.setXPosition(mark.position).setWidth(mark.size);
+                } else {
+                    htmlFactory
+                        .setYPosition(mark.position)
+                        .setHeight(mark.size);
+                }
+                htmlFactory.updateElement(mark.htmlElement);
             }
-            htmlFactory.updateElement(mark.htmlElement);
         }
     }
 

@@ -1,4 +1,4 @@
-import { ChartMark } from "./chart_mark";
+import { ChartMark } from "./ChartMark";
 
 export enum AxisDirection {
     LeftRight,
@@ -7,7 +7,7 @@ export enum AxisDirection {
     BottomUp,
 }
 
-export interface AxisMarker {
+export interface IAxisMarker {
     initialize(
         direction: AxisDirection,
         labels: string[],

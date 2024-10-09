@@ -1,2 +1,2 @@
-export { Chart } from "./chart";
-export { Slider } from "./slider";
+export { Chart } from "./Chart";
+export { Slider } from "./Slider";

@@ -1,6 +1,6 @@
-import { ChartValueType } from "./chart_value_type";
-import { Chart } from "./chart";
-import { HtmlFactory } from "./html_factory";
+import { ChartValueType } from "./ChartValueType";
+import { Chart } from "./Chart";
+import { HtmlFactory } from "./HtmlFactory";
 
 export class Slider {
     private _leftIndicatorElement: HTMLElement;

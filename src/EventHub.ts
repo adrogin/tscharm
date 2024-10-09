@@ -1,15 +1,15 @@
-import { EventHub } from "./event_hub";
+import { IEventHub } from "./IEventHub";
 
-interface EventHandler {
+interface IEventHandler {
     (...eventArgs): void;
 }
 
-export class EventHubImpl implements EventHub {
-    private _eventSubscribers = new Map<string, EventHandler[]>();
+export class EventHub implements IEventHub {
+    private _eventSubscribers = new Map<string, IEventHandler[]>();
     private _supportedEvents = new Set<string>();
     private _registeredComponents = new Set<string>();
 
-    bind(eventName: string, handler: EventHandler): number {
+    bind(eventName: string, handler: IEventHandler): number {
         if (!this._supportedEvents.has(eventName)) {
             return -1;
         }
@@ -51,8 +51,8 @@ export class EventHubImpl implements EventHub {
     }
 
     private bindSubscription(
-        subscribers: EventHandler[],
-        handler: EventHandler,
+        subscribers: IEventHandler[],
+        handler: IEventHandler,
     ): number {
         subscribers.push(handler);
         return subscribers.length - 1;

@@ -1,9 +1,19 @@
-import { HtmlFactory } from "./html_factory";
-import { AxisDirection, AxisMarker } from "./axis_marker";
+import { HtmlFactory } from "./HtmlFactory";
+import { AxisDirection, IAxisMarker } from "./AxisMarker";
+import { IChartElement } from "./IChartElement";
+import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
-export class ChartXAxis {
-    constructor(marker: AxisMarker) {
+export class ChartXAxis implements IChartElement {
+    constructor(marker: IAxisMarker) {
         this._axisMarker = marker;
+    }
+
+    private _parentElement: IChartElement;
+    public get parentElement(): IChartElement {
+        return this._parentElement;
+    }
+    public set parentElement(newParentElement: IChartElement) {
+        this._parentElement = newParentElement;
     }
 
     private _width: number = 0;
@@ -35,8 +45,8 @@ export class ChartXAxis {
         return this._htmlElement;
     }
 
-    private _axisMarker: AxisMarker;
-    get axisMarker(): AxisMarker {
+    private _axisMarker: IAxisMarker;
+    get axisMarker(): IAxisMarker {
         return this._axisMarker;
     }
 
@@ -47,7 +57,7 @@ export class ChartXAxis {
         this._axisMarker.initialize(AxisDirection.LeftRight, labels, positions);
     }
 
-    public draw(parentElement: HTMLElement): void {
+    public draw(): void {
         if (this._htmlElement != null) return;
 
         this._htmlElement = new HtmlFactory()
@@ -55,7 +65,7 @@ export class ChartXAxis {
             .setWidth(this.width)
             .setHeight(this.height)
             .setXPosition(this.position)
-            .createElement(parentElement);
+            .createElement(this.parentElement.htmlElement);
         this._axisMarker.draw(
             this._htmlElement,
             AxisDirection.LeftRight,
@@ -63,11 +73,21 @@ export class ChartXAxis {
             this.height,
         );
     }
+
+    public update(updatePropagation: UpdatePropagationFlow): void {}
 }
 
-export class ChartYAxis {
-    constructor(marker: AxisMarker) {
+export class ChartYAxis implements IChartElement {
+    constructor(marker: IAxisMarker) {
         this._axisMarker = marker;
+    }
+
+    private _parentElement: IChartElement;
+    public get parentElement(): IChartElement {
+        return this._parentElement;
+    }
+    public set parentElement(newParentElement: IChartElement) {
+        this._parentElement = newParentElement;
     }
 
     private _width: number = 60;
@@ -95,8 +115,12 @@ export class ChartYAxis {
     }
 
     private _htmlElement: HTMLElement;
-    private _axisMarker: AxisMarker;
-    get axisMarker(): AxisMarker {
+    public get htmlElement(): HTMLElement {
+        return this._htmlElement;
+    }
+
+    private _axisMarker: IAxisMarker;
+    get axisMarker(): IAxisMarker {
         return this._axisMarker;
     }
 
@@ -108,19 +132,20 @@ export class ChartYAxis {
     }
 
     update(): void {
-        new HtmlFactory()
-            .setWidth(this.width)
-            .setHeight(this.height)
-            .updateElement(this._htmlElement);
+        if (this.htmlElement)
+            new HtmlFactory()
+                .setWidth(this.width)
+                .setHeight(this.height)
+                .updateElement(this.htmlElement);
     }
 
-    draw(parentElement: HTMLElement): void {
+    draw(): void {
         if (this._htmlElement == null)
             this._htmlElement = new HtmlFactory()
                 .setClassName("chartAxisY")
                 .setWidth(this.width)
                 .setHeight(this.height)
-                .createElement(parentElement);
+                .createElement(this.parentElement.htmlElement);
         this._axisMarker.draw(
             this._htmlElement,
             AxisDirection.TopDown,

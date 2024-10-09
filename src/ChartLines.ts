@@ -1,8 +1,20 @@
-import { ChartLine, registerEvents as registerLineEvents } from "./chart_line";
-import { HtmlFactory } from "./html_factory";
-import { EventHub } from "./event_hub";
+import { ChartLine, registerEvents as registerLineEvents } from "./ChartLine";
+import { HtmlFactory } from "./HtmlFactory";
+import { IEventHub } from "./IEventHub";
+import { IChartElement } from "./IChartElement";
+import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
-export class ChartLines {
+export class ChartLines implements IChartElement {
+    private className: string = "chartLines";
+
+    private _parentElement: IChartElement;
+    public get parentElement(): IChartElement {
+        return this._parentElement;
+    }
+    public set parentElement(newParentElement: IChartElement) {
+        this._parentElement = newParentElement;
+    }
+
     private _lines: ChartLine[] = [];
     private _htmlElement: HTMLElement;
     get htmlElement(): HTMLElement {
@@ -91,7 +103,7 @@ export class ChartLines {
     }
     set lineHeight(newLineHeight: number) {
         this._lineHeight = newLineHeight;
-        this._lines.map((line) => {
+        this._lines.forEach((line) => {
             if (!line.isFixedHeight) line.height = this.lineHeight;
         });
     }
@@ -104,27 +116,23 @@ export class ChartLines {
         this._positionX = newPositionX;
     }
 
-    private _eventHub: EventHub;
-    public setEventHub(hub: EventHub): ChartLines {
+    private _eventHub: IEventHub;
+    public setEventHub(hub: IEventHub): ChartLines {
         this._eventHub = hub;
         return this;
     }
 
     public add(line: ChartLine): void {
+        line.parentElement = this;
         line.setEventHub(this._eventHub);
-        line.drawingArea = this.htmlElement;
         this._lines[this._lines.push(line) - 1].htmlId = (++this
             ._lastLineId).toString();
         line.id = this._lastLineId;
         line.bars.unitScale = this.unitScale;
         line.bars.minValue = this.minValue;
         line.bars.allowOverlap = this.allowOverlap;
-        this.updateLineHeight();
-        this._lines.map((line) => {
-            if (!line.isFixedHeight) line.height = this.lineHeight;
-        });
-        this.recalculateLinePositions();
-        this.scaleHeightToFit();
+
+        this.update(UpdatePropagationFlow.UpdateChildren);
     }
 
     public addNew(): ChartLine {
@@ -135,7 +143,7 @@ export class ChartLines {
 
     public remove(index: number): void {
         this._lines.splice(index, 1);
-        this.updateLineHeight();
+        this.updateFloatingLineHeight();
         this.recalculateLinePositions();
     }
 
@@ -170,35 +178,58 @@ export class ChartLines {
         }));
     }
 
-    public draw(parentElement: HTMLElement) {
+    public draw() {
         if (this._htmlElement == null) {
-            this._htmlElement = this.createHtmlElement(parentElement);
+            this._htmlElement = this.createHtmlElement(
+                this.parentElement.htmlElement,
+            );
         }
 
         this._lines.forEach((line) => {
             line.drawingArea = this.htmlElement;
-            line.draw(this._htmlElement);
+            line.draw();
         });
     }
 
-    public update(): void {
+    public update(
+        updatePropagation: UpdatePropagationFlow,
+        callerLine?: ChartLine,
+    ): void {
+        if (
+            updatePropagation === UpdatePropagationFlow.UpdateParent &&
+            callerLine
+        ) {
+            callerLine.adjustLineForOverlaps(this.minLineHeight);
+        }
+
+        this.updateFloatingLineHeight();
+        this._lines.map((line) => {
+            if (!line.isFixedHeight) line.height = this.lineHeight;
+        });
+        this.scaleHeightToFit();
+
         let linesHeight = 0;
         this._lines.forEach((line) => {
             linesHeight += line.height + this.vSpacing;
         });
 
-        this.recalculateLinePositions();
         this.height = linesHeight - this.vSpacing; // Spacing is added between lines, but not after the last one
+        this.recalculateLinePositions();
 
-        new HtmlFactory()
-            .setWidth(this.width)
-            .setHeight(this.height)
-            .setXPosition(this.positionX)
-            .updateElement(this.htmlElement);
+        if (this.htmlElement)
+            new HtmlFactory()
+                .setWidth(this.width)
+                .setHeight(this.height)
+                .setXPosition(this.positionX)
+                .updateElement(this.htmlElement);
 
-        this._lines.forEach((line) => {
-            line.update();
-        });
+        if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
+            this._lines.forEach((line) => {
+                line.update(UpdatePropagationFlow.UpdateChildren);
+            });
+        } else if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+        }
     }
 
     public getMaxWidth(): number {
@@ -215,28 +246,12 @@ export class ChartLines {
 
     public adjustAllLinesForOverlaps(): void {
         for (let lineIndex: number = 0; lineIndex < this.count(); lineIndex++) {
-            this.adjustLineForOverlaps(lineIndex);
+            this._lines[lineIndex].adjustLineForOverlaps(this.minLineHeight);
         }
-        this.update();
+        this.update(UpdatePropagationFlow.UpdateParent);
     }
 
-    public adjustLineForOverlaps(lineNo: number): void {
-        const overlapSets = this._lines[lineNo].bars.findOverlaps();
-
-        let maxSetSize: number = 0;
-        overlapSets.forEach((set) => {
-            if (set.length > maxSetSize) maxSetSize = set.length;
-        });
-
-        const line = this._lines[lineNo];
-        line.isFixedHeight = maxSetSize !== 0;
-        line.height = maxSetSize === 0 ? null : maxSetSize * this.minLineHeight;
-
-        this.updateLineHeight();
-        line.repositionBars(overlapSets);
-    }
-
-    public updateLineHeight(): void {
+    public updateFloatingLineHeight(): void {
         const floatingHeigthLinesCount: number = this._lines.filter(
             (line) => !line.isFixedHeight,
         ).length;
@@ -245,8 +260,16 @@ export class ChartLines {
             return;
         }
 
+        const totalFixedLinesHeight: number = this._lines
+            .filter((line: ChartLine) => line.isFixedHeight)
+            .reduce((lineHeight: number, line: ChartLine) => {
+                return lineHeight + line.height;
+            }, 0);
+
         let height = Math.floor(
-            (this.height - this.vSpacing * (floatingHeigthLinesCount - 1)) /
+            (this.parentElement.height -
+                totalFixedLinesHeight -
+                this.vSpacing * (this._lines.length - 1)) /
                 floatingHeigthLinesCount,
         );
 
@@ -276,7 +299,7 @@ export class ChartLines {
     private createHtmlElement(parentElement: HTMLElement): HTMLElement {
         return new HtmlFactory()
             .setId("chartLines")
-            .setClassName("chartLines")
+            .setClassName(this.className)
             .setWidth(this.width)
             .setHeight(this.height)
             .setXPosition(this.positionX)
@@ -284,7 +307,7 @@ export class ChartLines {
     }
 }
 
-export function registerEvents(eventHub: EventHub) {
+export function registerEvents(eventHub: IEventHub) {
     const supportedEvents = ["linesAreaHeightChanged"];
     eventHub.registerEvents("chartLines", supportedEvents);
     registerLineEvents(eventHub);

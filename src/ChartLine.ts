@@ -1,9 +1,21 @@
-import { ChartBars, registerEvents as registerBarsEvents } from "./chart_bars";
-import { ChartBar } from "./chart_bar";
-import { HtmlFactory } from "./html_factory";
-import { EventHub } from "./event_hub";
+import { ChartBars, registerEvents as registerBarsEvents } from "./ChartBars";
+import { ChartBar } from "./ChartBar";
+import { HtmlFactory } from "./HtmlFactory";
+import { IEventHub } from "./IEventHub";
+import { IChartElement } from "./IChartElement";
+import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
-export class ChartLine {
+export class ChartLine implements IChartElement {
+    private className: string = "chartLine";
+
+    private _parentElement: IChartElement;
+    public get parentElement(): IChartElement {
+        return this._parentElement;
+    }
+    public set parentElement(newParentElement: IChartElement) {
+        this._parentElement = newParentElement;
+    }
+
     private _bars: ChartBars;
     get bars(): ChartBars {
         return this._bars;
@@ -55,6 +67,14 @@ export class ChartLine {
         this._position = newPosition;
     }
 
+    private _width: number;
+    get width(): number {
+        return this._width;
+    }
+    set width(newWidth: number) {
+        this._width = newWidth;
+    }
+
     private _height: number;
     get height(): number {
         return this._height;
@@ -71,6 +91,11 @@ export class ChartLine {
         this._isFixedHeight = newIsFixedHeihgt;
     }
 
+    private _heightMultiplier: number;
+    public get heightMultiplier(): number {
+        return this._heightMultiplier;
+    }
+
     private _label: string;
     get label(): string {
         return this._label;
@@ -79,9 +104,9 @@ export class ChartLine {
         this._label = newLabel;
     }
 
-    private _eventHub: EventHub;
+    private _eventHub: IEventHub;
 
-    public setEventHub(hub: EventHub): ChartLine {
+    public setEventHub(hub: IEventHub): ChartLine {
         this._eventHub = hub;
         this._bars.setEventHub(hub);
 
@@ -101,11 +126,29 @@ export class ChartLine {
 
     constructor(id?: string) {
         this._bars = new ChartBars(id, this.drawingArea);
+        this._bars.parentElement = this;
         this._bars.parentLineNo = this.id;
 
         if (id != null) {
             this._htmlId = id;
         }
+    }
+
+    public adjustLineForOverlaps(barHeight: number): void {
+        const overlapSets = this.bars.findOverlaps();
+
+        let maxSetSize: number = 0;
+        overlapSets.forEach((set) => {
+            if (set.length > maxSetSize) maxSetSize = set.length;
+        });
+
+        this.isFixedHeight = maxSetSize !== 0;
+
+        if (this.isFixedHeight) {
+            this.height = maxSetSize * barHeight;
+        }
+
+        this.repositionBars(overlapSets);
     }
 
     public repositionBars(overlappingSets?: number[][]) {
@@ -163,34 +206,41 @@ export class ChartLine {
         }
     }
 
-    public draw(parentElement: HTMLElement): void {
+    public draw(): void {
         if (this._htmlElement == null) {
-            this._htmlElement = this.createHtmlElement(parentElement);
+            this._htmlElement = this.createHtmlElement(
+                this.parentElement.htmlElement,
+            );
         }
 
-        this.bars.draw(this._htmlElement);
+        this.bars.draw();
     }
 
-    public update(): void {
-        new HtmlFactory()
-            .setHeight(this.height)
-            .setYPosition(this.position)
-            .updateElement(this.htmlElement);
+    public update(updatePropagation: UpdatePropagationFlow): void {
+        if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
+            this.bars.update(UpdatePropagationFlow.UpdateChildren);
+        } else {
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent, this);
+        }
 
-        this.bars.update();
+        if (this.htmlElement)
+            new HtmlFactory()
+                .setHeight(this.height)
+                .setYPosition(this.position)
+                .updateElement(this.htmlElement);
     }
 
     private createHtmlElement(parentElement: HTMLElement): HTMLElement {
         return new HtmlFactory()
             .setId("chartLine_" + this.htmlId.toString())
-            .setClassName("chartLine")
+            .setClassName(this.className)
             .setHeight(this.height)
             .setYPosition(this.position)
             .createElement(parentElement);
     }
 }
 
-export function registerEvents(eventHub: EventHub) {
+export function registerEvents(eventHub: IEventHub) {
     const supportedEvents = [];
     eventHub.registerEvents("chartLine", supportedEvents);
     registerBarsEvents(eventHub);

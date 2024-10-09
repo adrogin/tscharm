@@ -1,13 +1,13 @@
-import { EventHubImpl } from "../src/event_hub_impl";
+import { EventHub } from "../src/EventHub";
 
 describe("Event hub", () => {
     test("Try to bind an uninitialized event", () => {
-        const eventHub = new EventHubImpl();
+        const eventHub = new EventHub();
         expect(eventHub.bind("unknownEvent", () => {})).toBe(-1);
     });
 
     test("Register component events", () => {
-        const eventHub = new EventHubImpl();
+        const eventHub = new EventHub();
         eventHub.registerEvents("test", [
             "TestEvent1",
             "TestEvent2",
@@ -18,7 +18,7 @@ describe("Event hub", () => {
     });
 
     test("Register and raise an event", () => {
-        const eventHub = new EventHubImpl();
+        const eventHub = new EventHub();
         eventHub.registerEvents("test", ["registeredEvent"]);
 
         const subscriber = jest.fn(() => {});
@@ -29,7 +29,7 @@ describe("Event hub", () => {
     });
 
     test("Bind multiple handlers and raise the event", () => {
-        const eventHub = new EventHubImpl();
+        const eventHub = new EventHub();
         eventHub.registerEvents("test", ["registeredEvent"]);
 
         const subscribers = [
@@ -50,7 +50,7 @@ describe("Event hub", () => {
     });
 
     test("Bind event handlers, unbind one, and raise the event", () => {
-        const eventHub = new EventHubImpl();
+        const eventHub = new EventHub();
         eventHub.registerEvents("test", ["registeredEvent"]);
 
         const subscribers = [

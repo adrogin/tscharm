@@ -1,7 +1,9 @@
-import { HtmlFactory } from "./html_factory";
-import { EventHub } from "./event_hub";
+import { HtmlFactory } from "./HtmlFactory";
+import { IEventHub } from "./IEventHub";
+import { IChartElement } from "./IChartElement";
+import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
-interface barHandleMouseEvent {
+interface IBarHandleMouseEvent {
     (arg1: string | ChartBar, arg2?: number, arg3?: number): void;
 }
 
@@ -10,16 +12,28 @@ export type ResizingLimits = {
     rightBoundary: number;
 };
 
-interface ResizingLimitsHandler {
+interface IResizingLimitsHandler {
     (position: number, width: number): ResizingLimits;
 }
 
 export class ResizingController {
-    getMaxResizeAllowed: ResizingLimitsHandler;
+    getMaxResizeAllowed: IResizingLimitsHandler;
 }
 
-export class ChartBar {
+export class ChartBar implements IChartElement {
+    private _parentElement: IChartElement;
+    public get parentElement(): IChartElement {
+        return this._parentElement;
+    }
+    public set parentElement(newParentElement: IChartElement) {
+        this._parentElement = newParentElement;
+    }
+
     private _htmlElement: HTMLElement;
+    public get htmlElement(): HTMLElement {
+        return this._htmlElement;
+    }
+
     private _leftHandle: HTMLElement;
     private _rightHandle: HTMLElement;
     private _drawingArea: HTMLElement;
@@ -118,9 +132,9 @@ export class ChartBar {
         this._handleClassName = newHandleClassName;
     }
 
-    private _eventHub: EventHub;
+    private _eventHub: IEventHub;
 
-    public setEventHub(hub: EventHub): ChartBar {
+    public setEventHub(hub: IEventHub): ChartBar {
         this._eventHub = hub;
         return this;
     }
@@ -150,13 +164,22 @@ export class ChartBar {
         }
     }
 
-    public draw(parentElement: HTMLElement): void {
+    public draw(): void {
         if (this._htmlElement == null) {
-            this._htmlElement = this.createHtmlElement(parentElement);
+            this._htmlElement = this.createHtmlElement(
+                this.parentElement.htmlElement,
+            );
         }
     }
 
-    public update(): void {
+    public update(updatePropagation: UpdatePropagationFlow): void {
+        if (updatePropagation === UpdatePropagationFlow.UpdateParent)
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+
+        if (this.htmlElement) this.updateHtmlElement();
+    }
+
+    private updateHtmlElement(): void {
         const htmlFactory = new HtmlFactory();
         htmlFactory
             .setWidth(this.getScaledWidth())
@@ -199,7 +222,7 @@ export class ChartBar {
 
             chartBar.position = newPosition;
             chartBar.width = newWidth;
-            chartBar.update();
+            chartBar.update(UpdatePropagationFlow.UpdateParent);
 
             if (chartBar.position != currPosition)
                 chartBar.raiseResizeEvent(
@@ -229,7 +252,7 @@ export class ChartBar {
                 chartBar.position + newWidth > maxResize.rightBoundary
                     ? maxResize.rightBoundary - chartBar.position
                     : newWidth;
-            chartBar.update();
+            chartBar.update(UpdatePropagationFlow.UpdateParent);
 
             if (chartBar.width != currWidth)
                 chartBar.raiseResizeEvent(
@@ -355,7 +378,7 @@ export class ChartBar {
         );
     }
 
-    public bind(eventName: string, handler: barHandleMouseEvent): number {
+    public bind(eventName: string, handler: IBarHandleMouseEvent): number {
         return this._eventHub.bind(eventName, handler);
     }
 
@@ -416,7 +439,7 @@ export class ChartBar {
                                 maxResize.rightBoundary
                               ? maxResize.rightBoundary - chartBar.width
                               : newPosition;
-                    chartBar.update();
+                    chartBar.update(UpdatePropagationFlow.UpdateParent);
 
                     if (chartBar.position != prevBarPosition)
                         chartBar.raiseResizeEvent(
@@ -457,7 +480,7 @@ export class ChartBar {
     }
 }
 
-export function registerEvents(eventHub: EventHub) {
+export function registerEvents(eventHub: IEventHub) {
     const supportedEvents = [
         "leftHandleMouseDown",
         "leftHandleMouseUp",

@@ -3,16 +3,32 @@ import {
     ResizingLimits,
     ResizingController,
     registerEvents as registerBarEvents,
-} from "./chart_bar";
-import { EventHub } from "./event_hub";
+} from "./ChartBar";
+import { IEventHub } from "./IEventHub";
+import { IChartElement } from "./IChartElement";
+import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
-interface EventHandler {
+interface IEventHandler {
     (chartbar: ChartBar): void;
 }
 
-export class ChartBars {
+export class ChartBars implements IChartElement {
     private _bars: ChartBar[] = [];
     private _lastBarId: number = -1;
+
+    public parentElement: IChartElement;
+    public get htmlElement(): HTMLElement {
+        // Bars collection has no HTML element of its own, line is the parent of every bar.
+        return this.parentElement.htmlElement;
+    }
+
+    // Same for width and height - Bras elemen relies on its parent
+    public get width(): number {
+        return this.parentElement.width;
+    }
+    public get height(): number {
+        return this.parentElement.height;
+    }
 
     private _drawingArea: HTMLElement;
     get drawingArea(): HTMLElement {
@@ -42,9 +58,9 @@ export class ChartBars {
         this._parentLineNo = newParentLineNo;
     }
 
-    private _eventHub: EventHub;
+    private _eventHub: IEventHub;
 
-    public setEventHub(hub: EventHub): ChartBars {
+    public setEventHub(hub: IEventHub): ChartBars {
         this._eventHub = hub;
         this._bars.forEach((bar) => {
             bar.setEventHub(this._eventHub);
@@ -173,10 +189,13 @@ export class ChartBars {
             width,
             className,
         ).setEventHub(this._eventHub);
+
+        bar.parentElement = this;
         bar.drawingArea = this.drawingArea;
         bar.resizingController = this._resizingController;
         this._bars[this._bars.push(bar) - 1].id =
             this._parentLineHtmlId + "_" + (++this._lastBarId).toString();
+
         bar.lineNo = this.parentLineNo;
         bar.barNo = this._lastBarId;
         bar.unitScale = this.unitScale;
@@ -206,18 +225,23 @@ export class ChartBars {
         return rightEdge;
     }
 
-    public draw(parentElement: HTMLElement): void {
-        // Bars collection has no HTML element of its own, line is the parent of every bar.
+    public draw(): void {
         this._bars.forEach((bar) => {
-            bar.draw(parentElement);
+            bar.draw();
         });
     }
 
-    public update(): void {
-        this._bars.forEach((bar) => bar.update());
+    public update(updatePropagation: UpdatePropagationFlow): void {
+        if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
+            this._bars.forEach((bar) =>
+                bar.update(UpdatePropagationFlow.UpdateChildren),
+            );
+        } else if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+        }
     }
 
-    public bind(eventName: string, handler: EventHandler): number {
+    public bind(eventName: string, handler: IEventHandler): number {
         if (this._eventHub != null)
             return this._eventHub.bind(eventName, handler);
     }
@@ -232,7 +256,7 @@ export class ChartBars {
     }
 }
 
-export function registerEvents(eventHub: EventHub) {
+export function registerEvents(eventHub: IEventHub) {
     const supportedEvents = ["barAdd", "barRemove"];
     if (eventHub != null) eventHub.registerEvents("chartBars", supportedEvents);
 

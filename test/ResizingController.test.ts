@@ -1,6 +1,6 @@
-import { Chart } from "../src/chart";
-import { ChartLine } from "../src/chart_line";
-import { dragAndDrop, createChartContainer, removeChart } from "./test_utils";
+import { Chart } from "../src/Chart";
+import { ChartLine } from "../src/ChartLine";
+import { dragAndDrop, createChartContainer, removeChart } from "./TestUtils";
 
 describe("Resizing chart bars with overlapping", () => {
     let chartContainer;
@@ -127,6 +127,40 @@ describe("Resizing chart bars with overlapping", () => {
         expect(chart.lines.height).toBe(
             chart.lines.minLineHeight * 5 + chart.lines.vSpacing * 2,
         );
+
+        expect(chart.lines.lineHeight).toBe(chart.lines.minLineHeight);
+    });
+
+    test("Size of lines without stacked bars is adjusted to fit the chart after placing overlapped bars", () => {
+        const chart: Chart = new Chart(100, 100);
+        chart.lines.minLineHeight = 10;
+        chart.lines.maxLineHeight = 30;
+        chart.lines.vSpacing = 5;
+        chart.header.height = 10;
+        chart.lines.allowOverlap = true;
+
+        const line = chart.lines.addNew();
+        chart.lines.addNew();
+        chart.lines.addNew();
+
+        line.bars.add(0, 55);
+        line.bars.add(40, 20);
+        line.bars.add(50, 45);
+        chart.draw(chartContainer);
+
+        // Initially all three bars are stacked
+        expect(chart.lines.lineHeight).toBe(25);
+        expect(chart.lines.get(0).height).toBe(chart.lines.minLineHeight * 3);
+
+        // Drag the bars to align in a single file
+        dragAndDrop("barHandle_0_0_right", 53, 0, 30, 0);
+        dragAndDrop("barHandle_0_2_left", 52, 0, 77, 0);
+
+        expect(chart.lines.lineHeight).toBeCloseTo(26, 0);
+        for (let i: number = 0; i < chart.lines.count(); i++) {
+            expect(chart.lines.get(i).height).toBe(chart.lines.lineHeight);
+            expect(chart.lines.get(i).isFixedHeight).toBe(false);
+        }
     });
 
     test("Positions and sizes of axis markers adjusted when a line has been resized", () => {
@@ -173,7 +207,7 @@ describe("Resizing chart bars with overlapping", () => {
         );
     });
 
-    test("Stacked bars and line are when chart.draw() is invoked", () => {
+    test("Stacked bars and line are resized when chart.draw() is invoked", () => {
         const chart = new Chart(100, 100);
         chart.lines.allowOverlap = true;
 

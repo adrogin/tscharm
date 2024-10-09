@@ -1,73 +1,71 @@
-import { ChartValueType } from "./chart_value_type";
-import { ChartXAxis, ChartYAxis } from "./chart_axis";
+import { ChartValueType } from "./ChartValueType";
+import { ChartXAxis, ChartYAxis } from "./ChartAxis";
 import {
     ChartLines,
     registerEvents as registerLinesEvents,
-} from "./chart_lines";
-import { ChartRuler } from "./chart_ruler";
-import { EventHub } from "./event_hub";
-import { EventHubImpl } from "./event_hub_impl";
-import { HtmlFactory } from "./html_factory";
+} from "./ChartLines";
+import { ChartRuler } from "./ChartRuler";
+import { IEventHub } from "./IEventHub";
+import { EventHub } from "./EventHub";
+import { HtmlFactory } from "./HtmlFactory";
+import { IChartElement } from "./IChartElement";
+import { ChartPartMain } from "./ChartPartMain";
+import { ChartPartHeader } from "./ChartPartHeader";
+import { ChartPartLeftSideBar } from "./ChartPartLeftSideBar";
+import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
-export class Chart {
+export class Chart implements IChartElement {
     constructor(width?: number, height?: number) {
-        this._eventHub = new EventHubImpl();
+        this._header = this.createHeaderElement();
+        this._mainElement = this.createMainElement();
+        this._leftSideBarElement = this.createLeftSideBarElement();
+
+        this._eventHub = new EventHub();
         this.registerEvents();
 
         this._lines = new ChartLines().setEventHub(this._eventHub);
+        this.lines.parentElement = this.mainElement;
+
         this._xAxis = new ChartXAxis(new ChartRuler());
+        this.xAxis.parentElement = this;
+
         this._yAxis = new ChartYAxis(new ChartRuler());
+        this.yAxis.parentElement = this;
+
         this.height = height == null ? document.body.clientHeight : height;
         this.width = width == null ? document.body.clientWidth : width;
-
-        this._eventHub.bind(
-            "linesAreaHeightChanged",
-            ((chart) => {
-                return function (newHeight) {
-                    if (
-                        chart.mainElement &&
-                        chart.mainElement.clientHeight !== newHeight
-                    )
-                        chart.updateYAxis();
-                };
-            })(this),
-        );
-
-        function resizeOnOverlapHandler(chart: Chart) {
-            return function (lineNo: number) {
-                chart.lines.adjustLineForOverlaps(lineNo);
-                chart.lines.update();
-            };
-        }
-
-        this._eventHub.bind("resizeLeftDone", resizeOnOverlapHandler(this));
-        this._eventHub.bind("resizeRightDone", resizeOnOverlapHandler(this));
-        this._eventHub.bind("dragDone", resizeOnOverlapHandler(this));
+        this.header.width = this.width;
+        this.header.height = this.getTopPartHeight();
     }
+
+    parentElement: IChartElement = null;
+    private _parentHtmlElement: HTMLElement;
 
     private _htmlElement: HTMLElement;
     get htmlElement(): HTMLElement {
         return this._htmlElement;
     }
 
-    private _headerElement: HTMLElement;
-    get headerElement(): HTMLElement {
-        return this._headerElement;
+    private className: string = "chart";
+
+    private _header: IChartElement;
+    get header(): IChartElement {
+        return this._header;
     }
 
-    private _mainElement: HTMLElement;
-    get mainElement(): HTMLElement {
+    private _mainElement: IChartElement;
+    get mainElement(): IChartElement {
         return this._mainElement;
     }
 
-    private _leftSideBarElement: HTMLElement;
-    get leftSideBarElement(): HTMLElement {
+    private _leftSideBarElement: IChartElement;
+    get leftSideBarElement(): IChartElement {
         return this._leftSideBarElement;
     }
 
     private _originPointElement: HTMLElement;
 
-    private _eventHub: EventHub;
+    private _eventHub: IEventHub;
 
     private _height: number;
     get height(): number {
@@ -77,6 +75,7 @@ export class Chart {
         if (newHeight === this.height) return;
 
         this._height = newHeight;
+        this.mainElement.height = this.getMainPartHeight();
         this.setAxesSizeAndPosition();
         this._lines.height = this.getDrawAreaHeight();
     }
@@ -87,25 +86,9 @@ export class Chart {
     }
     set width(newWidth: number) {
         this._width = newWidth;
+        this.mainElement.width = this.getMainPartWidth();
         this.setAxesSizeAndPosition();
         this._lines.width = this.getDrawAreaWidth();
-    }
-
-    private _leftSideBarWidth: number = 65;
-    get leftSideBarWidth(): number {
-        return this._leftSideBarWidth;
-    }
-    set leftSideBarWidth(newLeftSideBarWidth: number) {
-        this._leftSideBarWidth = newLeftSideBarWidth;
-        this.setAxesSizeAndPosition();
-    }
-
-    private _topBarHeight: number = 33;
-    get topBarHeight(): number {
-        return this._topBarHeight;
-    }
-    set topBarHeight(newTopBarHeight: number) {
-        this._topBarHeight = newTopBarHeight;
     }
 
     private _xAxis: ChartXAxis;
@@ -126,7 +109,6 @@ export class Chart {
         this._showAxes = newShowAxes;
         this.setScale(this.minValue, this.maxValue);
         this.setAxesSizeAndPosition();
-        this.setLinesAreaPositionSize();
     }
 
     private _lines: ChartLines;
@@ -188,15 +170,17 @@ export class Chart {
     }
 
     private setAxesSizeAndPosition() {
+        this.leftSideBarElement.height = this.getLeftSideBarHeight();
         this.xAxis.position = this.getLeftSideBarWidth();
         this.xAxis.width = this.getDrawAreaWidth();
         this.yAxis.position = this.getTopPartHeight();
         this.yAxis.height = this.getDrawAreaHeight();
-        this.setLinesAreaPositionSize();
+        this.mainElement.height = this.getMainPartHeight();
+        this.setLinesAreaSizeAndPosition();
     }
 
-    private setLinesAreaPositionSize() {
-        this.lines.positionX = this.leftSideBarWidth;
+    private setLinesAreaSizeAndPosition() {
+        this.lines.positionX = this.leftSideBarElement.width;
         this.lines.width = this.width - this.getLeftSideBarWidth();
         this.lines.height = this.getMainPartHeight();
     }
@@ -207,31 +191,57 @@ export class Chart {
         registerLinesEvents(this._eventHub);
     }
 
-    public draw(parentElement: HTMLElement): void {
+    public draw(parentHtmlElement?: HTMLElement): void {
+        if (this._parentHtmlElement == null && parentHtmlElement == null) {
+            throw new Error("Parent HTML elememnt must be set for the chart.");
+        }
+
+        this.lines.adjustAllLinesForOverlaps();
+
+        if (parentHtmlElement != null) {
+            this._parentHtmlElement = parentHtmlElement;
+        }
+
         if (this._htmlElement == null) {
-            this._htmlElement = this.createChartHtmlElement(parentElement);
-            this._headerElement = this.createTopHtmlElement(this.htmlElement);
+            this._htmlElement = this.createChartHtmlElement(
+                this._parentHtmlElement,
+            );
+            this.header.draw();
             this._originPointElement = this.createOriginPointElement(
-                this._headerElement,
+                this.header.htmlElement,
             );
-            this._mainElement = this.createMainHtmlElement(this.htmlElement);
-            this._leftSideBarElement = this.createLeftSideBarElement(
-                this._mainElement,
-            );
+
+            this.mainElement.draw();
+            this.leftSideBarElement.draw();
         }
 
         if (this.showAxes) {
-            this.xAxis.draw(this._headerElement);
+            this.xAxis.draw();
             this.yAxis.initializeMarker(
                 this.lines.getLabels(),
                 this.lines.getPositions(),
             );
-            this.yAxis.draw(this._leftSideBarElement);
+            this.yAxis.draw();
         }
-        this.lines.draw(this._mainElement);
-        this.lines.adjustAllLinesForOverlaps();
+        this.lines.draw();
 
         this._eventHub.raiseEvent("onChartDraw");
+    }
+
+    public update(
+        updatePropagation: UpdatePropagationFlow = UpdatePropagationFlow.UpdateChildren,
+        callerElement?: IChartElement,
+    ): void {
+        if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
+            this.lines.update(UpdatePropagationFlow.UpdateChildren);
+        }
+
+        if (
+            callerElement === this.leftSideBarElement ||
+            callerElement === this.header
+        )
+            this.setAxesSizeAndPosition();
+        this.updateYAxis();
     }
 
     public drawGrid(): void {}
@@ -248,54 +258,69 @@ export class Chart {
         return Math.floor(this.getDrawAreaWidth() / this.lines.getMaxWidth());
     }
 
-    public bindEventHandler(eventName: string, handler) {
-        this._eventHub.bind(eventName, handler);
+    public bindEventHandler(eventName: string, handler): number {
+        return this._eventHub.bind(eventName, handler);
+    }
+
+    public unbindEventHandler(eventName: string, handlerId: number) {
+        this._eventHub.unbind(eventName, handlerId);
     }
 
     private getTopPartHeight(): number {
-        return this.showAxes ? this.topBarHeight : 0;
+        return this.showAxes ? this.header.height : 0;
     }
 
     private getMainPartHeight(): number {
         return this.height - this.getTopPartHeight();
     }
 
+    private getMainPartWidth(): number {
+        return this.width;
+    }
+
+    private getLeftSideBarHeight(): number {
+        return this.lines.height;
+    }
+
     private getLeftSideBarWidth(): number {
-        return this.showAxes ? this.leftSideBarWidth : 0;
+        return this.showAxes && this.leftSideBarElement
+            ? this.leftSideBarElement.width
+            : 0;
     }
 
     private createChartHtmlElement(parentElement: HTMLElement): HTMLElement {
         return new HtmlFactory()
             .setId("chart")
-            .setClassName("chart")
+            .setClassName(this.className)
             .setWidth(this.width)
             .setHeight(this.height)
             .createElement(parentElement);
     }
 
-    private createTopHtmlElement(parentElement: HTMLElement): HTMLElement {
-        return new HtmlFactory()
-            .setId("chartPartTop")
-            .setClassName("chartPartTop")
-            .setWidth(this.width)
-            .setHeight(this.getTopPartHeight())
-            .createElement(parentElement);
+    private createHeaderElement(): IChartElement {
+        const headerElement: IChartElement = new ChartPartHeader();
+        headerElement.parentElement = this;
+        return headerElement;
     }
 
-    private createMainHtmlElement(parentElement: HTMLElement): HTMLElement {
-        return new HtmlFactory()
-            .setId("chartPartMain")
-            .setClassName("chartPartMain")
-            .setWidth(this.width)
-            .setHeight(this.getMainPartHeight())
-            .createElement(parentElement);
+    private createMainElement(): IChartElement {
+        const mainElement: IChartElement = new ChartPartMain();
+        mainElement.parentElement = this;
+        mainElement.width = this.getMainPartWidth();
+        mainElement.height = this.getMainPartHeight();
+        return mainElement;
+    }
+
+    private createLeftSideBarElement(): IChartElement {
+        const sideBarElement: IChartElement = new ChartPartLeftSideBar();
+        sideBarElement.parentElement = this;
+        return sideBarElement;
     }
 
     private updateYAxis(): void {
         if (!this.showAxes) return;
 
         this.updateLeftSideBarElement();
-        this.yAxis.height = this.lines.height;
         this.yAxis.update();
         this.yAxis.axisMarker.update(
             this.lines.getLabels(),
@@ -303,28 +328,16 @@ export class Chart {
         );
     }
 
-    private createLeftSideBarElement(parentElement: HTMLElement): HTMLElement {
-        return new HtmlFactory()
-            .setId("chartPartLeftSideBar")
-            .setClassName("chartPartLeftSideBar")
-            .setWidth(this.leftSideBarWidth)
-            .setHeight(this.getMainPartHeight())
-            .createElement(parentElement);
-    }
-
     private createOriginPointElement(parentElement: HTMLElement): HTMLElement {
         return new HtmlFactory()
             .setId("chartOriginPoint")
             .setClassName("chartOriginPoint")
-            .setWidth(this.leftSideBarWidth)
+            .setWidth(this.leftSideBarElement.width)
             .createElement(parentElement);
     }
 
     private updateLeftSideBarElement(): void {
         if (this.leftSideBarElement != null)
-            new HtmlFactory()
-                .setWidth(this.leftSideBarWidth)
-                .setHeight(this.lines.height)
-                .updateElement(this.leftSideBarElement);
+            this.leftSideBarElement.update(UpdatePropagationFlow.None);
     }
 }
