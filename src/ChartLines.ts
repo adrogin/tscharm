@@ -216,20 +216,28 @@ export class ChartLines implements IChartElement {
         this.height = linesHeight - this.vSpacing; // Spacing is added between lines, but not after the last one
         this.recalculateLinePositions();
 
+        if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
+            this._lines.forEach((line) => {
+                line.update(UpdatePropagationFlow.UpdateChildren);
+            });
+        } else if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
+            this._lines.forEach(line => {
+                if (line !== callerLine)
+                    line.update(UpdatePropagationFlow.None);
+            });
+
+            if (callerLine)
+                callerLine.update(UpdatePropagationFlow.UpdateChildren);
+
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+        }
+
         if (this.htmlElement)
             new HtmlFactory()
                 .setWidth(this.width)
                 .setHeight(this.height)
                 .setXPosition(this.positionX)
                 .updateElement(this.htmlElement);
-
-        if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
-            this._lines.forEach((line) => {
-                line.update(UpdatePropagationFlow.UpdateChildren);
-            });
-        } else if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
-            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
-        }
     }
 
     public getMaxWidth(): number {

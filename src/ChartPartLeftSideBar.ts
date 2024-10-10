@@ -44,7 +44,10 @@ export class ChartPartLeftSideBar implements IChartElement {
             .createElement(this.parentElement.htmlElement);
     }
 
-    public update(): void {
+    public update(updatePropagation: UpdatePropagationFlow): void {
+        if (updatePropagation === UpdatePropagationFlow.UpdateParent)
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+        
         if (this.htmlElement != null)
             new HtmlFactory()
                 .setWidth(this.width)

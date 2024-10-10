@@ -248,6 +248,34 @@ describe("Resizing chart bars with overlapping", () => {
         expect(line.bars.get(1).height).toBe(null); // null height means that the bar aligns to the line height
         expect(line.bars.get(2).height).toBe(chart.lines.minLineHeight);
     });
+
+    test("3 partially stacked bars overlapping after resizing", () => {
+        const chart = new Chart(100, 100);
+        chart.lines.allowOverlap = true;
+        chart.lines.minLineHeight = 15;
+        chart.lines.maxLineHeight = 30;
+
+        // 3 bars are placed without overlapping
+        const line = chart.lines.addNew();
+        line.bars.add(10, 30); //  xxxxxx
+        line.bars.add(45, 30); //      xxxxxx
+        line.bars.add(80, 15); //          xxxx
+
+        // Resize 0 and 2 so that both overlap with 1, but not with each other
+        chart.draw(chartContainer);
+        dragAndDrop("barHandle_0_0_right", 30, 0, 50, 0);
+        dragAndDrop("barHandle_0_2_left", 80, 0, 70, 0);
+
+        expect(line.bars.get(0).vertOffset).toBe(0);
+        expect(line.bars.get(1).vertOffset).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(2).vertOffset).toBe(0);
+
+        expect(line.bars.get(0).height).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(1).height).toBe(chart.lines.minLineHeight);
+        expect(line.bars.get(2).height).toBe(chart.lines.minLineHeight);
+
+        expect(line.height).toBe(chart.lines.minLineHeight * 2);
+    });
 });
 
 describe("Find overlapping bars", () => {
@@ -379,7 +407,7 @@ describe("Find overlapping bars", () => {
         chart.lines.minLineHeight = 15;
         chart.lines.maxLineHeight = 30;
 
-        // 3 bars a re placed such that bar 2 overlaps with 1 and 3
+        // 3 bars are placed such that bar 2 overlaps with 1 and 3
         const line = chart.lines.addNew();
         line.bars.add(10, 30); //  xxxxxx
         line.bars.add(30, 30); //      xxxxxx

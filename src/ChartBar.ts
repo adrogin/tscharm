@@ -174,7 +174,7 @@ export class ChartBar implements IChartElement {
 
     public update(updatePropagation: UpdatePropagationFlow): void {
         if (updatePropagation === UpdatePropagationFlow.UpdateParent)
-            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+            this.parentElement.update(updatePropagation);
 
         if (this.htmlElement) this.updateHtmlElement();
     }
@@ -222,7 +222,7 @@ export class ChartBar implements IChartElement {
 
             chartBar.position = newPosition;
             chartBar.width = newWidth;
-            chartBar.update(UpdatePropagationFlow.UpdateParent);
+            chartBar.update(UpdatePropagationFlow.None);
 
             if (chartBar.position != currPosition)
                 chartBar.raiseResizeEvent(
@@ -252,7 +252,7 @@ export class ChartBar implements IChartElement {
                 chartBar.position + newWidth > maxResize.rightBoundary
                     ? maxResize.rightBoundary - chartBar.position
                     : newWidth;
-            chartBar.update(UpdatePropagationFlow.UpdateParent);
+            chartBar.update(UpdatePropagationFlow.None);
 
             if (chartBar.width != currWidth)
                 chartBar.raiseResizeEvent(
@@ -294,6 +294,8 @@ export class ChartBar implements IChartElement {
                         "mouseup",
                         handleMouseUp,
                     );
+
+                    chartBar.update(UpdatePropagationFlow.UpdateParent);
                 }
 
                 chartBar.drawingArea.addEventListener(
@@ -340,6 +342,8 @@ export class ChartBar implements IChartElement {
                         "mouseup",
                         handleMouseUp,
                     );
+
+                    chartBar.update(UpdatePropagationFlow.UpdateParent);
                 }
 
                 chartBar.drawingArea.addEventListener(
@@ -439,7 +443,7 @@ export class ChartBar implements IChartElement {
                                 maxResize.rightBoundary
                               ? maxResize.rightBoundary - chartBar.width
                               : newPosition;
-                    chartBar.update(UpdatePropagationFlow.UpdateParent);
+                    chartBar.update(UpdatePropagationFlow.None);
 
                     if (chartBar.position != prevBarPosition)
                         chartBar.raiseResizeEvent(
@@ -463,6 +467,8 @@ export class ChartBar implements IChartElement {
                         chartBar,
                         chartBar.position,
                     );
+
+                    chartBar.update(UpdatePropagationFlow.UpdateParent);
                 }
 
                 chartBar.drawingArea.addEventListener("mousemove", handleDrag);

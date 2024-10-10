@@ -1,7 +1,6 @@
 import { HtmlFactory } from "./HtmlFactory";
 import { AxisDirection, IAxisMarker } from "./AxisMarker";
 import { IChartElement } from "./IChartElement";
-import { UpdatePropagationFlow } from "./UpdatePropagationFlow";
 
 export class ChartXAxis implements IChartElement {
     constructor(marker: IAxisMarker) {
@@ -74,7 +73,7 @@ export class ChartXAxis implements IChartElement {
         );
     }
 
-    public update(updatePropagation: UpdatePropagationFlow): void {}
+    public update(): void {}
 }
 
 export class ChartYAxis implements IChartElement {

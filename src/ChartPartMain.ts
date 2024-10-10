@@ -43,9 +43,9 @@ export class ChartPartMain implements IChartElement {
             .createElement(this.parentElement.htmlElement);
     }
 
-    public update(updatePropagation: UpdatePropagationFlow): void {
+    public update(updatePropagation: UpdatePropagationFlow, senderElement: IChartElement): void {
         if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
-            this.parentElement.update(UpdatePropagationFlow.UpdateParent);
+            this.parentElement.update(UpdatePropagationFlow.UpdateParent, senderElement);
         }
     }
 }

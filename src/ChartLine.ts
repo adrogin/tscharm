@@ -219,7 +219,7 @@ export class ChartLine implements IChartElement {
     public update(updatePropagation: UpdatePropagationFlow): void {
         if (updatePropagation === UpdatePropagationFlow.UpdateChildren) {
             this.bars.update(UpdatePropagationFlow.UpdateChildren);
-        } else {
+        } else if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
             this.parentElement.update(UpdatePropagationFlow.UpdateParent, this);
         }
 
