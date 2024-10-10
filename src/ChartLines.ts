@@ -221,7 +221,7 @@ export class ChartLines implements IChartElement {
                 line.update(UpdatePropagationFlow.UpdateChildren);
             });
         } else if (updatePropagation === UpdatePropagationFlow.UpdateParent) {
-            this._lines.forEach(line => {
+            this._lines.forEach((line) => {
                 if (line !== callerLine)
                     line.update(UpdatePropagationFlow.None);
             });

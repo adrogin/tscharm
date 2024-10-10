@@ -144,23 +144,49 @@ export class ChartBars implements IChartElement {
 
         const overlapStacks = [];
         let currIndex = 0;
+        let rightmostBarIndex: number = 0;
+
         while (currIndex < sortedBars.length) {
             let nextIndex = currIndex + 1;
-            const stack = [];
+            const stack: number[] = [];
             stack.push(sortedBars[currIndex].index);
+
             while (
                 nextIndex < sortedBars.length &&
                 sortedBars[currIndex].position + sortedBars[currIndex].width >
                     sortedBars[nextIndex].position
             ) {
-                stack.push(sortedBars[nextIndex++].index);
+                if (
+                    overlapStacks.length === 0 ||
+                    overlapStacks[overlapStacks.length - 1].findIndex(
+                        ((valueToFind) => {
+                            return (barIndex) => {
+                                return barIndex === valueToFind;
+                            };
+                        })(nextIndex),
+                    ) === -1
+                ) {
+                    stack.push(sortedBars[nextIndex].index);
+                }
+
+                if (
+                    sortedBars[nextIndex].position +
+                        sortedBars[nextIndex].width >
+                    sortedBars[rightmostBarIndex].position +
+                        sortedBars[rightmostBarIndex].width
+                ) {
+                    rightmostBarIndex = nextIndex;
+                }
+
+                nextIndex++;
             }
 
             if (stack.length > 1) {
                 overlapStacks.push(stack);
+                currIndex = rightmostBarIndex;
+            } else {
+                currIndex++;
             }
-
-            currIndex += stack.length > 1 ? stack.length - 1 : 1;
         }
 
         return overlapStacks;
